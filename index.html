@@ -1932,46 +1932,40 @@ Answer questions about the robot concisely and helpfully. If you don't know some
             const typingEl = appendChatBubble('Thinking…', 'typing');
 
             try {
-                // Prepare the exact body structure Gemini expects, 
-                // including your awesome system instructions and history!
                 const requestBody = {
-                    system_instruction: { parts: [{ text: SANDOZER_SYSTEM }] },
+                    // FIX 1: systemInstruction must be camelCase (Capital I, no underscore)
+                    systemInstruction: { parts: [{ text: SANDOZER_SYSTEM }] },
                     contents: chatHistory,
                     generationConfig: { maxOutputTokens: 300, temperature: 0.7 }
                 };
 
-                // 🚀 Point to YOUR secure Cloudflare Pages endpoint!
                 const res = await fetch('/api/gemini', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(requestBody)
                 });
 
-                if (!res.ok) {
-                    const err = await res.json();
-                    throw new Error(err.error || 'Backend error ' + res.status);
-                }
                 const data = await res.json();
 
-                // Check if our Cloudflare worker threw a custom error (like a missing key)
-                if (data.error) throw new Error(data.error);
+                // FIX 2: Dig into Google's error object to get the actual text message
+                if (!res.ok || data.error) {
+                    const errorMessage = data.error?.message || JSON.stringify(data.error) || 'Unknown API Error';
+                    throw new Error(errorMessage);
+                }
 
-                // Extract the AI's reply
                 const reply = data.candidates?.[0]?.content?.parts?.[0]?.text || 'No response received.';
 
-                // Save it to history so the bot remembers the conversation
                 chatHistory.push({ role: 'model', parts: [{ text: reply }] });
-
                 typingEl.className = 'chat-bubble bot';
                 typingEl.textContent = reply;
 
-                // Scroll to bottom and speak
                 const msgs = document.getElementById('chat-messages');
                 msgs.scrollTop = msgs.scrollHeight;
                 speak(reply, 'chat-voice-pill', 'chat-voice-label');
 
             } catch (e) {
                 typingEl.className = 'chat-bubble bot';
+                // Now it will print the actual error text!
                 typingEl.textContent = '⚠ ' + e.message;
                 console.warn('[Gemini]', e);
             }
