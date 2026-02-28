@@ -2,6 +2,7 @@
 <html lang="en">
 
 <head>
+    <script src="config.js"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>The Sandozer — Mission Control</title>
@@ -1288,9 +1289,7 @@
         // ════════════════════════════════════════════════════
         // CONFIG
         // ════════════════════════════════════════════════════
-        let ELEVEN_KEY = 'sk_7f5541fed7419439a889c6b78963f0917aa95bedca04cc5f';
         let ELEVEN_VOICE = 'Aa6nEBJJMKJwJkCx8VU2'; // Bella
-        let GEMINI_KEY = 'AIzaSyCvvxO-v5XqZ7duHvGeye__BOY3RhnvAEE'; // ← paste your Gemini API key
 
         // ════════════════════════════════════════════════════
         // ELEVENLABS VOICE NARRATION
@@ -1408,14 +1407,15 @@
         function checkWallProximity(row, col, pillId, labelId) {
             const wallDist = Math.min(row, col, 4 - row, 4 - col);
             const wrap = document.getElementById('obs-wall-alert-wrap');
+
             if (wallDist <= 2) {
                 const meters = (wallDist * CELL_SIZE_M).toFixed(2);
                 if (wrap) {
                     wrap.innerHTML = `<span class="wall-alert">⚠ WALL DETECTED — ${meters} m away</span>`;
                 }
-                // Only speak wall alert if distance changed
-                if (wallDist !== lastWallAlertDist) {
-                    lastWallAlertDist = wallDist;
+
+                // Only speak if distance DECREASED (getting closer to a wall)
+                if (lastWallAlertDist !== -1 && wallDist < lastWallAlertDist) {
                     const alertText = wallDist === 0
                         ? `Warning! Robot is at the wall boundary.`
                         : `Wall detected. Approaching wall. ${meters} meters away.`;
@@ -1423,8 +1423,10 @@
                 }
             } else {
                 if (wrap) wrap.innerHTML = '';
-                lastWallAlertDist = -1;
             }
+
+            // Always update last distance so we know if we are moving towards or away from walls
+            lastWallAlertDist = wallDist;
         }
 
         // ════════════════════════════════════════════════════
@@ -1819,7 +1821,10 @@
             svg.setAttribute('width', sz); svg.setAttribute('height', sz);
             svg.innerHTML = '';
             let i = 0;
-            lastWallAlertDist = -1;
+
+            // Initialize to STARTING distance so we don't instantly throw an alert
+            lastWallAlertDist = Math.min(steps[0].row, steps[0].col, 4 - steps[0].row, 4 - steps[0].col);
+
             function next() {
                 drawPath(svg, steps, i);
                 moveRobot(robot, steps[i].row, steps[i].col);
@@ -2222,7 +2227,6 @@ Answer questions about the robot concisely and helpfully. If you don't know some
         // CLOUDFLARE DNS
         // ════════════════════════════════════════════════════
         async function getCloudflareDNS() {
-            const ZONE_ID = '265a0e892a238b83b6ecdde232b9a9db';
             const API_TOKEN = 'd_fHgOV8CVrRFLFiHKXSfr9IlywraDZoAAMNmHND';
             try {
                 const response = await fetch(`https://api.cloudflare.com/client/v4/zones/${ZONE_ID}/dns_records`, {
