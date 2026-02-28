@@ -1219,6 +1219,10 @@
                         <span class="result-label">Vertical tilt:</span>
                         <span class="result-val tilt" id="res-tilt">—</span>
                     </div>
+                    <div class="result-row">
+                        <span class="result-label">Air Quality:</span>
+                        <span class="result-val" id="res-aq">—</span>
+                    </div>
                     <div class="result-row" style="border:none;flex-direction:column;gap:8px;">
                         <span class="result-label">Terrain:</span>
                         <div class="result-terrain">
@@ -1856,6 +1860,13 @@
             tiltEl.textContent = sensor.tilt.toFixed(3) + '°';
             tiltEl.style.color = sensor.terrain === 'flat' ? 'var(--green)' :
                 sensor.terrain === 'smooth' ? '#b87900' : '#c0392b';
+
+            // --- NEW AQI LOGIC ---
+            const resAqEl = document.getElementById('res-aq');
+            const aq = sensor.airQuality;
+            const aqStatus = aq <= 100 ? 'Safe' : aq <= 150 ? 'Medium' : 'Dangerous';
+            resAqEl.textContent = aq + ' AQI — ' + aqStatus;
+            resAqEl.className = 'result-val ' + (aq <= 100 ? 'aq-good' : aq <= 150 ? 'aq-moderate' : 'aq-poor');
 
             setTerrainHighlight('rt-', sensor.terrain);
 
