@@ -1,20 +1,26 @@
 export async function onRequestPost(context) {
     try {
-        // context.env holds your secret keys
-        // context.request holds the data sent from your frontend
         const { request, env } = context;
-        const { message } = await request.json();
 
-        // Call the Gemini API using the hidden key
-        const response = await fetch("https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=" + env.GEMINI_API_KEY, {
+        // Grab the ENTIRE payload sent from your frontend (history, system prompt, etc.)
+        const bodyData = await request.json();
+
+        // Safely grab the API key
+        const apiKey = env.GEMINI_KEY || env.GEMINI_API_KEY;
+
+        if (!apiKey) {
+            return new Response(JSON.stringify({ error: "⚠ GEMINI_KEY is not defined in Cloudflare settings!" }), { status: 500 });
+        }
+
+        // Forward the exact payload to the Gemini API
+        const response = await fetch("https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=" + apiKey, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ contents: [{ parts: [{ text: message }] }] })
+            body: JSON.stringify(bodyData)
         });
 
         const data = await response.json();
 
-        // Send the Gemini response back to your frontend
         return new Response(JSON.stringify(data), {
             headers: { "Content-Type": "application/json" }
         });
