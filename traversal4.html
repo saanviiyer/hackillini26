@@ -1,0 +1,2218 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Sandozer — Mission Control</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&family=Barlow:wght@400;600;700;900&family=DM+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --bg: #f5f0e8;
+            --map-bg: #ede8dc;
+            --grid-line: #d8d0be;
+            --black: #1a1a1a;
+            --yellow: #f5c800;
+            --yellow-dark: #d4a800;
+            --yellow-pale: #fdf6cc;
+            --green: #2d7a3a;
+            --green-light: #4aab5c;
+            --beige: #f5f0e8;
+            --beige-dark: #e0d5be;
+            --muted: #7a7060;
+            --cell: 44px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background: var(--bg);
+            font-family: 'Barlow', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .screen {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.4s ease;
+        }
+
+        .screen.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .card {
+            background: #fff;
+            border-radius: 16px;
+            box-shadow: 0 8px 40px rgba(0, 0, 0, 0.12), 0 2px 8px rgba(0, 0, 0, 0.06);
+            padding: 40px 36px;
+            width: 680px;
+            max-width: calc(100vw - 32px);
+            position: relative;
+        }
+
+        .card-tag {
+            position: absolute;
+            top: 16px;
+            right: 20px;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.7rem;
+            color: var(--muted);
+            letter-spacing: 0.1em;
+            background: var(--beige);
+            padding: 3px 10px;
+            border-radius: 20px;
+            border: 1px solid var(--beige-dark);
+        }
+
+        .info-btn {
+            position: absolute;
+            top: 14px;
+            right: 14px;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            border: 2px solid var(--beige-dark);
+            background: #fff;
+            color: var(--muted);
+            font-size: 0.75rem;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.15s;
+        }
+
+        .info-btn:hover {
+            border-color: var(--black);
+            color: var(--black);
+        }
+
+        .btn-pill {
+            background: var(--yellow);
+            border: none;
+            border-radius: 40px;
+            font-family: 'Orbitron', monospace;
+            font-weight: 700;
+            font-size: 0.85rem;
+            padding: 12px 36px;
+            cursor: pointer;
+            color: var(--black);
+            letter-spacing: 0.06em;
+            transition: background 0.15s, transform 0.1s, box-shadow 0.15s;
+            box-shadow: 0 2px 12px rgba(245, 200, 0, 0.3);
+        }
+
+        .btn-pill:hover {
+            background: var(--yellow-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(245, 200, 0, 0.4);
+        }
+
+        .btn-pill:active {
+            transform: translateY(0);
+        }
+
+        .btn-pill.outline {
+            background: transparent;
+            border: 2.5px solid var(--yellow);
+            color: var(--black);
+            box-shadow: none;
+        }
+
+        .btn-pill.outline:hover {
+            background: var(--yellow-pale);
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image:
+                linear-gradient(var(--grid-line) 1px, transparent 1px),
+                linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+            background-size: 28px 28px;
+            opacity: 0.45;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        /* SPLASH */
+        #screen-splash .card {
+            width: 720px;
+            text-align: center;
+            padding: 56px 48px;
+        }
+
+        .splash-pre {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.72rem;
+            letter-spacing: 0.2em;
+            color: var(--muted);
+            text-transform: uppercase;
+            margin-bottom: 10px;
+        }
+
+        .splash-title {
+            font-family: 'Orbitron', monospace;
+            font-size: 3rem;
+            font-weight: 900;
+            color: var(--black);
+            line-height: 1.1;
+        }
+
+        .splash-title .accent {
+            color: var(--yellow-dark);
+        }
+
+        .splash-sub {
+            font-family: 'Orbitron', monospace;
+            font-size: 0.95rem;
+            font-weight: 400;
+            color: var(--muted);
+            letter-spacing: 0.2em;
+            margin-top: 10px;
+            text-transform: uppercase;
+        }
+
+        .splash-divider {
+            width: 80px;
+            height: 3px;
+            background: var(--yellow);
+            margin: 28px auto;
+            border-radius: 2px;
+        }
+
+        .splash-about-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 36px;
+            text-align: left;
+        }
+
+        .about-box {
+            background: var(--beige);
+            border-radius: 12px;
+            padding: 20px;
+            border: 1px solid var(--beige-dark);
+        }
+
+        .about-box h3 {
+            font-family: 'Orbitron', monospace;
+            font-size: 0.7rem;
+            font-weight: 700;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: var(--muted);
+            margin-bottom: 10px;
+        }
+
+        .about-box p,
+        .about-box li {
+            font-size: 0.85rem;
+            color: var(--black);
+            line-height: 1.6;
+        }
+
+        .about-box ul {
+            padding-left: 16px;
+        }
+
+        .about-box li {
+            margin-bottom: 4px;
+        }
+
+        .jd-logo {
+            display: inline-block;
+            background: var(--black);
+            color: var(--yellow);
+            font-family: 'Orbitron', monospace;
+            font-weight: 900;
+            font-size: 1.1rem;
+            padding: 8px 16px;
+            border-radius: 8px;
+            letter-spacing: 0.06em;
+            margin-top: 6px;
+        }
+
+        /* VOICE PILL */
+        .voice-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.68rem;
+            padding: 4px 11px;
+            border-radius: 20px;
+            border: 1px solid var(--beige-dark);
+            color: var(--muted);
+            background: var(--beige);
+            transition: all 0.2s;
+        }
+
+        .voice-pill.active {
+            border-color: #f5c800;
+            color: #8a6800;
+            background: #fdf6cc;
+        }
+
+        .voice-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: currentColor;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                opacity: 1
+            }
+
+            50% {
+                opacity: 0.4
+            }
+        }
+
+        .voice-pill.active .voice-dot {
+            animation: pulse 0.9s ease-in-out infinite;
+        }
+
+        /* MODE SELECT */
+        #screen-mode .card {
+            text-align: center;
+            padding: 56px 48px;
+        }
+
+        .mode-question {
+            font-family: 'Orbitron', monospace;
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--black);
+            margin-bottom: 32px;
+            letter-spacing: 0.04em;
+        }
+
+        .mode-btns {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin-bottom: 40px;
+            flex-wrap: wrap;
+        }
+
+        .mode-btn {
+            background: var(--yellow-pale);
+            border: 2.5px solid var(--yellow);
+            border-radius: 40px;
+            font-family: 'Orbitron', monospace;
+            font-size: 0.95rem;
+            font-weight: 700;
+            padding: 14px 44px;
+            cursor: pointer;
+            color: var(--black);
+            letter-spacing: 0.06em;
+            transition: all 0.15s;
+        }
+
+        .mode-btn:hover,
+        .mode-btn.selected {
+            background: var(--yellow);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(245, 200, 0, 0.35);
+        }
+
+        /* OBSERVE */
+        #screen-observe .card {
+            width: 900px;
+            padding: 32px;
+        }
+
+        .observe-layout {
+            display: grid;
+            grid-template-columns: auto 1fr;
+            gap: 32px;
+            align-items: start;
+        }
+
+        .screen-title {
+            font-family: 'Orbitron', monospace;
+            font-size: 1.3rem;
+            font-weight: 900;
+            color: var(--black);
+            margin-bottom: 20px;
+            letter-spacing: 0.02em;
+        }
+
+        .mini-grid-wrap {
+            position: relative;
+            flex-shrink: 0;
+        }
+
+        .mini-grid {
+            border-collapse: separate;
+            border-spacing: 3px;
+            background: var(--map-bg);
+            padding: 6px;
+            border-radius: 10px;
+            border: 2px solid var(--beige-dark);
+        }
+
+        .mini-cell {
+            width: var(--cell);
+            height: var(--cell);
+            background: rgba(245, 240, 232, 0.9);
+            border-radius: 4px;
+            border: 1px solid #ccc5b0;
+            position: relative;
+        }
+
+        .mini-cell .mc-label {
+            position: absolute;
+            bottom: 2px;
+            right: 4px;
+            font-size: 0.42rem;
+            font-family: 'DM Mono', monospace;
+            color: #bbb0a0;
+        }
+
+        .mini-svg {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            z-index: 3;
+        }
+
+        .mini-robot {
+            position: absolute;
+            z-index: 5;
+            pointer-events: none;
+            transform: translate(-50%, -50%);
+            transition: left 0.7s cubic-bezier(0.4, 0, 0.2, 1), top 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .mini-robot-dot {
+            width: 20px;
+            height: 20px;
+            background: var(--black);
+            border-radius: 6px;
+            border: 3px solid var(--yellow);
+            box-shadow: 0 0 12px rgba(245, 200, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .mini-robot-dot svg {
+            width: 11px;
+            height: 11px;
+            fill: var(--yellow);
+        }
+
+        .pulse {
+            animation: pulse 1.2s ease-in-out infinite;
+        }
+
+        .obs-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .obs-row {
+            display: flex;
+            align-items: baseline;
+            gap: 10px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--beige-dark);
+        }
+
+        .obs-row:last-child {
+            border-bottom: none;
+        }
+
+        .obs-label {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.72rem;
+            color: var(--muted);
+            letter-spacing: 0.08em;
+            min-width: 160px;
+            flex-shrink: 0;
+        }
+
+        .obs-val {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.9rem;
+            color: var(--black);
+            font-weight: 500;
+        }
+
+        .obs-val.highlight {
+            color: var(--yellow-dark);
+            font-weight: 700;
+        }
+
+        .terrain-row {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .terrain-opt {
+            font-family: 'Orbitron', monospace;
+            font-size: 0.72rem;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            padding: 5px 14px;
+            border-radius: 20px;
+            border: 2px solid transparent;
+            cursor: default;
+            opacity: 0.2;
+            transition: all 0.25s;
+        }
+
+        .terrain-opt.flat {
+            color: #1e7e34;
+            border-color: #1e7e34;
+        }
+
+        .terrain-opt.smooth {
+            color: #b87900;
+            border-color: #b87900;
+        }
+
+        .terrain-opt.bump {
+            color: #c0392b;
+            border-color: #c0392b;
+        }
+
+        .terrain-opt.active {
+            opacity: 1;
+            font-weight: 900;
+        }
+
+        .terrain-opt.flat.active {
+            background: #d4f5db;
+        }
+
+        .terrain-opt.smooth.active {
+            background: #fdf0cc;
+        }
+
+        .terrain-opt.bump.active {
+            background: #fde8e6;
+        }
+
+        .obs-controls {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-top: 6px;
+        }
+
+        .step-badge-large {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.78rem;
+            background: var(--black);
+            color: var(--yellow);
+            padding: 6px 14px;
+            border-radius: 8px;
+            letter-spacing: 0.08em;
+        }
+
+        .timer-mini {
+            flex: 1;
+            height: 5px;
+            background: var(--beige-dark);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .timer-fill {
+            height: 100%;
+            background: var(--yellow);
+            border-radius: 3px;
+            transition: width 0.1s linear;
+        }
+
+        /* TEST */
+        #screen-test .card {
+            width: 900px;
+            padding: 32px;
+        }
+
+        .test-layout {
+            display: grid;
+            grid-template-columns: auto 1fr;
+            gap: 32px;
+            align-items: start;
+        }
+
+        .test-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .test-input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .test-label {
+            font-family: 'Orbitron', monospace;
+            font-size: 0.7rem;
+            font-weight: 700;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            color: var(--muted);
+        }
+
+        .test-input {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 1rem;
+            background: var(--beige);
+            border: 2px solid var(--beige-dark);
+            border-radius: 10px;
+            color: var(--black);
+            padding: 12px 14px;
+            outline: none;
+            transition: border-color 0.2s;
+            letter-spacing: 0.12em;
+            width: 100%;
+        }
+
+        .test-input:focus {
+            border-color: var(--yellow-dark);
+        }
+
+        .test-input::placeholder {
+            color: #c0b8a8;
+        }
+
+        .go-btn {
+            background: var(--yellow);
+            border: none;
+            border-radius: 40px;
+            font-family: 'Orbitron', monospace;
+            font-weight: 900;
+            font-size: 1.2rem;
+            padding: 16px 48px;
+            cursor: pointer;
+            color: var(--black);
+            letter-spacing: 0.1em;
+            transition: all 0.15s;
+            box-shadow: 0 4px 20px rgba(245, 200, 0, 0.4);
+            align-self: flex-start;
+        }
+
+        .go-btn:hover {
+            background: var(--yellow-dark);
+            transform: translateY(-2px);
+        }
+
+        .hint-small {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.68rem;
+            color: var(--muted);
+            line-height: 1.5;
+        }
+
+        /* RESULT */
+        #screen-result .card {
+            width: 900px;
+            padding: 32px;
+        }
+
+        .result-layout {
+            display: grid;
+            grid-template-columns: auto 1fr;
+            gap: 32px;
+            align-items: start;
+        }
+
+        .result-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .result-row {
+            display: flex;
+            align-items: baseline;
+            gap: 12px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--beige-dark);
+        }
+
+        .result-label {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.72rem;
+            color: var(--muted);
+            letter-spacing: 0.08em;
+            min-width: 130px;
+            flex-shrink: 0;
+        }
+
+        .result-val {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 1rem;
+            color: var(--black);
+            font-weight: 600;
+        }
+
+        .result-val.tilt {
+            color: var(--yellow-dark);
+            font-weight: 700;
+        }
+
+        .result-terrain {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .path-log-mini {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+            margin-top: 8px;
+        }
+
+        .log-chip {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.62rem;
+            padding: 2px 8px;
+            border-radius: 12px;
+            border: 1px solid var(--beige-dark);
+            color: var(--muted);
+            transition: all 0.2s;
+        }
+
+        .log-chip.done {
+            background: var(--beige);
+            color: var(--black);
+            border-color: #ccc5b0;
+        }
+
+        .log-chip.current {
+            background: var(--yellow);
+            color: var(--black);
+            border-color: var(--yellow-dark);
+            font-weight: 700;
+        }
+
+        .err {
+            color: #c0392b;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.75rem;
+            display: none;
+        }
+
+        /* ── FLOATING MIC BUTTON ── */
+        #mic-fab {
+            position: fixed;
+            bottom: 28px;
+            left: 28px;
+            z-index: 999;
+            width: 52px;
+            height: 52px;
+            border-radius: 50%;
+            background: var(--black);
+            border: 3px solid var(--yellow);
+            color: var(--yellow);
+            font-size: 1.3rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+            transition: all 0.2s;
+        }
+
+        #mic-fab:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 28px rgba(245, 200, 0, 0.4);
+        }
+
+        #mic-fab.listening {
+            background: #c0392b;
+            border-color: #e74c3c;
+            color: #fff;
+            animation: pulse 0.8s ease-in-out infinite;
+        }
+
+        #mic-status {
+            position: fixed;
+            bottom: 90px;
+            left: 20px;
+            z-index: 999;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.65rem;
+            background: var(--black);
+            color: var(--yellow);
+            padding: 4px 10px;
+            border-radius: 12px;
+            letter-spacing: 0.1em;
+            opacity: 0;
+            transition: opacity 0.3s;
+            pointer-events: none;
+        }
+
+        #mic-status.show {
+            opacity: 1;
+        }
+
+        /* ── WALL ALERT ── */
+        .wall-alert {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.72rem;
+            padding: 4px 12px;
+            border-radius: 20px;
+            border: 2px solid #c0392b;
+            color: #c0392b;
+            background: #fde8e6;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+            animation: pulse 0.7s ease-in-out infinite;
+        }
+
+        .wall-alert-wrap {
+            margin-top: 4px;
+            min-height: 24px;
+        }
+
+        /* ── AQI COLORS ── */
+        .aq-good {
+            color: var(--green);
+            font-weight: 700;
+        }
+
+        .aq-moderate {
+            color: #b87900;
+            font-weight: 700;
+        }
+
+        .aq-poor {
+            color: #c0392b;
+            font-weight: 700;
+        }
+
+        /* ── CHAT SCREEN ── */
+        #screen-chat .card {
+            width: 780px;
+            padding: 32px;
+            display: flex;
+            flex-direction: column;
+            height: 580px;
+            max-height: calc(100vh - 60px);
+        }
+
+        .chat-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+            flex-shrink: 0;
+        }
+
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            padding: 12px 4px;
+            border: 1px solid var(--beige-dark);
+            border-radius: 12px;
+            background: var(--beige);
+            margin-bottom: 14px;
+        }
+
+        .chat-bubble {
+            max-width: 80%;
+            padding: 10px 14px;
+            border-radius: 14px;
+            font-family: 'Barlow', sans-serif;
+            font-size: 0.88rem;
+            line-height: 1.5;
+            word-break: break-word;
+        }
+
+        .chat-bubble.user {
+            align-self: flex-end;
+            background: var(--yellow);
+            color: var(--black);
+            border-bottom-right-radius: 4px;
+            font-weight: 600;
+        }
+
+        .chat-bubble.bot {
+            align-self: flex-start;
+            background: #fff;
+            color: var(--black);
+            border: 1px solid var(--beige-dark);
+            border-bottom-left-radius: 4px;
+        }
+
+        .chat-bubble.typing {
+            align-self: flex-start;
+            background: #fff;
+            border: 1px solid var(--beige-dark);
+            border-bottom-left-radius: 4px;
+            color: var(--muted);
+            font-style: italic;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.75rem;
+        }
+
+        .chat-input-row {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-shrink: 0;
+        }
+
+        .chat-input {
+            flex: 1;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.9rem;
+            background: #fff;
+            border: 2px solid var(--beige-dark);
+            border-radius: 10px;
+            color: var(--black);
+            padding: 11px 14px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .chat-input:focus {
+            border-color: var(--yellow-dark);
+        }
+
+        .chat-send-btn {
+            background: var(--yellow);
+            border: none;
+            border-radius: 10px;
+            font-family: 'Orbitron', monospace;
+            font-weight: 700;
+            font-size: 0.78rem;
+            padding: 11px 20px;
+            cursor: pointer;
+            color: var(--black);
+            letter-spacing: 0.05em;
+            transition: all 0.15s;
+            white-space: nowrap;
+        }
+
+        .chat-send-btn:hover {
+            background: var(--yellow-dark);
+        }
+
+        .chat-mic-btn {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            background: var(--black);
+            border: 2px solid var(--yellow);
+            color: var(--yellow);
+            font-size: 1.1rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            transition: all 0.2s;
+        }
+
+        .chat-mic-btn:hover {
+            transform: scale(1.08);
+        }
+
+        .chat-mic-btn.listening {
+            background: #c0392b;
+            border-color: #e74c3c;
+            color: #fff;
+            animation: pulse 0.8s ease-in-out infinite;
+        }
+
+        .bot-name {
+            font-family: 'Orbitron', monospace;
+            font-size: 0.65rem;
+            font-weight: 700;
+            color: var(--muted);
+            letter-spacing: 0.1em;
+            margin-bottom: 3px;
+        }
+
+        .chat-bubble-wrap {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chat-voice-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
+            flex-shrink: 0;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="screen active" id="screen-splash">
+        <div class="card">
+            <button class="info-btn" title="Info">i</button>
+            <div class="splash-pre">John Deere × Arduino</div>
+            <div class="splash-title">The <span class="accent">Sandozer</span></div>
+            <div class="splash-sub">Mission Control</div>
+            <div class="splash-divider"></div>
+            <div class="splash-about-grid">
+                <div class="about-box">
+                    <h3>About John Deere</h3>
+                    <p>Leading manufacturer of agricultural and construction machinery since 1837. Pioneering autonomous
+                        navigation in real-world terrain.</p>
+                    <div class="jd-logo">JOHN DEERE</div>
+                </div>
+                <div class="about-box">
+                    <h3>About Our Robot</h3>
+                    <ul>
+                        <li>Bulldozer + flat blade</li>
+                        <li>Arduino Elegoo Oullot Tank Kit</li>
+                        <li>5×5 grid navigation</li>
+                        <li>Real-time terrain sensing</li>
+                    </ul>
+                </div>
+            </div>
+            <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">
+                <button class="btn-pill" style="padding:14px 40px;" onclick="goTo('screen-mode')">START MISSION
+                    →</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="screen" id="screen-mode">
+        <div class="card">
+            <button class="info-btn" onclick="goTo('screen-splash')">←</button>
+            <div style="text-align:center;padding:20px 0 36px;">
+                <div class="splash-title" style="font-size:2rem;">The <span class="accent">Sandozer</span></div>
+                <div class="splash-sub" style="font-size:0.8rem;">Mission Control</div>
+            </div>
+            <div class="mode-question">I WANT TO:</div>
+            <div class="mode-btns">
+                <button class="mode-btn" id="btn-observe" onclick="selectMode('observe')">OBSERVE</button>
+                <button class="mode-btn" id="btn-test" onclick="selectMode('test')">TEST</button>
+                <button class="mode-btn" id="btn-chat" onclick="selectMode('chat')">CHAT 🤖</button>
+            </div>
+            <div style="text-align:center;">
+                <button class="btn-pill" id="mode-continue" onclick="continueMode()"
+                    style="opacity:0.4;pointer-events:none;">CONTINUE →</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="screen" id="screen-observe">
+        <div class="card">
+            <div class="card-tag">OBSERVATION</div>
+            <div class="screen-title">The Sandozer Traversal</div>
+            <div class="observe-layout">
+                <div class="mini-grid-wrap">
+                    <table class="mini-grid" id="obs-grid"></table>
+                    <svg class="mini-svg" id="obs-svg"></svg>
+                    <div class="mini-robot" id="obs-robot" style="display:none">
+                        <div class="mini-robot-dot pulse">
+                            <svg viewBox="0 0 24 24">
+                                <rect x="5" y="8" width="14" height="11" rx="2" />
+                                <rect x="8" y="4" width="8" height="5" rx="1.5" />
+                                <circle cx="9" cy="13" r="1.8" fill="#1a1a1a" />
+                                <circle cx="15" cy="13" r="1.8" fill="#1a1a1a" />
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="obs-panel">
+                    <div class="obs-row" style="flex-direction:column; align-items:flex-start;">
+                        <span class="obs-label">CLOUDFLARE DNS RECORDS:</span>
+                        <div id="dns-list"
+                            style="font-family:'Share Tech Mono',monospace; font-size:0.7rem; width:100%; max-height:100px; overflow-y:auto; background:var(--beige); padding:5px; border-radius:5px; margin-top:5px;">
+                            Loading records...
+                        </div>
+                    </div>
+                    <div class="obs-row">
+                        <span class="obs-label">Sandbox dimensions:</span>
+                        <span class="obs-val">5 × 5 grid</span>
+                    </div>
+                    <div class="obs-row">
+                        <span class="obs-label">X-coord (from left):</span>
+                        <span class="obs-val" id="obs-x">0</span>
+                    </div>
+                    <div class="obs-row">
+                        <span class="obs-label">Y-coord (from top):</span>
+                        <span class="obs-val" id="obs-y">0</span>
+                    </div>
+                    <div class="obs-row">
+                        <span class="obs-label">Altitude:</span>
+                        <span class="obs-val" id="obs-alt">0.00 m</span>
+                    </div>
+                    <div class="obs-row">
+                        <span class="obs-label">Vertical tilt:</span>
+                        <span class="obs-val highlight" id="obs-tilt">0.000°</span>
+                    </div>
+                    <div class="obs-row">
+                        <span class="obs-label">Nearest wall:</span>
+                        <span class="obs-val" id="obs-wall">—</span>
+                    </div>
+                    <div class="obs-row">
+                        <span class="obs-label">Air Quality (AQI):</span>
+                        <span class="obs-val" id="obs-aq">—</span>
+                    </div>
+                    <div class="wall-alert-wrap" id="obs-wall-alert-wrap"></div>
+                    <div class="obs-row" style="border:none;flex-direction:column;gap:8px;">
+                        <span class="obs-label">Terrain:</span>
+                        <div class="terrain-row">
+                            <span class="terrain-opt flat" id="t-flat">FLAT</span>
+                            <span class="terrain-opt smooth" id="t-smooth">SOMEWHAT SMOOTH</span>
+                            <span class="terrain-opt bump" id="t-bump">BUMP</span>
+                        </div>
+                    </div>
+
+                    <div class="obs-controls">
+                        <span class="step-badge-large" id="obs-step-badge">STEP 0/0</span>
+                        <div class="timer-mini">
+                            <div class="timer-fill" id="obs-timer-fill" style="width:100%"></div>
+                        </div>
+                        <span style="font-family:'Share Tech Mono',monospace;font-size:0.7rem;color:var(--muted);"
+                            id="obs-countdown">10.0s</span>
+                        <button class="btn-pill outline" id="obs-pause-btn" onclick="toggleObsPause()"
+                            style="padding:8px 18px;font-size:0.7rem;">⏸</button>
+                    </div>
+
+                    <div style="display:flex;align-items:center;gap:8px;margin-top:2px;">
+                        <span class="voice-pill" id="obs-voice-pill">
+                            <span class="voice-dot"></span>
+                            <span id="obs-voice-label">VOICE IDLE</span>
+                        </span>
+                    </div>
+
+                    <div class="path-log-mini" id="obs-log"></div>
+
+                    <div style="margin-top:8px;">
+                        <button class="btn-pill outline" style="padding:8px 20px;font-size:0.72rem;"
+                            onclick="goTo('screen-mode')">← BACK</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="screen" id="screen-test">
+        <div class="card">
+            <div class="card-tag">TEST</div>
+            <div class="screen-title">The Sandozer Traversal</div>
+            <div class="test-layout">
+                <div class="mini-grid-wrap">
+                    <table class="mini-grid" id="test-grid"></table>
+                    <svg class="mini-svg" id="test-svg"></svg>
+                    <div class="mini-robot" id="test-robot" style="display:none">
+                        <div class="mini-robot-dot">
+                            <svg viewBox="0 0 24 24">
+                                <rect x="5" y="8" width="14" height="11" rx="2" />
+                                <rect x="8" y="4" width="8" height="5" rx="1.5" />
+                                <circle cx="9" cy="13" r="1.8" fill="#1a1a1a" />
+                                <circle cx="15" cy="13" r="1.8" fill="#1a1a1a" />
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="test-panel">
+                    <div
+                        style="font-family:'Share Tech Mono',monospace;font-size:0.75rem;color:var(--muted);line-height:1.6;background:var(--beige);border-radius:10px;padding:12px 14px;border:1px solid var(--beige-dark);">
+                        Enter a target cell. The robot finds the shortest path from <strong
+                            style="color:var(--black)">(0,0)</strong> and reports terrain at the destination.
+                    </div>
+                    <div class="test-input-group">
+                        <label class="test-label">Navigate to: (row, col)</label>
+                        <input class="test-input" id="test-target" placeholder="e.g. 3,4 — or speak two numbers" />
+                        <div class="hint-small">Values 0–4. Robot starts at (0,0) and takes shortest path.<br>🎤 You can
+                            speak two digit numbers (e.g. <em>"two three"</em>) — the mic auto-activates after the
+                            greeting.</div>
+                        <div class="err" id="test-err">Invalid coordinates. Use row,col (0–4).</div>
+                    </div>
+                    <button class="go-btn" onclick="runTest()">GO!</button>
+                    <div style="margin-top:4px;">
+                        <button class="btn-pill outline" style="padding:8px 20px;font-size:0.72rem;"
+                            onclick="goTo('screen-mode')">← BACK</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="screen" id="screen-result">
+        <div class="card">
+            <div class="card-tag">TEST</div>
+            <div class="screen-title">The Sandozer Traversal</div>
+            <div class="result-layout">
+                <div class="mini-grid-wrap">
+                    <table class="mini-grid" id="res-grid"></table>
+                    <svg class="mini-svg" id="res-svg"></svg>
+                    <div class="mini-robot" id="res-robot" style="display:none">
+                        <div class="mini-robot-dot">
+                            <svg viewBox="0 0 24 24">
+                                <rect x="5" y="8" width="14" height="11" rx="2" />
+                                <rect x="8" y="4" width="8" height="5" rx="1.5" />
+                                <circle cx="9" cy="13" r="1.8" fill="#1a1a1a" />
+                                <circle cx="15" cy="13" r="1.8" fill="#1a1a1a" />
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="result-panel">
+                    <div class="result-row">
+                        <span class="result-label">Position:</span>
+                        <span class="result-val" id="res-pos">—</span>
+                    </div>
+                    <div class="result-row">
+                        <span class="result-label">Facing:</span>
+                        <span class="result-val" id="res-dir">—</span>
+                    </div>
+                    <div class="result-row">
+                        <span class="result-label">Target reached:</span>
+                        <span class="result-val" id="res-reached">—</span>
+                    </div>
+                    <div class="result-row">
+                        <span class="result-label">Vertical tilt:</span>
+                        <span class="result-val tilt" id="res-tilt">—</span>
+                    </div>
+                    <div class="result-row" style="border:none;flex-direction:column;gap:8px;">
+                        <span class="result-label">Terrain:</span>
+                        <div class="result-terrain">
+                            <span class="terrain-opt flat" id="rt-flat">FLAT</span>
+                            <span class="terrain-opt smooth" id="rt-smooth">SOMEWHAT SMOOTH</span>
+                            <span class="terrain-opt bump" id="rt-bump">BUMP</span>
+                        </div>
+                    </div>
+                    <div class="path-log-mini" id="res-log" style="max-height:80px;overflow-y:auto;"></div>
+                    <div style="margin-top:4px;">
+                        <span class="voice-pill" id="res-voice-pill">
+                            <span class="voice-dot"></span>
+                            <span id="res-voice-label">VOICE IDLE</span>
+                        </span>
+                    </div>
+                    <div style="display:flex;gap:10px;margin-top:8px;flex-wrap:wrap;">
+                        <button class="btn-pill" style="padding:10px 24px;font-size:0.78rem;"
+                            onclick="goTo('screen-test')">TRY AGAIN</button>
+                        <button class="btn-pill outline" style="padding:10px 20px;font-size:0.72rem;"
+                            onclick="goTo('screen-mode')">← BACK</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ══ CHAT SCREEN ══ -->
+    <div class="screen" id="screen-chat">
+        <div class="card">
+            <div class="chat-header">
+                <div>
+                    <div class="splash-pre" style="margin-bottom:4px;">SANDOZER AI ASSISTANT</div>
+                    <div class="screen-title" style="margin-bottom:0;">Ask Me Anything</div>
+                </div>
+                <div style="display:flex;align-items:center;gap:10px;">
+                    <span class="voice-pill" id="chat-voice-pill">
+                        <span class="voice-dot"></span>
+                        <span id="chat-voice-label">VOICE IDLE</span>
+                    </span>
+                    <button class="btn-pill outline" style="padding:8px 20px;font-size:0.72rem;"
+                        onclick="goTo('screen-mode')">← BACK</button>
+                </div>
+            </div>
+            <div class="chat-messages" id="chat-messages">
+                <div class="chat-bubble-wrap">
+                    <div class="bot-name">SANDOZER AI</div>
+                    <div class="chat-bubble bot">👋 Hi! I'm the Sandozer AI assistant. Ask me anything about the
+                        Sandozer robot — its sensors, navigation, terrain detection, or mission capabilities!</div>
+                </div>
+            </div>
+            <div class="chat-input-row">
+                <input class="chat-input" id="chat-input" placeholder="Ask about the Sandozer..."
+                    onkeydown="if(event.key==='Enter')sendChat()" />
+                <button class="chat-send-btn" onclick="sendChat()">SEND →</button>
+                <button class="chat-mic-btn" id="chat-mic-btn" onclick="toggleChatMic()" title="Voice input">🎤</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Floating global mic button -->
+    <button id="mic-fab" onclick="toggleGlobalMic()" title="Voice control">🎤</button>
+    <div id="mic-status">LISTENING…</div>
+
+    <script>
+        // ════════════════════════════════════════════════════
+        // CONFIG
+        // ════════════════════════════════════════════════════
+        let ELEVEN_KEY = 'sk_7f5541fed7419439a889c6b78963f0917aa95bedca04cc5f';
+        let ELEVEN_VOICE = 'Aa6nEBJJMKJwJkCx8VU2'; // Bella
+        let GEMINI_KEY = 'AIzaSyCvvxO-v5XqZ7duHvGeye__BOY3RhnvAEE'; // ← paste your Gemini API key
+
+        // ════════════════════════════════════════════════════
+        // ELEVENLABS VOICE NARRATION
+        // ════════════════════════════════════════════════════
+        let audioQueue = [];
+        let isSpeaking = false;
+
+        function terrainLabel(terrain) {
+            return terrain === 'flat' ? 'flat' :
+                terrain === 'smooth' ? 'somewhat smooth' : 'bumpy';
+        }
+
+        function buildNarration(step, sensor, idx, total) {
+            const terrain = terrainLabel(sensor.terrain);
+            if (idx === 0)
+                return 'Sandozer Mission Control online. Beginning sandbox traversal. Starting at position zero zero. All sensors active.';
+            if (idx === total - 1)
+                return `Traversal complete. Final position: row ${step.row}, column ${step.col}. Vertical tilt ${sensor.tilt.toFixed(3)} degrees. Terrain is ${terrain}. Air quality index ${sensor.airQuality}. Mission scan finished.`;
+            return `Step ${idx} of ${total - 1}. Moving to row ${step.row}, column ${step.col}. Tilt ${sensor.tilt.toFixed(3)} degrees. Terrain: ${terrain}. Air quality: ${sensor.airQuality}.`;
+        }
+
+        async function speak(text, pillId, labelId, onComplete) {
+            if (!ELEVEN_KEY || ELEVEN_KEY.includes('YOUR')) {
+                // No TTS key — still fire callback so voice flow continues
+                if (onComplete) setTimeout(onComplete, 100);
+                return;
+            }
+            audioQueue.push({ text, pillId, labelId, onComplete });
+            if (!isSpeaking) drainQueue();
+        }
+
+        async function drainQueue() {
+            if (!audioQueue.length) { isSpeaking = false; return; }
+            isSpeaking = true;
+            const { text, pillId, labelId, onComplete } = audioQueue.shift();
+            setVoicePill(pillId, labelId, true);
+            try {
+                const res = await fetch(
+                    `https://api.elevenlabs.io/v1/text-to-speech/${ELEVEN_VOICE}/stream`, {
+                    method: 'POST',
+                    headers: {
+                        'xi-api-key': ELEVEN_KEY,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        text,
+                        model_id: 'eleven_monolingual_v1',
+                        voice_settings: { stability: 0.45, similarity_boost: 0.80 }
+                    })
+                });
+                if (!res.ok) throw new Error('ElevenLabs error ' + res.status);
+                const blob = await res.blob();
+                const url = URL.createObjectURL(blob);
+                const audio = new Audio(url);
+                audio.onended = () => {
+                    URL.revokeObjectURL(url);
+                    setVoicePill(pillId, labelId, false);
+                    drainQueue();
+                    // Fire callback only after LAST item in queue drains
+                    if (!audioQueue.length && onComplete) setTimeout(onComplete, 150);
+                };
+                audio.onerror = () => { setVoicePill(pillId, labelId, false); drainQueue(); };
+                await audio.play();
+            } catch (e) {
+                console.warn('[ElevenLabs]', e.message);
+                setVoicePill(pillId, labelId, false);
+                drainQueue();
+                if (onComplete) setTimeout(onComplete, 150);
+            }
+        }
+
+        function setVoicePill(pillId, labelId, active) {
+            const pill = document.getElementById(pillId);
+            const label = document.getElementById(labelId);
+            if (!pill || !label) return;
+            pill.classList.toggle('active', active);
+            label.textContent = active ? 'SPEAKING…' : 'VOICE IDLE';
+        }
+
+        function stopAllAudio() {
+            audioQueue = [];
+            isSpeaking = false;
+            ['obs-voice-pill', 'res-voice-pill', 'chat-voice-pill'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.classList.remove('active');
+            });
+            ['obs-voice-label', 'res-voice-label', 'chat-voice-label'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.textContent = 'VOICE IDLE';
+            });
+        }
+
+        // ════════════════════════════════════════════════════
+        // WALL PROXIMITY SAFETY ALERTS
+        // ════════════════════════════════════════════════════
+        const CELL_SIZE_M = 0.20; // each grid cell ≈ 20 cm
+        let lastWallAlertDist = -1;
+
+        function checkWallProximity(row, col, pillId, labelId) {
+            const wallDist = Math.min(row, col, 4 - row, 4 - col);
+            const wrap = document.getElementById('obs-wall-alert-wrap');
+            if (wallDist <= 2) {
+                const meters = (wallDist * CELL_SIZE_M).toFixed(2);
+                if (wrap) {
+                    wrap.innerHTML = `<span class="wall-alert">⚠ WALL DETECTED — ${meters} m away</span>`;
+                }
+                // Only speak wall alert if distance changed
+                if (wallDist !== lastWallAlertDist) {
+                    lastWallAlertDist = wallDist;
+                    const alertText = wallDist === 0
+                        ? `Warning! Robot is at the wall boundary.`
+                        : `Wall detected. Approaching wall. ${meters} meters away.`;
+                    speak(alertText, pillId, labelId);
+                }
+            } else {
+                if (wrap) wrap.innerHTML = '';
+                lastWallAlertDist = -1;
+            }
+        }
+
+        // ════════════════════════════════════════════════════
+        // NAVIGATION
+        // ════════════════════════════════════════════════════
+        function goTo(screenId) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(screenId).classList.add('active');
+            if (screenId !== 'screen-observe') stopAllAudio();
+            if (screenId === 'screen-observe') initObserve();
+            if (screenId === 'screen-test') {
+                initTestGrid();
+                // Greet user — once greeting finishes, auto-start mic to capture their reply
+                speak(
+                    'Hello! What position would you like to navigate to? Say two numbers for row and column, each between 0 and 4.',
+                    'obs-voice-pill', 'obs-voice-label',
+                    () => {
+                        // Auto-start continuous listening after greeting
+                        if (currentScreen === 'screen-test') {
+                            continuousListen = true;
+                            startGlobalMic();
+                        }
+                    }
+                );
+            }
+            if (screenId === 'screen-chat') initChat();
+            updateMicContext(screenId);
+        }
+
+        // ════════════════════════════════════════════════════
+        // MODE SELECT
+        // ════════════════════════════════════════════════════
+        let selectedMode = null;
+
+        function selectMode(mode) {
+            selectedMode = mode;
+            document.getElementById('btn-observe').classList.toggle('selected', mode === 'observe');
+            document.getElementById('btn-test').classList.toggle('selected', mode === 'test');
+            document.getElementById('btn-chat').classList.toggle('selected', mode === 'chat');
+            const cont = document.getElementById('mode-continue');
+            cont.style.opacity = '1';
+            cont.style.pointerEvents = 'auto';
+        }
+
+        function continueMode() {
+            if (!selectedMode) return;
+            const dest = selectedMode === 'observe' ? 'screen-observe' :
+                selectedMode === 'test' ? 'screen-test' : 'screen-chat';
+            goTo(dest);
+        }
+
+        // ════════════════════════════════════════════════════
+        // GRID BUILDER
+        // ════════════════════════════════════════════════════
+        const CELL = 44, GAP = 3;
+
+        function buildMiniGrid(tableEl) {
+            tableEl.innerHTML = '';
+            const cells = [];
+            for (let r = 0; r < 5; r++) {
+                cells[r] = [];
+                const tr = document.createElement('tr');
+                for (let c = 0; c < 5; c++) {
+                    const td = document.createElement('td');
+                    td.className = 'mini-cell';
+                    td.innerHTML = `<span class="mc-label">${r},${c}</span>`;
+                    tr.appendChild(td);
+                    cells[r][c] = td;
+                }
+                tableEl.appendChild(tr);
+            }
+            return cells;
+        }
+
+        function cellCenter(row, col) {
+            const sp = 3 + 6;
+            return { x: sp + col * (CELL + 3) + CELL / 2, y: sp + row * (CELL + 3) + CELL / 2 };
+        }
+
+        function gridTotalSize() {
+            return (3 + 6) + 5 * (CELL + 3);
+        }
+
+        // ════════════════════════════════════════════════════
+        // DIRECTION SYSTEM
+        // ════════════════════════════════════════════════════
+        const DIRS = ['E', 'S', 'W', 'N'];
+        const DELTA = { E: [0, 1], S: [1, 0], W: [0, -1], N: [-1, 0] };
+        const DIR_LABEL = { E: 'East →', S: 'South ↓', W: 'West ←', N: 'North ↑' };
+
+        function parseCommands(text) {
+            const tokens = text.toLowerCase().match(/[fblr]/g);
+            if (!tokens || !tokens.length) return null;
+            const path = [];
+            let row = 0, col = 0, di = 0;
+            path.push({ row, col, dir: DIRS[di], cmd: 'START' });
+            for (const cmd of tokens) {
+                if (cmd === 'l') { di = (di + 3) % 4; path.push({ row, col, dir: DIRS[di], cmd: 'L' }); }
+                else if (cmd === 'r') { di = (di + 1) % 4; path.push({ row, col, dir: DIRS[di], cmd: 'R' }); }
+                else {
+                    const [dr, dc] = DELTA[DIRS[di]];
+                    row = Math.max(0, Math.min(4, row + (cmd === 'f' ? dr : -dr)));
+                    col = Math.max(0, Math.min(4, col + (cmd === 'f' ? dc : -dc)));
+                    path.push({ row, col, dir: DIRS[di], cmd: cmd === 'f' ? 'F' : 'B' });
+                }
+            }
+            return path;
+        }
+
+        // ════════════════════════════════════════════════════
+        // SENSOR DATA (randomized per session)
+        // ════════════════════════════════════════════════════
+        const TILT_MAP = (() => {
+            const m = [];
+            for (let r = 0; r < 5; r++) { m[r] = []; for (let c = 0; c < 5; c++) m[r][c] = Math.round(Math.random() * 300) / 1000; }
+            m[0][0] = Math.round(Math.random() * 49) / 1000;
+            return m;
+        })();
+
+        const ALTITUDE_MAP = (() => {
+            const m = [];
+            for (let r = 0; r < 5; r++) { m[r] = []; for (let c = 0; c < 5; c++) m[r][c] = Math.round(Math.random() * 150) / 1000; }
+            return m;
+        })();
+
+        const AIR_QUALITY_MAP = (() => {
+            const m = [];
+            for (let r = 0; r < 5; r++) {
+                m[r] = [];
+                for (let c = 0; c < 5; c++) {
+                    // Range 40–200, multiples of 5
+                    m[r][c] = Math.round((40 + Math.random() * 160) / 5) * 5;
+                }
+            }
+            return m;
+        })();
+
+        function tiltToTerrain(t) { return t < 0.05 ? 'flat' : t <= 0.15 ? 'smooth' : 'bump'; }
+
+        function getSensorData(row, col) {
+            const tilt = TILT_MAP[row][col];
+            const terrain = tiltToTerrain(tilt);
+            const alt = ALTITUDE_MAP[row][col];
+            const wallDist = Math.min(row, col, 4 - row, 4 - col);
+            const airQuality = AIR_QUALITY_MAP[row][col];
+            return { tilt, terrain, alt, wallDist, airQuality };
+        }
+
+        // ════════════════════════════════════════════════════
+        // DRAW PATH
+        // ════════════════════════════════════════════════════
+        function drawPath(svgEl, steps, upTo) {
+            const sz = gridTotalSize();
+            svgEl.setAttribute('viewBox', `0 0 ${sz} ${sz}`);
+            svgEl.setAttribute('width', sz); svgEl.setAttribute('height', sz);
+            svgEl.innerHTML = '';
+            if (upTo < 1) return;
+
+            const pts = [];
+            for (let i = 0; i <= upTo; i++) {
+                const { x, y } = cellCenter(steps[i].row, steps[i].col);
+                if (!pts.length || pts[pts.length - 1].x !== x || pts[pts.length - 1].y !== y) pts.push({ x, y });
+            }
+            if (pts.length < 2) return;
+
+            const ptStr = pts.map(p => `${p.x},${p.y}`).join(' ');
+            svgEl.appendChild(makePoly(ptStr, '#b0a890', 11));
+            svgEl.appendChild(makePoly(ptStr, '#1a1a1a', 7));
+            const dash = makePoly(ptStr, '#f5c800', 2);
+            dash.setAttribute('stroke-dasharray', '6 8');
+            svgEl.appendChild(dash);
+
+            const seen = new Set();
+            for (let i = 0; i <= upTo; i++) {
+                const { row, col } = steps[i], key = `${row},${col}`;
+                if (!seen.has(key)) {
+                    seen.add(key);
+                    const { x, y } = cellCenter(row, col);
+                    const c = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                    c.setAttribute('cx', x); c.setAttribute('cy', y); c.setAttribute('r', i === 0 ? 5 : 4);
+                    c.setAttribute('fill', i === 0 ? '#f5c800' : '#1a1a1a');
+                    c.setAttribute('stroke', '#fff'); c.setAttribute('stroke-width', '1.5');
+                    svgEl.appendChild(c);
+                }
+            }
+        }
+
+        function makePoly(pts, stroke, width) {
+            const el = document.createElementNS('http://www.w3.org/2000/svg', 'polyline');
+            el.setAttribute('points', pts); el.setAttribute('stroke', stroke);
+            el.setAttribute('stroke-width', width); el.setAttribute('stroke-linecap', 'round');
+            el.setAttribute('stroke-linejoin', 'round'); el.setAttribute('fill', 'none');
+            return el;
+        }
+
+        function moveRobot(robotEl, row, col) {
+            const { x, y } = cellCenter(row, col);
+            robotEl.style.left = x + 'px'; robotEl.style.top = y + 'px'; robotEl.style.display = 'block';
+        }
+
+        // ════════════════════════════════════════════════════
+        // TERRAIN HIGHLIGHT
+        // ════════════════════════════════════════════════════
+        function setTerrainHighlight(prefix, terrain) {
+            ['flat', 'smooth', 'bump'].forEach(t =>
+                document.getElementById(prefix + t).classList.toggle('active', terrain === t)
+            );
+        }
+
+        // ════════════════════════════════════════════════════
+        // OBSERVE SCREEN
+        // ════════════════════════════════════════════════════
+        let obsSteps = [], obsStep = 0, obsPaused = false, obsTimer = null, obsElapsed = 0;
+        const OBS_INTERVAL = 10000;
+
+        function initObserve() {
+            getCloudflareDNS().then(records => {
+                const listEl = document.getElementById('dns-list');
+                if (records) {
+                    listEl.innerHTML = records.map(r => `<div>[${r.type}] ${r.name} -> ${r.content}</div>`).join('');
+                } else {
+                    listEl.innerHTML = "Failed to load records.";
+                }
+            });
+            clearInterval(obsTimer);
+            stopAllAudio();
+            lastWallAlertDist = -1;
+            obsSteps = parseCommands('f f f r f f l f f') || [];
+            obsStep = 0;
+            obsPaused = false;
+
+            buildMiniGrid(document.getElementById('obs-grid'));
+            const sz = gridTotalSize();
+            const svg = document.getElementById('obs-svg');
+            svg.setAttribute('width', sz); svg.setAttribute('height', sz);
+            svg.innerHTML = '';
+
+            buildObsLog();
+            renderObsStep(0);
+            startObsTimer();
+        }
+
+        function buildObsLog() {
+            const log = document.getElementById('obs-log');
+            log.innerHTML = '';
+            obsSteps.forEach((s, i) => {
+                const chip = document.createElement('span');
+                chip.className = 'log-chip' + (i === 0 ? ' current' : '');
+                chip.textContent = `(${s.row},${s.col})`;
+                log.appendChild(chip);
+            });
+        }
+
+        function renderObsStep(idx) {
+            const s = obsSteps[idx];
+            if (!s) return;
+            const sensor = getSensorData(s.row, s.col);
+
+            moveRobot(document.getElementById('obs-robot'), s.row, s.col);
+            drawPath(document.getElementById('obs-svg'), obsSteps, idx);
+
+            document.getElementById('obs-x').textContent = s.col;
+            document.getElementById('obs-y').textContent = s.row;
+            document.getElementById('obs-alt').textContent = sensor.alt.toFixed(2) + ' m';
+
+            const tiltEl = document.getElementById('obs-tilt');
+            tiltEl.textContent = sensor.tilt.toFixed(3) + '°';
+            tiltEl.style.color = sensor.terrain === 'flat' ? 'var(--green)' :
+                sensor.terrain === 'smooth' ? '#b87900' : '#c0392b';
+
+            document.getElementById('obs-wall').textContent =
+                sensor.wallDist + ' cell' + (sensor.wallDist !== 1 ? 's' : '');
+            document.getElementById('obs-step-badge').textContent =
+                `STEP ${idx}/${obsSteps.length - 1}`;
+
+            // Air quality display
+            const aqEl = document.getElementById('obs-aq');
+            const aq = sensor.airQuality;
+            aqEl.textContent = aq + ' AQI — ' + (aq <= 100 ? 'Good' : aq <= 150 ? 'Moderate' : 'Poor');
+            aqEl.className = 'obs-val ' + (aq <= 100 ? 'aq-good' : aq <= 150 ? 'aq-moderate' : 'aq-poor');
+
+            setTerrainHighlight('t-', sensor.terrain);
+
+            document.querySelectorAll('#obs-log .log-chip').forEach((el, i) => {
+                el.className = 'log-chip' + (i < idx ? ' done' : i === idx ? ' current' : '');
+            });
+            const cur = document.querySelector('#obs-log .current');
+            if (cur) cur.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+            // Wall proximity check fires FIRST, then step narration
+            checkWallProximity(s.row, s.col, 'obs-voice-pill', 'obs-voice-label');
+            const text = buildNarration(s, sensor, idx, obsSteps.length);
+            speak(text, 'obs-voice-pill', 'obs-voice-label');
+        }
+
+        function startObsTimer() {
+            clearInterval(obsTimer);
+            obsElapsed = 0; updateObsTimerUI();
+            obsTimer = setInterval(() => {
+                if (obsPaused) return;
+                obsElapsed += 100;
+                updateObsTimerUI();
+                if (obsElapsed >= OBS_INTERVAL) {
+                    obsElapsed = 0;
+                    if (obsStep < obsSteps.length - 1) { obsStep++; renderObsStep(obsStep); }
+                    else { clearInterval(obsTimer); document.getElementById('obs-timer-fill').style.width = '0%'; }
+                }
+            }, 100);
+        }
+
+        function updateObsTimerUI() {
+            const rem = Math.max(0, OBS_INTERVAL - obsElapsed);
+            document.getElementById('obs-timer-fill').style.width = ((rem / OBS_INTERVAL) * 100) + '%';
+            document.getElementById('obs-countdown').textContent = (rem / 1000).toFixed(1) + 's';
+        }
+
+        function toggleObsPause() {
+            obsPaused = !obsPaused;
+            document.getElementById('obs-pause-btn').textContent = obsPaused ? '▶' : '⏸';
+        }
+
+        // ════════════════════════════════════════════════════
+        // BFS PATH FINDER
+        // ════════════════════════════════════════════════════
+        function bfsPath(tr, tc) {
+            if (tr === 0 && tc === 0) return [{ row: 0, col: 0 }];
+            const visited = Array.from({ length: 5 }, () => Array(5).fill(false));
+            const parent = Array.from({ length: 5 }, () => Array(5).fill(null));
+            const q = [{ row: 0, col: 0 }];
+            visited[0][0] = true;
+            const dirs = [[0, 1], [1, 0], [0, -1], [-1, 0]];
+            while (q.length) {
+                const { row, col } = q.shift();
+                if (row === tr && col === tc) {
+                    const path = []; let cur = { row, col };
+                    while (cur) { path.unshift(cur); cur = parent[cur.row][cur.col]; }
+                    return path;
+                }
+                for (const [dr, dc] of dirs) {
+                    const nr = row + dr, nc = col + dc;
+                    if (nr >= 0 && nr < 5 && nc >= 0 && nc < 5 && !visited[nr][nc]) {
+                        visited[nr][nc] = true; parent[nr][nc] = { row, col }; q.push({ row: nr, col: nc });
+                    }
+                }
+            }
+            return [{ row: 0, col: 0 }];
+        }
+
+        function bfsToSteps(cellPath) {
+            return cellPath.map((p, i) => ({ row: p.row, col: p.col, dir: 'E', cmd: i === 0 ? 'START' : 'F' }));
+        }
+
+        // ════════════════════════════════════════════════════
+        // TEST SCREEN
+        // ════════════════════════════════════════════════════
+        function initTestGrid() {
+            buildMiniGrid(document.getElementById('test-grid'));
+            const sz = gridTotalSize();
+            const svg = document.getElementById('test-svg');
+            svg.setAttribute('width', sz); svg.setAttribute('height', sz);
+            svg.innerHTML = '';
+            document.getElementById('test-robot').style.display = 'none';
+            moveRobot(document.getElementById('test-robot'), 0, 0);
+        }
+
+        function runTest() {
+            const targetText = document.getElementById('test-target').value.trim();
+            const err = document.getElementById('test-err');
+            const m = targetText.match(/(\d)\s*,\s*(\d)/);
+            if (!m || +m[1] > 4 || +m[2] > 4) {
+                err.style.display = 'block';
+                err.textContent = 'Invalid target. Use row,col with values 0–4.';
+                setTimeout(() => err.style.display = 'none', 3000);
+                return;
+            }
+            const targetRow = +m[1], targetCol = +m[2];
+            animateTest(bfsToSteps(bfsPath(targetRow, targetCol)), targetRow, targetCol);
+        }
+
+        function animateTest(steps, targetRow, targetCol) {
+            const grid = document.getElementById('test-grid');
+            const svg = document.getElementById('test-svg');
+            const robot = document.getElementById('test-robot');
+            buildMiniGrid(grid);
+            const sz = gridTotalSize();
+            svg.setAttribute('width', sz); svg.setAttribute('height', sz);
+            svg.innerHTML = '';
+            let i = 0;
+            lastWallAlertDist = -1;
+            function next() {
+                drawPath(svg, steps, i);
+                moveRobot(robot, steps[i].row, steps[i].col);
+                // Wall proximity check during test traversal
+                checkWallProximity(steps[i].row, steps[i].col, 'res-voice-pill', 'res-voice-label');
+                if (i < steps.length - 1) { i++; setTimeout(next, 700); }
+                else { setTimeout(() => showResult(steps, targetRow, targetCol), 900); }
+            }
+            next();
+        }
+
+        // ════════════════════════════════════════════════════
+        // RESULT SCREEN
+        // ════════════════════════════════════════════════════
+        function showResult(steps, targetRow, targetCol) {
+            const last = steps[steps.length - 1];
+            const sensor = getSensorData(last.row, last.col);
+
+            goTo('screen-result');
+
+            buildMiniGrid(document.getElementById('res-grid'));
+            const resSvg = document.getElementById('res-svg');
+            const sz = gridTotalSize();
+            resSvg.setAttribute('width', sz); resSvg.setAttribute('height', sz);
+            drawPath(resSvg, steps, steps.length - 1);
+            moveRobot(document.getElementById('res-robot'), last.row, last.col);
+
+            document.getElementById('res-pos').textContent = `(${last.row}, ${last.col})`;
+            document.getElementById('res-dir').textContent = DIR_LABEL[last.dir];
+
+            const reached = last.row === targetRow && last.col === targetCol;
+            const reachEl = document.getElementById('res-reached');
+            reachEl.textContent = reached ? '✓ YES — destination reached!' : `✗ NO — ended at (${last.row},${last.col})`;
+            reachEl.style.color = reached ? 'var(--green)' : '#c0392b';
+            reachEl.parentElement.style.display = 'flex';
+
+            const tiltEl = document.getElementById('res-tilt');
+            tiltEl.textContent = sensor.tilt.toFixed(3) + '°';
+            tiltEl.style.color = sensor.terrain === 'flat' ? 'var(--green)' :
+                sensor.terrain === 'smooth' ? '#b87900' : '#c0392b';
+
+            setTerrainHighlight('rt-', sensor.terrain);
+
+            const resLog = document.getElementById('res-log');
+            resLog.innerHTML = '';
+            steps.forEach((s, i) => {
+                const chip = document.createElement('span');
+                chip.className = 'log-chip done';
+                chip.textContent = i === 0 ? `START(${s.row},${s.col})` : `→(${s.row},${s.col})`;
+                resLog.appendChild(chip);
+            });
+
+            const terrain = terrainLabel(sensor.terrain);
+            const terrainDetail = sensor.terrain === 'flat' ? 'No leveling required.' :
+                sensor.terrain === 'smooth' ? 'Moderate leveling recommended.' : 'High priority for leveling.';
+            const narration = reached
+                ? `Mission complete. Destination reached at row ${last.row}, column ${last.col}. Vertical tilt is ${sensor.tilt.toFixed(3)} degrees. Terrain is ${terrain}. ${terrainDetail} Air quality index is ${sensor.airQuality}.`
+                : `Mission ended at row ${last.row}, column ${last.col}. Target was not reached. Terrain is ${terrain}. Air quality index is ${sensor.airQuality}.`;
+            speak(narration, 'res-voice-pill', 'res-voice-label');
+        }
+
+        // ════════════════════════════════════════════════════
+        // GEMINI CHATBOT
+        // ════════════════════════════════════════════════════
+        const SANDOZER_SYSTEM = `You are the Sandozer AI assistant — an expert on the Sandozer robot built for the UIUC Hackathon in partnership with John Deere.
+
+Here are key facts about the Sandozer robot:
+- Hardware: Arduino Elegoo Oullot Tank Kit with a bulldozer-style flat blade attachment
+- Purpose: Autonomous sandbox terrain leveling — it detects bumpy areas and levels them
+- Navigation: Operates on a 5×5 grid, uses BFS (Breadth-First Search) for shortest-path navigation
+- Sensors: MPU-6050 IMU for tilt/orientation, HC-SR04 ultrasonic sensor for wall detection, air quality sensor (MQ-series), altitude sensor
+- Terrain classification: Flat (tilt < 0.05°), Somewhat Smooth (0.05–0.15°), Bumpy (>0.15°)
+- Safety: Wall proximity alerts trigger at ≤2 grid cells from any boundary (~40 cm)
+- Air Quality: Measured in AQI. 50–100 = Good, 101–150 = Moderate, 151+ = Poor
+- Voice: Uses ElevenLabs TTS (Bella voice) for all narration; Web Speech API for voice commands
+- Modes: Observe (autonomous patrol with live telemetry), Test (user-specified navigation target), Chat (this assistant)
+- Partner: Built in collaboration with John Deere, demonstrating autonomous construction vehicle concepts
+- Grid cell size: approximately 20 cm × 20 cm
+
+Answer questions about the robot concisely and helpfully. If you don't know something specific, say so. Keep responses to 2–4 sentences unless a detailed explanation is explicitly needed.`;
+
+        let chatHistory = [];
+
+        function initChat() {
+            chatHistory = [];
+            // Don't clear messages — keep the welcome bubble
+        }
+
+        async function sendChat() {
+            const input = document.getElementById('chat-input');
+            const msg = input.value.trim();
+            if (!msg) return;
+            input.value = '';
+
+            appendChatBubble(msg, 'user');
+            chatHistory.push({ role: 'user', parts: [{ text: msg }] });
+
+            const typingEl = appendChatBubble('Thinking…', 'typing');
+
+            try {
+                if (!GEMINI_KEY || GEMINI_KEY.includes('YOUR')) {
+                    throw new Error('Gemini API key not set. Please add your key to GEMINI_KEY in the config.');
+                }
+                const body = {
+                    system_instruction: { parts: [{ text: SANDOZER_SYSTEM }] },
+                    contents: chatHistory,
+                    generationConfig: { maxOutputTokens: 300, temperature: 0.7 }
+                };
+                const res = await fetch(
+                    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_KEY}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(body)
+                });
+                if (!res.ok) {
+                    const err = await res.json();
+                    throw new Error(err.error?.message || 'Gemini API error ' + res.status);
+                }
+                const data = await res.json();
+                const reply = data.candidates?.[0]?.content?.parts?.[0]?.text || 'No response received.';
+                chatHistory.push({ role: 'model', parts: [{ text: reply }] });
+                typingEl.className = 'chat-bubble bot';
+                typingEl.textContent = reply;
+                // Scroll to bottom
+                const msgs = document.getElementById('chat-messages');
+                msgs.scrollTop = msgs.scrollHeight;
+                // Speak the reply
+                speak(reply, 'chat-voice-pill', 'chat-voice-label');
+            } catch (e) {
+                typingEl.className = 'chat-bubble bot';
+                typingEl.textContent = '⚠ ' + e.message;
+                console.warn('[Gemini]', e);
+            }
+        }
+
+        function appendChatBubble(text, type) {
+            const msgs = document.getElementById('chat-messages');
+            const wrap = document.createElement('div');
+            wrap.className = 'chat-bubble-wrap';
+            if (type === 'bot' || type === 'typing') {
+                const name = document.createElement('div');
+                name.className = 'bot-name';
+                name.textContent = 'SANDOZER AI';
+                wrap.appendChild(name);
+            }
+            const bubble = document.createElement('div');
+            bubble.className = `chat-bubble ${type}`;
+            bubble.textContent = text;
+            wrap.appendChild(bubble);
+            msgs.appendChild(wrap);
+            msgs.scrollTop = msgs.scrollHeight;
+            return bubble;
+        }
+
+        // ════════════════════════════════════════════════════
+        // WEB SPEECH API — VOICE CONTROL
+        // ════════════════════════════════════════════════════
+        let globalRecognition = null;
+        let chatRecognition = null;
+        let globalMicActive = false;
+        let chatMicActive = false;
+        let currentScreen = 'screen-splash';
+        let continuousListen = false; // auto-restart mic after each result
+
+        // Word-to-digit map for spoken numbers ("two three" → "2 3")
+        const WORD_NUMS = {
+            'zero': '0', 'one': '1', 'two': '2', 'three': '3', 'four': '4',
+            'oh': '0', 'to': '2', 'too': '2', 'for': '4', 'tree': '3'
+        };
+
+        function normalizeNumbers(t) {
+            // Only convert standalone number-words, NOT navigational words like "to"/"for"
+            return t
+                .replace(/\bzero\b/g, '0')
+                .replace(/\bone\b/g, '1')
+                .replace(/\b(two|too)\b/g, '2')
+                .replace(/\bthree\b/g, '3')
+                .replace(/\b(four)\b/g, '4')
+                .replace(/\boh\b/g, '0');
+        }
+
+        function parseTestCoords(transcript) {
+            const t = normalizeNumbers(transcript.toLowerCase());
+            let m;
+            // 1. "row 2 col 3" / "row 2 column 3"
+            m = t.match(/row\s*(\d).*?col(?:umn)?\s*(\d)/);
+            if (m) return m;
+            // 2. "navigate/go to 2 3"
+            m = t.match(/(?:navigate|go)\s+to\s+(\d)\D*(\d)/);
+            if (m) return m;
+            // 3. "2, 3"  or  "2. 3"
+            m = t.match(/(\d)\s*[,.]\s*(\d)/);
+            if (m) return m;
+            // 4. Exactly two isolated digits anywhere — e.g. "2 3", "two three", "2 and 3"
+            //    \b ensures we don't split "23" into two digits
+            const digits = [...t.matchAll(/\b(\d)\b/g)];
+            if (digits.length >= 2) return [null, digits[0][1], digits[1][1]];
+            return null;
+        }
+
+        function updateMicContext(screenId) {
+            currentScreen = screenId;
+            // Turn off continuous listen whenever we leave the test screen
+            if (screenId !== 'screen-test') {
+                continuousListen = false;
+                stopGlobalMic();
+            }
+        }
+
+        function buildSpeechRecognition() {
+            const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if (!SR) return null;
+            const rec = new SR();
+            rec.lang = 'en-US';
+            rec.interimResults = false;
+            rec.maxAlternatives = 3; // more alternatives = better accuracy
+            return rec;
+        }
+
+        function toggleGlobalMic() {
+            if (globalMicActive) { continuousListen = false; stopGlobalMic(); }
+            else startGlobalMic();
+        }
+
+        function startGlobalMic() {
+            if (globalMicActive) return; // already running
+            const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if (!SR) { alert('Web Speech API not supported. Please use Chrome.'); return; }
+            globalRecognition = buildSpeechRecognition();
+            globalRecognition.onstart = () => {
+                globalMicActive = true;
+                document.getElementById('mic-fab').classList.add('listening');
+                document.getElementById('mic-status').classList.add('show');
+            };
+            globalRecognition.onresult = (e) => {
+                // Collect all alternatives for best match
+                const transcripts = Array.from(e.results[0]).map(alt => alt.transcript.toLowerCase().trim());
+                console.log('[Voice alts]', transcripts);
+                // Always show the top alternative in the input so the user knows what was heard
+                if (currentScreen === 'screen-test') {
+                    document.getElementById('test-target').value = '🎤 ' + transcripts[0];
+                }
+                // Try each alternative until one matches
+                for (const t of transcripts) {
+                    if (handleVoiceCommand(t)) break;
+                }
+            };
+            globalRecognition.onend = () => {
+                globalMicActive = false;
+                // Auto-restart if continuous mode (e.g. waiting for test input)
+                if (continuousListen && currentScreen === 'screen-test' && !isSpeaking) {
+                    setTimeout(() => {
+                        if (continuousListen && currentScreen === 'screen-test') startGlobalMic();
+                    }, 350);
+                } else {
+                    document.getElementById('mic-fab').classList.remove('listening');
+                    document.getElementById('mic-status').classList.remove('show');
+                }
+            };
+            globalRecognition.onerror = (e) => {
+                console.warn('[Speech]', e.error);
+                globalMicActive = false;
+                // Re-try on benign errors in continuous mode
+                if (continuousListen && e.error !== 'not-allowed' && e.error !== 'service-unavailable') {
+                    setTimeout(() => {
+                        if (continuousListen && currentScreen === 'screen-test') startGlobalMic();
+                    }, 500);
+                } else {
+                    document.getElementById('mic-fab').classList.remove('listening');
+                    document.getElementById('mic-status').classList.remove('show');
+                }
+            };
+            globalRecognition.start();
+        }
+
+        function stopGlobalMic() {
+            continuousListen = false;
+            if (globalRecognition) { try { globalRecognition.stop(); } catch (e) { } }
+            globalMicActive = false;
+            document.getElementById('mic-fab').classList.remove('listening');
+            document.getElementById('mic-status').classList.remove('show');
+        }
+
+        // Returns true if the command was matched (for alternative-cycling)
+        function handleVoiceCommand(transcript) {
+            const screen = currentScreen;
+            console.log('[Voice cmd on', screen + ']', transcript);
+
+            // ── Universal back command ──
+            if (/\b(back|go back|menu|home)\b/.test(transcript) && screen !== 'screen-splash' && screen !== 'screen-mode') {
+                goTo('screen-mode');
+                return true;
+            }
+
+            if (screen === 'screen-splash') {
+                if (/\b(start|begin|launch|go|continue|proceed)\b/.test(transcript)) {
+                    goTo('screen-mode');
+                    return true;
+                }
+
+            } else if (screen === 'screen-mode') {
+                if (/\bobserv/.test(transcript)) { selectMode('observe'); continueMode(); return true; }
+                if (/\btest\b/.test(transcript)) { selectMode('test'); continueMode(); return true; }
+                if (/\bchat\b/.test(transcript)) { selectMode('chat'); continueMode(); return true; }
+                if (/\b(continue|proceed|go|confirm|next|enter)\b/.test(transcript)) { continueMode(); return true; }
+
+            } else if (screen === 'screen-test') {
+                // First check for back
+                if (/\b(back|menu|cancel)\b/.test(transcript)) { continuousListen = false; goTo('screen-mode'); return true; }
+
+                // Parse coordinates — supports: "2 3", "2,3", "row 2 col 3",
+                // "navigate to 2 3", "go to 2 3", "two three", "oh four" etc.
+                const m = parseTestCoords(transcript);
+                if (m) {
+                    const r = +m[1], c = +m[2];
+                    if (r <= 4 && c <= 4) {
+                        // Stop continuous listening — we have our answer
+                        continuousListen = false;
+                        stopGlobalMic();
+                        document.getElementById('test-target').value = `${r},${c}`;
+                        speak(`Navigating to row ${r}, column ${c}.`, 'obs-voice-pill', 'obs-voice-label');
+                        setTimeout(() => runTest(), 400);
+                        return true;
+                    }
+                }
+                // Didn't match — keep listening (continuousListen stays true)
+                return false;
+
+            } else if (screen === 'screen-observe') {
+                if (/\b(pause|stop|freeze|halt)\b/.test(transcript)) { toggleObsPause(); return true; }
+                if (/\b(resume|play|continue|unpause)\b/.test(transcript)) { if (obsPaused) toggleObsPause(); return true; }
+                if (/\b(next|skip)\b/.test(transcript)) {
+                    if (obsStep < obsSteps.length - 1) { obsStep++; obsElapsed = 0; renderObsStep(obsStep); }
+                    return true;
+                }
+
+            } else if (screen === 'screen-result') {
+                if (/\b(again|retry|repeat|try again|redo)\b/.test(transcript)) { goTo('screen-test'); return true; }
+
+            } else if (screen === 'screen-chat') {
+                // Any non-command speech on chat screen → send as chat message
+                if (!/\b(back|menu|home)\b/.test(transcript)) {
+                    document.getElementById('chat-input').value = transcript;
+                    sendChat();
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        // Chat mic button — voice input for chatbot
+        function toggleChatMic() {
+            if (chatMicActive) stopChatMic();
+            else startChatMic();
+        }
+
+        function startChatMic() {
+            const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if (!SR) { alert('Web Speech API not supported. Please use Chrome.'); return; }
+            chatRecognition = buildSpeechRecognition();
+            chatRecognition.onstart = () => {
+                chatMicActive = true;
+                document.getElementById('chat-mic-btn').classList.add('listening');
+            };
+            chatRecognition.onresult = (e) => {
+                const transcript = e.results[0][0].transcript.trim();
+                document.getElementById('chat-input').value = transcript;
+                sendChat();
+            };
+            chatRecognition.onend = () => {
+                chatMicActive = false;
+                document.getElementById('chat-mic-btn').classList.remove('listening');
+            };
+            chatRecognition.onerror = (e) => {
+                console.warn('[ChatSpeech]', e.error);
+                chatMicActive = false;
+                document.getElementById('chat-mic-btn').classList.remove('listening');
+            };
+            chatRecognition.start();
+        }
+
+        function stopChatMic() {
+            if (chatRecognition) { try { chatRecognition.stop(); } catch (e) { } }
+            chatMicActive = false;
+            document.getElementById('chat-mic-btn').classList.remove('listening');
+        }
+
+        // ════════════════════════════════════════════════════
+        // CLOUDFLARE DNS
+        // ════════════════════════════════════════════════════
+        async function getCloudflareDNS() {
+            const ZONE_ID = '265a0e892a238b83b6ecdde232b9a9db';
+            const API_TOKEN = 'd_fHgOV8CVrRFLFiHKXSfr9IlywraDZoAAMNmHND';
+            try {
+                const response = await fetch(`https://api.cloudflare.com/client/v4/zones/${ZONE_ID}/dns_records`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${API_TOKEN}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                const data = await response.json();
+                return data.result;
+            } catch (error) {
+                console.error("Cloudflare API Error:", error);
+            }
+        }
+
+        // ════════════════════════════════════════════════════
+        // INIT
+        // ════════════════════════════════════════════════════
+        window.addEventListener('load', () => {
+            ['obs-grid', 'test-grid', 'res-grid'].forEach(id =>
+                buildMiniGrid(document.getElementById(id))
+            );
+            const sz = gridTotalSize();
+            ['obs-svg', 'test-svg', 'res-svg'].forEach(id => {
+                const el = document.getElementById(id);
+                el.setAttribute('width', sz); el.setAttribute('height', sz);
+            });
+        });
+    </script>
+</body>
+
+</html>

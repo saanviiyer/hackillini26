@@ -1,0 +1,1111 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Robot Path Simulator</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Barlow:wght@400;600;700;900&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --bg: #f5f0e8;
+            --map-bg: #ede8dc;
+            --grid-line: #d8d0be;
+            --grid-line-major: #c8bfaa;
+            --black: #1a1a1a;
+            --yellow: #f5c800;
+            --yellow-dark: #d4a800;
+            --green: #2d7a3a;
+            --green-light: #4aab5c;
+            --beige: #f5f0e8;
+            --beige-dark: #e8e0ce;
+            --text: #1a1a1a;
+            --muted: #7a7060;
+            --path-color: #1a1a1a;
+            --cell: 90px;
+            --gap: 0px;
+            --panel-w: 320px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background: var(--bg);
+            font-family: 'Barlow', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* TOP BAR */
+        .topbar {
+            background: var(--black);
+            color: var(--yellow);
+            padding: 14px 28px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            position: relative;
+        }
+
+        .topbar .logo {
+            font-size: 1.3rem;
+            font-weight: 900;
+            letter-spacing: -0.03em;
+            color: #fff;
+        }
+
+        .topbar .logo span {
+            color: var(--yellow);
+        }
+
+        .topbar .subtitle {
+            font-size: 0.75rem;
+            font-weight: 600;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: #888;
+            margin-left: 4px;
+        }
+
+        .topbar .badge {
+            margin-left: auto;
+            background: var(--yellow);
+            color: var(--black);
+            font-size: 0.7rem;
+            font-weight: 700;
+            padding: 4px 12px;
+            border-radius: 20px;
+            letter-spacing: 0.06em;
+        }
+
+        /* MAIN LAYOUT */
+        .main {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        /* SIDE PANEL */
+        .panel {
+            width: var(--panel-w);
+            background: #fff;
+            border-right: 1px solid #e0d8c8;
+            display: flex;
+            flex-direction: column;
+            padding: 24px 20px;
+            gap: 20px;
+            overflow-y: auto;
+            flex-shrink: 0;
+        }
+
+        .panel-section-label {
+            font-size: 0.65rem;
+            font-weight: 700;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            color: var(--muted);
+            margin-bottom: 4px;
+        }
+
+        .route-input-wrap {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        textarea {
+            font-family: 'DM Mono', monospace;
+            font-size: 1rem;
+            background: var(--beige);
+            border: 2px solid var(--beige-dark);
+            border-radius: 10px;
+            color: var(--black);
+            padding: 14px;
+            resize: none;
+            height: 80px;
+            outline: none;
+            letter-spacing: 0.12em;
+            transition: border-color 0.2s;
+            line-height: 1.8;
+        }
+
+        textarea:focus {
+            border-color: var(--yellow-dark);
+        }
+
+        .hint-row {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .hint-chip {
+            background: var(--beige);
+            border: 1px solid var(--beige-dark);
+            border-radius: 6px;
+            padding: 4px 10px;
+            font-size: 0.7rem;
+            font-family: 'DM Mono', monospace;
+            color: var(--muted);
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .hint-chip strong {
+            color: var(--black);
+            font-weight: 500;
+        }
+
+        .btn-load {
+            background: var(--black);
+            color: var(--yellow);
+            border: none;
+            border-radius: 10px;
+            font-family: 'Barlow', sans-serif;
+            font-size: 0.9rem;
+            font-weight: 700;
+            padding: 14px;
+            cursor: pointer;
+            letter-spacing: 0.04em;
+            transition: background 0.15s, transform 0.1s;
+            width: 100%;
+        }
+
+        .btn-load:hover {
+            background: #333;
+            transform: translateY(-1px);
+        }
+
+        .btn-load:active {
+            transform: translateY(0);
+        }
+
+        /* STATUS CARD */
+        .status-card {
+            background: var(--black);
+            border-radius: 12px;
+            padding: 18px;
+            color: #fff;
+            display: none;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .status-card.visible {
+            display: flex;
+        }
+
+        .status-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .status-row .s-label {
+            font-size: 0.68rem;
+            font-weight: 600;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: #666;
+        }
+
+        .status-row .s-val {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--yellow);
+            font-family: 'DM Mono', monospace;
+        }
+
+        .status-row .s-val.green {
+            color: var(--green-light);
+        }
+
+        /* TIMER */
+        .timer-wrap {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            display: none;
+        }
+
+        .timer-wrap.visible {
+            display: flex;
+        }
+
+        .timer-bar-bg {
+            background: var(--beige-dark);
+            border-radius: 4px;
+            height: 6px;
+            overflow: hidden;
+        }
+
+        .timer-bar {
+            height: 100%;
+            background: var(--yellow);
+            border-radius: 4px;
+            width: 100%;
+            transition: width 0.1s linear;
+        }
+
+        .timer-label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.68rem;
+            color: var(--muted);
+            font-weight: 600;
+        }
+
+        /* CONTROLS */
+        .controls {
+            display: none;
+            gap: 8px;
+        }
+
+        .controls.visible {
+            display: flex;
+        }
+
+        .btn-ctrl {
+            flex: 1;
+            background: var(--beige);
+            border: 2px solid var(--beige-dark);
+            border-radius: 10px;
+            font-family: 'Barlow', sans-serif;
+            font-size: 0.8rem;
+            font-weight: 700;
+            padding: 10px;
+            cursor: pointer;
+            transition: all 0.15s;
+            color: var(--black);
+            letter-spacing: 0.03em;
+        }
+
+        .btn-ctrl:hover:not(:disabled) {
+            border-color: var(--black);
+            background: #fff;
+        }
+
+        .btn-ctrl:disabled {
+            opacity: 0.35;
+            cursor: not-allowed;
+        }
+
+        .btn-pause {
+            background: var(--yellow);
+            border-color: var(--yellow-dark);
+        }
+
+        .btn-pause:hover:not(:disabled) {
+            background: var(--yellow-dark) !important;
+            border-color: #b89000 !important;
+        }
+
+        /* PATH LOG */
+        .path-log {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            max-height: 160px;
+            overflow-y: auto;
+            display: none;
+        }
+
+        .path-log.visible {
+            display: flex;
+        }
+
+        .path-log::-webkit-scrollbar {
+            width: 3px;
+        }
+
+        .path-log::-webkit-scrollbar-thumb {
+            background: var(--beige-dark);
+            border-radius: 2px;
+        }
+
+        .log-entry {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 6px 10px;
+            border-radius: 7px;
+            font-size: 0.72rem;
+            font-family: 'DM Mono', monospace;
+            transition: all 0.2s;
+            color: #bbb;
+            background: transparent;
+        }
+
+        .log-entry.done {
+            color: var(--black);
+            background: var(--beige);
+        }
+
+        .log-entry.current {
+            color: var(--black);
+            background: var(--yellow);
+            font-weight: 700;
+        }
+
+        .log-entry .log-step {
+            width: 18px;
+            text-align: right;
+            color: inherit;
+            opacity: 0.5;
+            font-size: 0.65rem;
+        }
+
+        .log-entry .log-cmd {
+            background: rgba(0, 0, 0, 0.1);
+            border-radius: 4px;
+            padding: 1px 6px;
+            font-weight: 500;
+            font-size: 0.75rem;
+        }
+
+        .log-entry .log-pos {
+            opacity: 0.7;
+        }
+
+        /* ERROR */
+        .error-msg {
+            background: #ffeaea;
+            border: 1px solid #ffaaaa;
+            border-radius: 8px;
+            padding: 10px 14px;
+            font-size: 0.75rem;
+            color: #c00;
+            display: none;
+            font-weight: 600;
+        }
+
+        /* MAP AREA */
+        .map-area {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--map-bg);
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Subtle map texture lines */
+        .map-area::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-image:
+                linear-gradient(var(--grid-line) 1px, transparent 1px),
+                linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+            background-size: 30px 30px;
+            opacity: 0.5;
+        }
+
+        .map-area::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-image:
+                linear-gradient(var(--grid-line-major) 1px, transparent 1px),
+                linear-gradient(90deg, var(--grid-line-major) 1px, transparent 1px);
+            background-size: 90px 90px;
+            opacity: 0.4;
+        }
+
+        /* GRID CANVAS WRAP */
+        .grid-canvas-wrap {
+            position: relative;
+            z-index: 2;
+            /* shadow to lift grid off map */
+            filter: drop-shadow(0 8px 32px rgba(0, 0, 0, 0.12));
+        }
+
+        .grid-svg-overlay {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            z-index: 5;
+        }
+
+        .grid-table {
+            border-collapse: separate;
+            border-spacing: 4px;
+            background: transparent;
+        }
+
+        .grid-cell {
+            width: var(--cell);
+            height: var(--cell);
+            background: rgba(245, 240, 232, 0.82);
+            border-radius: 6px;
+            position: relative;
+            border: 1.5px solid #c8bfaa88;
+            vertical-align: middle;
+            text-align: right;
+        }
+
+        .grid-cell .cell-label {
+            position: absolute;
+            bottom: 5px;
+            right: 7px;
+            font-size: 0.58rem;
+            font-family: 'DM Mono', monospace;
+            color: #bbb0a0;
+            pointer-events: none;
+        }
+
+        /* START & END markers on cells */
+        .cell-marker {
+            position: absolute;
+            top: 6px;
+            left: 6px;
+            font-size: 0.6rem;
+            font-weight: 700;
+            font-family: 'Barlow', sans-serif;
+            letter-spacing: 0.08em;
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+
+        .cell-marker.start-marker {
+            background: var(--yellow);
+            color: var(--black);
+        }
+
+        .cell-marker.end-marker {
+            background: var(--green);
+            color: #fff;
+        }
+
+        /* ROBOT */
+        .robot {
+            position: absolute;
+            z-index: 20;
+            pointer-events: none;
+            transform: translate(-50%, -50%);
+            transition: left 0.7s cubic-bezier(0.4, 0, 0.2, 1),
+                top 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+            display: none;
+        }
+
+        .robot-body {
+            width: 44px;
+            height: 44px;
+            background: var(--black);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4), 0 0 0 3px var(--yellow);
+            position: relative;
+        }
+
+        .robot-body svg {
+            width: 26px;
+            height: 26px;
+            fill: var(--yellow);
+        }
+
+        /* pulsing ring */
+        @keyframes pulse-ring {
+            0% {
+                transform: translate(-50%, -50%) scale(1);
+                opacity: 0.6;
+            }
+
+            100% {
+                transform: translate(-50%, -50%) scale(2.2);
+                opacity: 0;
+            }
+        }
+
+        .robot-ring {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 44px;
+            height: 44px;
+            border-radius: 10px;
+            border: 2px solid var(--yellow);
+            animation: pulse-ring 1.5s ease-out infinite;
+        }
+
+        /* PATH LINE on SVG */
+        .path-line {
+            stroke: var(--path-color);
+            stroke-width: 7;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            fill: none;
+            stroke-dasharray: 2000;
+            stroke-dashoffset: 0;
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+        }
+
+        .path-arrow {
+            fill: var(--black);
+        }
+
+        /* dot markers */
+        .path-dot {
+            fill: var(--black);
+            opacity: 0.35;
+        }
+
+        .path-dot.active-dot {
+            fill: var(--yellow);
+            opacity: 1;
+        }
+
+        /* complete overlay */
+        .complete-banner {
+            position: absolute;
+            bottom: 32px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--green);
+            color: #fff;
+            font-family: 'Barlow', sans-serif;
+            font-size: 0.85rem;
+            font-weight: 700;
+            padding: 12px 28px;
+            border-radius: 30px;
+            letter-spacing: 0.06em;
+            display: none;
+            z-index: 30;
+            box-shadow: 0 4px 20px rgba(45, 122, 58, 0.4);
+            animation: slideUp 0.4s ease;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateX(-50%) translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateX(-50%) translateY(0);
+            }
+        }
+
+        /* compass */
+        .compass {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            z-index: 10;
+            background: #fff;
+            border-radius: 50%;
+            width: 56px;
+            height: 56px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.12);
+            font-size: 0.7rem;
+            font-weight: 700;
+            font-family: 'DM Mono', monospace;
+            color: var(--muted);
+            flex-direction: column;
+            gap: 1px;
+        }
+
+        .compass .n {
+            color: var(--black);
+            font-size: 0.85rem;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="topbar">
+        <div class="logo">ROBO<span>PATH</span></div>
+        <div class="subtitle">Navigation Simulator</div>
+        <div class="badge">5×5 GRID</div>
+    </div>
+
+    <div class="main">
+
+        <!-- SIDE PANEL -->
+        <div class="panel">
+            <div>
+                <div class="panel-section-label">Mission Start</div>
+                <div style="font-size:0.8rem; color:var(--muted); margin-top:2px;">Start position is always <strong
+                        style="color:var(--black)">(0,0)</strong> · Facing <strong style="color:var(--black)">East
+                        →</strong></div>
+            </div>
+
+            <div class="route-input-wrap">
+                <div class="panel-section-label">Movement Commands</div>
+                <textarea id="cmd-input" placeholder="f f f r f f l f">f f f r f l f f</textarea>
+                <div class="hint-row">
+                    <div class="hint-chip"><strong>f</strong> forward</div>
+                    <div class="hint-chip"><strong>b</strong> back</div>
+                    <div class="hint-chip"><strong>l</strong> turn left</div>
+                    <div class="hint-chip"><strong>r</strong> turn right</div>
+                </div>
+                <div style="font-size:0.68rem; color:var(--muted);">Separate with spaces or commas. Moves that would
+                    leave the grid are skipped.</div>
+            </div>
+
+            <div id="error-msg" class="error-msg"></div>
+
+            <button class="btn-load" id="load-btn">▶ START SIMULATION</button>
+
+            <div class="status-card" id="status-card">
+                <div class="status-row">
+                    <span class="s-label">Position</span>
+                    <span class="s-val" id="s-pos">(0, 0)</span>
+                </div>
+                <div class="status-row">
+                    <span class="s-label">Facing</span>
+                    <span class="s-val" id="s-dir">East →</span>
+                </div>
+                <div class="status-row">
+                    <span class="s-label">Step</span>
+                    <span class="s-val" id="s-step">0 / 0</span>
+                </div>
+                <div class="status-row">
+                    <span class="s-label">Status</span>
+                    <span class="s-val green" id="s-status">RUNNING</span>
+                </div>
+            </div>
+
+            <div class="timer-wrap" id="timer-wrap">
+                <div class="timer-label">
+                    <span>Next step in…</span>
+                    <span id="timer-countdown">10s</span>
+                </div>
+                <div class="timer-bar-bg">
+                    <div class="timer-bar" id="timer-bar"></div>
+                </div>
+            </div>
+
+            <div class="controls" id="controls">
+                <button class="btn-ctrl btn-pause" id="pause-btn">⏸ Pause</button>
+                <button class="btn-ctrl" id="reset-btn">↺ Reset</button>
+            </div>
+
+            <div>
+                <div class="panel-section-label" id="log-label" style="display:none">Route Log</div>
+                <div class="path-log" id="path-log"></div>
+            </div>
+        </div>
+
+        <!-- MAP -->
+        <div class="map-area" id="map-area">
+            <div class="compass">
+                <span class="n">N</span>
+                <span>↑</span>
+            </div>
+
+            <div class="grid-canvas-wrap" id="grid-wrap">
+                <!-- SVG overlay for path drawing -->
+                <svg class="grid-svg-overlay" id="path-svg"></svg>
+
+                <!-- Grid table -->
+                <table class="grid-table" id="grid-table"></table>
+
+                <!-- Robot -->
+                <div class="robot" id="robot">
+                    <div class="robot-ring"></div>
+                    <div class="robot-body">
+                        <!-- robot icon SVG -->
+                        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <rect x="6" y="9" width="12" height="10" rx="2" />
+                            <rect x="9" y="5" width="6" height="5" rx="1.5" />
+                            <circle cx="9" cy="14" r="1.5" fill="#f5c800" />
+                            <circle cx="15" cy="14" r="1.5" fill="#f5c800" />
+                            <rect x="4" y="11" width="2" height="5" rx="1" />
+                            <rect x="18" y="11" width="2" height="5" rx="1" />
+                            <rect x="8" y="19" width="3" height="3" rx="1" />
+                            <rect x="13" y="19" width="3" height="3" rx="1" />
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+            <div class="complete-banner" id="complete-banner">✓ Route Complete — Robot has arrived!</div>
+        </div>
+    </div>
+
+    <script>
+        // ── CONSTANTS ──────────────────────────────────────────────────────────────
+        const CELL = 90;
+        const GAP = 4;
+        const STEP_INTERVAL = 10000; // 10 seconds
+        const TICK = 100; // ms per timer update
+
+        // Direction system: robot starts facing EAST (forward = increasing col)
+        // DIRS order: E, S, W, N — so turning right from E gives S, left gives N
+        const DIRS = ['E', 'S', 'W', 'N'];
+        const DIR_DELTA = {
+            E: [0, 1],
+            S: [1, 0],
+            W: [0, -1],
+            N: [-1, 0],
+        };
+        const DIR_LABEL = { N: 'North ↑', E: 'East →', S: 'South ↓', W: 'West ←' };
+
+        // ── STATE ──────────────────────────────────────────────────────────────────
+        let steps = [];        // [{row, col, dir, cmd}]
+        let currentStep = 0;
+        let paused = false;
+        let timerInterval = null;
+        let elapsed = 0;       // ms elapsed since last step
+        let cells = [];
+
+        // ── ELEMENTS ───────────────────────────────────────────────────────────────
+        const gridTable = document.getElementById('grid-table');
+        const pathSvg = document.getElementById('path-svg');
+        const robotEl = document.getElementById('robot');
+        const gridWrap = document.getElementById('grid-wrap');
+        const loadBtn = document.getElementById('load-btn');
+        const pauseBtn = document.getElementById('pause-btn');
+        const resetBtn = document.getElementById('reset-btn');
+        const errorMsg = document.getElementById('error-msg');
+        const statusCard = document.getElementById('status-card');
+        const timerWrap = document.getElementById('timer-wrap');
+        const controls = document.getElementById('controls');
+        const pathLog = document.getElementById('path-log');
+        const logLabel = document.getElementById('log-label');
+        const timerBar = document.getElementById('timer-bar');
+        const timerCountdown = document.getElementById('timer-countdown');
+        const completeBanner = document.getElementById('complete-banner');
+
+        // ── BUILD GRID ─────────────────────────────────────────────────────────────
+        function buildGrid() {
+            gridTable.innerHTML = '';
+            cells = [];
+            const totalW = 5 * CELL + 4 * GAP + 8; // 8 for borders
+            const totalH = totalW;
+
+            for (let r = 0; r < 5; r++) {
+                cells[r] = [];
+                const tr = document.createElement('tr');
+                for (let c = 0; c < 5; c++) {
+                    const td = document.createElement('td');
+                    td.className = 'grid-cell';
+                    td.innerHTML = `<span class="cell-label">${r},${c}</span>`;
+                    td.dataset.row = r; td.dataset.col = c;
+                    tr.appendChild(td);
+                    cells[r][c] = td;
+                }
+                gridTable.appendChild(tr);
+            }
+        }
+
+        // ── COORDINATE HELPERS ─────────────────────────────────────────────────────
+        // Cell center in px relative to grid-wrap
+        // border-spacing: 4px means cells start at 4px offset, each step is CELL+4
+        function cellCenter(row, col) {
+            const spacing = 4;
+            const x = spacing + col * (CELL + spacing) + CELL / 2;
+            const y = spacing + row * (CELL + spacing) + CELL / 2;
+            return { x, y };
+        }
+
+        function totalGridSize() {
+            const spacing = 4;
+            return spacing + 5 * (CELL + spacing);
+        }
+
+        // ── PARSE COMMANDS ─────────────────────────────────────────────────────────
+        function parseCommands(text) {
+            const tokens = text.toLowerCase().match(/[fblr]/g);
+            if (!tokens || tokens.length === 0) return null;
+
+            const path = [];
+            let row = 0, col = 0, dirIdx = 0; // start N
+
+            path.push({ row, col, dir: DIRS[dirIdx], cmd: 'START' });
+
+            for (const cmd of tokens) {
+                if (cmd === 'l') {
+                    dirIdx = (dirIdx + 3) % 4;
+                    path.push({ row, col, dir: DIRS[dirIdx], cmd: 'L' });
+                } else if (cmd === 'r') {
+                    dirIdx = (dirIdx + 1) % 4;
+                    path.push({ row, col, dir: DIRS[dirIdx], cmd: 'R' });
+                } else {
+                    const [dr, dc] = DIR_DELTA[DIRS[dirIdx]];
+                    let nr = row + (cmd === 'f' ? dr : -dr);
+                    let nc = col + (cmd === 'f' ? dc : -dc);
+                    nr = Math.max(0, Math.min(4, nr));
+                    nc = Math.max(0, Math.min(4, nc));
+                    row = nr; col = nc;
+                    path.push({ row, col, dir: DIRS[dirIdx], cmd: cmd === 'f' ? 'F' : 'B' });
+                }
+            }
+
+            return path;
+        }
+
+        // ── RENDER ─────────────────────────────────────────────────────────────────
+        function renderStep(idx) {
+            const step = steps[idx];
+
+            // update robot position
+            const { x, y } = cellCenter(step.row, step.col);
+            robotEl.style.left = x + 'px';
+            robotEl.style.top = y + 'px';
+            robotEl.style.display = 'block';
+
+            // draw path line from step 0 to current
+            drawPath(idx);
+
+            // status card
+            document.getElementById('s-pos').textContent = `(${step.row}, ${step.col})`;
+            document.getElementById('s-dir').textContent = DIR_LABEL[step.dir];
+            document.getElementById('s-step').textContent = `${idx} / ${steps.length - 1}`;
+
+            const done = idx === steps.length - 1;
+            const sStatus = document.getElementById('s-status');
+            sStatus.textContent = done ? 'ARRIVED ✓' : paused ? 'PAUSED' : 'RUNNING';
+            sStatus.style.color = done ? 'var(--green-light)' : paused ? 'var(--yellow)' : 'var(--green-light)';
+
+            // complete banner
+            completeBanner.style.display = done ? 'block' : 'none';
+
+            // update log entries
+            document.querySelectorAll('.log-entry').forEach((el, i) => {
+                el.className = 'log-entry' + (i < idx ? ' done' : i === idx ? ' current' : '');
+            });
+
+            const currentLogEl = pathLog.querySelector('.current');
+            if (currentLogEl) currentLogEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+            // start/end markers on cells
+            clearCellMarkers();
+            addCellMarker(steps[0].row, steps[0].col, 'START', 'start-marker');
+            if (done && (step.row !== steps[0].row || step.col !== steps[0].col)) {
+                addCellMarker(step.row, step.col, 'HERE', 'end-marker');
+            }
+        }
+
+        function clearCellMarkers() {
+            document.querySelectorAll('.cell-marker').forEach(el => el.remove());
+        }
+
+        function addCellMarker(row, col, text, cls) {
+            const span = document.createElement('div');
+            span.className = 'cell-marker ' + cls;
+            span.textContent = text;
+            cells[row][col].appendChild(span);
+        }
+
+        // ── PATH DRAWING ───────────────────────────────────────────────────────────
+        function drawPath(upToStep) {
+            const size = totalGridSize();
+            pathSvg.setAttribute('viewBox', `0 0 ${size} ${size}`);
+            pathSvg.innerHTML = '';
+
+            if (upToStep < 1) return;
+
+            // Collect unique position-only steps (skip turn-only steps that don't move)
+            // We draw a line between positions that actually changed
+            const posPoints = [];
+            for (let i = 0; i <= upToStep; i++) {
+                const { x, y } = cellCenter(steps[i].row, steps[i].col);
+                if (posPoints.length === 0 ||
+                    posPoints[posPoints.length - 1].x !== x ||
+                    posPoints[posPoints.length - 1].y !== y) {
+                    posPoints.push({ x, y });
+                }
+            }
+
+            if (posPoints.length < 2) return;
+
+            // Draw thick road-like background (lighter grey underneath)
+            const roadBg = document.createElementNS('http://www.w3.org/2000/svg', 'polyline');
+            roadBg.setAttribute('points', posPoints.map(p => `${p.x},${p.y}`).join(' '));
+            roadBg.setAttribute('stroke', '#888070');
+            roadBg.setAttribute('stroke-width', '13');
+            roadBg.setAttribute('stroke-linecap', 'round');
+            roadBg.setAttribute('stroke-linejoin', 'round');
+            roadBg.setAttribute('fill', 'none');
+            pathSvg.appendChild(roadBg);
+
+            // Main black path
+            const road = document.createElementNS('http://www.w3.org/2000/svg', 'polyline');
+            road.setAttribute('points', posPoints.map(p => `${p.x},${p.y}`).join(' '));
+            road.setAttribute('stroke', '#1a1a1a');
+            road.setAttribute('stroke-width', '8');
+            road.setAttribute('stroke-linecap', 'round');
+            road.setAttribute('stroke-linejoin', 'round');
+            road.setAttribute('fill', 'none');
+            pathSvg.appendChild(road);
+
+            // Dashed center line (like road markings)
+            const dashes = document.createElementNS('http://www.w3.org/2000/svg', 'polyline');
+            dashes.setAttribute('points', posPoints.map(p => `${p.x},${p.y}`).join(' '));
+            dashes.setAttribute('stroke', '#f5c800');
+            dashes.setAttribute('stroke-width', '2');
+            dashes.setAttribute('stroke-linecap', 'round');
+            dashes.setAttribute('stroke-dasharray', '8 10');
+            dashes.setAttribute('fill', 'none');
+            pathSvg.appendChild(dashes);
+
+            // Dots at each visited position
+            const visited = new Set();
+            for (let i = 0; i <= upToStep; i++) {
+                const key = `${steps[i].row},${steps[i].col}`;
+                if (!visited.has(key)) {
+                    visited.add(key);
+                    const { x, y } = cellCenter(steps[i].row, steps[i].col);
+                    const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                    circle.setAttribute('cx', x); circle.setAttribute('cy', y); circle.setAttribute('r', '5');
+                    circle.setAttribute('fill', i === 0 ? '#f5c800' : '#1a1a1a');
+                    circle.setAttribute('stroke', '#fff');
+                    circle.setAttribute('stroke-width', '2');
+                    pathSvg.appendChild(circle);
+                }
+            }
+        }
+
+        // ── TIMER ──────────────────────────────────────────────────────────────────
+        function startTimer() {
+            clearInterval(timerInterval);
+            elapsed = 0;
+            updateTimerUI();
+
+            timerInterval = setInterval(() => {
+                if (paused) return;
+                elapsed += TICK;
+                updateTimerUI();
+                if (elapsed >= STEP_INTERVAL) {
+                    elapsed = 0;
+                    advance();
+                }
+            }, TICK);
+        }
+
+        function updateTimerUI() {
+            const remaining = Math.max(0, STEP_INTERVAL - elapsed);
+            const pct = ((STEP_INTERVAL - remaining) / STEP_INTERVAL) * 100;
+            timerBar.style.width = (100 - pct) + '%';
+            timerCountdown.textContent = (remaining / 1000).toFixed(1) + 's';
+        }
+
+        function advance() {
+            if (currentStep < steps.length - 1) {
+                currentStep++;
+                renderStep(currentStep);
+                if (currentStep === steps.length - 1) {
+                    // done
+                    clearInterval(timerInterval);
+                    timerWrap.classList.remove('visible');
+                    pauseBtn.disabled = true;
+                }
+            }
+        }
+
+        // ── LOAD ───────────────────────────────────────────────────────────────────
+        loadBtn.addEventListener('click', () => {
+            const text = document.getElementById('cmd-input').value;
+            const parsed = parseCommands(text);
+
+            if (!parsed) {
+                showError('No valid commands found. Use f, b, l, r separated by spaces.');
+                return;
+            }
+
+            clearInterval(timerInterval);
+            steps = parsed;
+            currentStep = 0;
+
+            buildGrid();
+            completeBanner.style.display = 'none';
+            clearCellMarkers();
+
+            // Size SVG
+            const sz = totalGridSize();
+            pathSvg.setAttribute('width', sz);
+            pathSvg.setAttribute('height', sz);
+            pathSvg.setAttribute('viewBox', `0 0 ${sz} ${sz}`);
+            pathSvg.innerHTML = '';
+
+            // Build log
+            pathLog.innerHTML = '';
+            steps.forEach((s, i) => {
+                const entry = document.createElement('div');
+                entry.className = 'log-entry' + (i === 0 ? ' current' : '');
+                entry.innerHTML = `
+      <span class="log-step">${i}</span>
+      <span class="log-cmd">${s.cmd}</span>
+      <span class="log-pos">(${s.row},${s.col}) ${DIR_LABEL[s.dir]}</span>
+    `;
+                pathLog.appendChild(entry);
+            });
+
+            statusCard.classList.add('visible');
+            timerWrap.classList.add('visible');
+            controls.classList.add('visible');
+            pathLog.classList.add('visible');
+            logLabel.style.display = 'block';
+            pauseBtn.disabled = false;
+            paused = false;
+            pauseBtn.textContent = '⏸ Pause';
+
+            renderStep(0);
+            addCellMarker(0, 0, 'START', 'start-marker');
+
+            startTimer();
+        });
+
+        // ── PAUSE ──────────────────────────────────────────────────────────────────
+        pauseBtn.addEventListener('click', () => {
+            paused = !paused;
+            pauseBtn.textContent = paused ? '▶ Resume' : '⏸ Pause';
+            const sStatus = document.getElementById('s-status');
+            sStatus.textContent = paused ? 'PAUSED' : 'RUNNING';
+            sStatus.style.color = paused ? 'var(--yellow)' : 'var(--green-light)';
+        });
+
+        // ── RESET ──────────────────────────────────────────────────────────────────
+        resetBtn.addEventListener('click', () => {
+            clearInterval(timerInterval);
+            steps = []; currentStep = 0; paused = false;
+            buildGrid();
+            robotEl.style.display = 'none';
+            pathSvg.innerHTML = '';
+            completeBanner.style.display = 'none';
+            statusCard.classList.remove('visible');
+            timerWrap.classList.remove('visible');
+            controls.classList.remove('visible');
+            pathLog.classList.remove('visible');
+            logLabel.style.display = 'none';
+            clearCellMarkers();
+        });
+
+        // ── ERROR ──────────────────────────────────────────────────────────────────
+        function showError(msg) {
+            errorMsg.textContent = msg;
+            errorMsg.style.display = 'block';
+            setTimeout(() => errorMsg.style.display = 'none', 4000);
+        }
+
+        // ── INIT ───────────────────────────────────────────────────────────────────
+        buildGrid();
+
+        // Set SVG size once grid is rendered
+        window.addEventListener('load', () => {
+            const sz = totalGridSize();
+            pathSvg.setAttribute('width', sz);
+            pathSvg.setAttribute('height', sz);
+        });
+    </script>
+</body>
+
+</html>

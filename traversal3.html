@@ -1,0 +1,1427 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Sandozer — Mission Control</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&family=Barlow:wght@400;600;700;900&family=DM+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
+    <style>
+        /* ── VARIABLES ── */
+        :root {
+            --bg: #f5f0e8;
+            --map-bg: #ede8dc;
+            --grid-line: #d8d0be;
+            --black: #1a1a1a;
+            --yellow: #f5c800;
+            --yellow-dark: #d4a800;
+            --yellow-pale: #fdf6cc;
+            --green: #2d7a3a;
+            --green-light: #4aab5c;
+            --beige: #f5f0e8;
+            --beige-dark: #e0d5be;
+            --muted: #7a7060;
+            --cell: 44px;
+            --path: #1a1a1a;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background: var(--bg);
+            font-family: 'Barlow', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        /* ── SCREEN SYSTEM ── */
+        .screen {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.4s ease;
+        }
+
+        .screen.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        /* ── SHARED CARD ── */
+        .card {
+            background: #fff;
+            border-radius: 16px;
+            box-shadow: 0 8px 40px rgba(0, 0, 0, 0.12), 0 2px 8px rgba(0, 0, 0, 0.06);
+            padding: 40px 36px;
+            width: 680px;
+            max-width: calc(100vw - 32px);
+            position: relative;
+        }
+
+        .card-tag {
+            position: absolute;
+            top: 16px;
+            right: 20px;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.7rem;
+            color: var(--muted);
+            letter-spacing: 0.1em;
+            background: var(--beige);
+            padding: 3px 10px;
+            border-radius: 20px;
+            border: 1px solid var(--beige-dark);
+        }
+
+        .info-btn {
+            position: absolute;
+            top: 14px;
+            right: 14px;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            border: 2px solid var(--beige-dark);
+            background: #fff;
+            color: var(--muted);
+            font-size: 0.75rem;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.15s;
+        }
+
+        .info-btn:hover {
+            border-color: var(--black);
+            color: var(--black);
+        }
+
+        /* ── TYPOGRAPHY ── */
+        .orbitron {
+            font-family: 'Orbitron', monospace;
+            font-weight: 900;
+            letter-spacing: 0.04em;
+        }
+
+        .mono {
+            font-family: 'Share Tech Mono', monospace;
+        }
+
+        .btn-pill {
+            background: var(--yellow);
+            border: none;
+            border-radius: 40px;
+            font-family: 'Orbitron', monospace;
+            font-weight: 700;
+            font-size: 0.85rem;
+            padding: 12px 36px;
+            cursor: pointer;
+            color: var(--black);
+            letter-spacing: 0.06em;
+            transition: background 0.15s, transform 0.1s, box-shadow 0.15s;
+            box-shadow: 0 2px 12px rgba(245, 200, 0, 0.3);
+        }
+
+        .btn-pill:hover {
+            background: var(--yellow-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(245, 200, 0, 0.4);
+        }
+
+        .btn-pill:active {
+            transform: translateY(0);
+        }
+
+        .btn-pill.outline {
+            background: transparent;
+            border: 2.5px solid var(--yellow);
+            color: var(--black);
+            box-shadow: none;
+        }
+
+        .btn-pill.outline:hover {
+            background: var(--yellow-pale);
+        }
+
+        /* ── BACKGROUND MAP TEXTURE ── */
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image:
+                linear-gradient(var(--grid-line) 1px, transparent 1px),
+                linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+            background-size: 28px 28px;
+            opacity: 0.45;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        /* ══════════════════════════════════════
+   SCREEN 1 — ABOUT (splash)
+══════════════════════════════════════ */
+        #screen-splash .card {
+            width: 720px;
+            text-align: center;
+            padding: 56px 48px;
+        }
+
+        .splash-pre {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.72rem;
+            letter-spacing: 0.2em;
+            color: var(--muted);
+            text-transform: uppercase;
+            margin-bottom: 10px;
+        }
+
+        .splash-title {
+            font-family: 'Orbitron', monospace;
+            font-size: 3rem;
+            font-weight: 900;
+            color: var(--black);
+            line-height: 1.1;
+            letter-spacing: -0.01em;
+        }
+
+        .splash-title .accent {
+            color: var(--yellow-dark);
+        }
+
+        .splash-sub {
+            font-family: 'Orbitron', monospace;
+            font-size: 0.95rem;
+            font-weight: 400;
+            color: var(--muted);
+            letter-spacing: 0.2em;
+            margin-top: 10px;
+            text-transform: uppercase;
+        }
+
+        .splash-divider {
+            width: 80px;
+            height: 3px;
+            background: var(--yellow);
+            margin: 28px auto;
+            border-radius: 2px;
+        }
+
+        .splash-about-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 36px;
+            text-align: left;
+        }
+
+        .about-box {
+            background: var(--beige);
+            border-radius: 12px;
+            padding: 20px;
+            border: 1px solid var(--beige-dark);
+        }
+
+        .about-box h3 {
+            font-family: 'Orbitron', monospace;
+            font-size: 0.7rem;
+            font-weight: 700;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: var(--muted);
+            margin-bottom: 10px;
+        }
+
+        .about-box p,
+        .about-box li {
+            font-size: 0.85rem;
+            color: var(--black);
+            line-height: 1.6;
+        }
+
+        .about-box ul {
+            padding-left: 16px;
+        }
+
+        .about-box li {
+            margin-bottom: 4px;
+        }
+
+        .jd-logo {
+            display: inline-block;
+            background: var(--black);
+            color: var(--yellow);
+            font-family: 'Orbitron', monospace;
+            font-weight: 900;
+            font-size: 1.1rem;
+            padding: 8px 16px;
+            border-radius: 8px;
+            letter-spacing: 0.06em;
+            margin-top: 6px;
+        }
+
+        /* ══════════════════════════════════════
+   SCREEN 2 — MODE SELECT
+══════════════════════════════════════ */
+        #screen-mode .card {
+            text-align: center;
+            padding: 56px 48px;
+        }
+
+        .mode-heading {
+            font-family: 'Orbitron', monospace;
+            font-size: 0.85rem;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            color: var(--muted);
+            margin-bottom: 28px;
+        }
+
+        .mode-question {
+            font-family: 'Orbitron', monospace;
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--black);
+            margin-bottom: 32px;
+            letter-spacing: 0.04em;
+        }
+
+        .mode-btns {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin-bottom: 40px;
+            flex-wrap: wrap;
+        }
+
+        .mode-btn {
+            background: var(--yellow-pale);
+            border: 2.5px solid var(--yellow);
+            border-radius: 40px;
+            font-family: 'Orbitron', monospace;
+            font-size: 0.95rem;
+            font-weight: 700;
+            padding: 14px 44px;
+            cursor: pointer;
+            color: var(--black);
+            letter-spacing: 0.06em;
+            transition: all 0.15s;
+        }
+
+        .mode-btn:hover,
+        .mode-btn.selected {
+            background: var(--yellow);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(245, 200, 0, 0.35);
+        }
+
+        /* ══════════════════════════════════════
+   SCREEN 3 — OBSERVE
+══════════════════════════════════════ */
+        #screen-observe .card {
+            width: 900px;
+            padding: 32px;
+        }
+
+        .observe-layout {
+            display: grid;
+            grid-template-columns: auto 1fr;
+            gap: 32px;
+            align-items: start;
+        }
+
+        .screen-title {
+            font-family: 'Orbitron', monospace;
+            font-size: 1.3rem;
+            font-weight: 900;
+            color: var(--black);
+            margin-bottom: 20px;
+            letter-spacing: 0.02em;
+        }
+
+        /* ── MINI GRID ── */
+        .mini-grid-wrap {
+            position: relative;
+            flex-shrink: 0;
+        }
+
+        .mini-grid {
+            border-collapse: separate;
+            border-spacing: 3px;
+            background: var(--map-bg);
+            padding: 6px;
+            border-radius: 10px;
+            border: 2px solid var(--beige-dark);
+        }
+
+        .mini-cell {
+            width: var(--cell);
+            height: var(--cell);
+            background: rgba(245, 240, 232, 0.9);
+            border-radius: 4px;
+            border: 1px solid #ccc5b0;
+            position: relative;
+        }
+
+        .mini-cell .mc-label {
+            position: absolute;
+            bottom: 2px;
+            right: 4px;
+            font-size: 0.42rem;
+            font-family: 'DM Mono', monospace;
+            color: #bbb0a0;
+        }
+
+        .mini-svg {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            z-index: 3;
+        }
+
+        .mini-robot {
+            position: absolute;
+            z-index: 5;
+            pointer-events: none;
+            transform: translate(-50%, -50%);
+            transition: left 0.7s cubic-bezier(0.4, 0, 0.2, 1), top 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .mini-robot-dot {
+            width: 20px;
+            height: 20px;
+            background: var(--black);
+            border-radius: 6px;
+            border: 3px solid var(--yellow);
+            box-shadow: 0 0 12px rgba(245, 200, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .mini-robot-dot svg {
+            width: 11px;
+            height: 11px;
+            fill: var(--yellow);
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                opacity: 1
+            }
+
+            50% {
+                opacity: 0.4
+            }
+        }
+
+        .pulse {
+            animation: pulse 1.2s ease-in-out infinite;
+        }
+
+        /* ── OBSERVATION PANEL ── */
+        .obs-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .obs-row {
+            display: flex;
+            align-items: baseline;
+            gap: 10px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--beige-dark);
+        }
+
+        .obs-row:last-child {
+            border-bottom: none;
+        }
+
+        .obs-label {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.72rem;
+            color: var(--muted);
+            letter-spacing: 0.08em;
+            min-width: 160px;
+            flex-shrink: 0;
+        }
+
+        .obs-val {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.9rem;
+            color: var(--black);
+            font-weight: 500;
+        }
+
+        .obs-val.highlight {
+            color: var(--yellow-dark);
+            font-weight: 700;
+        }
+
+        /* terrain selector */
+        .terrain-row {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .terrain-opt {
+            font-family: 'Orbitron', monospace;
+            font-size: 0.72rem;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            padding: 5px 14px;
+            border-radius: 20px;
+            border: 2px solid transparent;
+            cursor: default;
+            opacity: 0.2;
+            transition: all 0.25s;
+        }
+
+        .terrain-opt.flat {
+            color: #1e7e34;
+            border-color: #1e7e34;
+            background: transparent;
+        }
+
+        .terrain-opt.smooth {
+            color: #b87900;
+            border-color: #b87900;
+            background: transparent;
+        }
+
+        .terrain-opt.bump {
+            color: #c0392b;
+            border-color: #c0392b;
+            background: transparent;
+        }
+
+        .terrain-opt.active {
+            opacity: 1;
+            font-weight: 900;
+        }
+
+        .terrain-opt.flat.active {
+            background: #d4f5db;
+        }
+
+        .terrain-opt.smooth.active {
+            background: #fdf0cc;
+        }
+
+        .terrain-opt.bump.active {
+            background: #fde8e6;
+        }
+
+        /* step counter + controls */
+        .obs-controls {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-top: 6px;
+        }
+
+        .step-badge-large {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.78rem;
+            background: var(--black);
+            color: var(--yellow);
+            padding: 6px 14px;
+            border-radius: 8px;
+            letter-spacing: 0.08em;
+        }
+
+        .timer-mini {
+            flex: 1;
+            height: 5px;
+            background: var(--beige-dark);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .timer-fill {
+            height: 100%;
+            background: var(--yellow);
+            border-radius: 3px;
+            transition: width 0.1s linear;
+        }
+
+        /* ══════════════════════════════════════
+   SCREEN 4 — TEST
+══════════════════════════════════════ */
+        #screen-test .card {
+            width: 900px;
+            padding: 32px;
+        }
+
+        .test-layout {
+            display: grid;
+            grid-template-columns: auto 1fr;
+            gap: 32px;
+            align-items: start;
+        }
+
+        .test-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .test-input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .test-label {
+            font-family: 'Orbitron', monospace;
+            font-size: 0.7rem;
+            font-weight: 700;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            color: var(--muted);
+        }
+
+        .test-input {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 1rem;
+            background: var(--beige);
+            border: 2px solid var(--beige-dark);
+            border-radius: 10px;
+            color: var(--black);
+            padding: 12px 14px;
+            outline: none;
+            transition: border-color 0.2s;
+            letter-spacing: 0.12em;
+            width: 100%;
+        }
+
+        .test-input:focus {
+            border-color: var(--yellow-dark);
+        }
+
+        .test-input::placeholder {
+            color: #c0b8a8;
+        }
+
+        .go-btn {
+            background: var(--yellow);
+            border: none;
+            border-radius: 40px;
+            font-family: 'Orbitron', monospace;
+            font-weight: 900;
+            font-size: 1.2rem;
+            padding: 16px 48px;
+            cursor: pointer;
+            color: var(--black);
+            letter-spacing: 0.1em;
+            transition: all 0.15s;
+            box-shadow: 0 4px 20px rgba(245, 200, 0, 0.4);
+            align-self: flex-start;
+        }
+
+        .go-btn:hover {
+            background: var(--yellow-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 28px rgba(245, 200, 0, 0.5);
+        }
+
+        .go-btn:active {
+            transform: translateY(0);
+        }
+
+        .hint-small {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.68rem;
+            color: var(--muted);
+            line-height: 1.5;
+        }
+
+        /* ══════════════════════════════════════
+   SCREEN 5 — TEST RESULT
+══════════════════════════════════════ */
+        #screen-result .card {
+            width: 900px;
+            padding: 32px;
+        }
+
+        .result-layout {
+            display: grid;
+            grid-template-columns: auto 1fr;
+            gap: 32px;
+            align-items: start;
+        }
+
+        .result-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .result-row {
+            display: flex;
+            align-items: baseline;
+            gap: 12px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--beige-dark);
+        }
+
+        .result-label {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.72rem;
+            color: var(--muted);
+            letter-spacing: 0.08em;
+            min-width: 130px;
+            flex-shrink: 0;
+        }
+
+        .result-val {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 1rem;
+            color: var(--black);
+            font-weight: 600;
+        }
+
+        .result-val.tilt {
+            color: var(--yellow-dark);
+            font-weight: 700;
+        }
+
+        .result-terrain {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .back-btn {
+            margin-top: 8px;
+            font-size: 0.75rem;
+        }
+
+        /* ── PATH LOG on observe/test ── */
+        .path-log-mini {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+            margin-top: 8px;
+        }
+
+        .log-chip {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.62rem;
+            padding: 2px 8px;
+            border-radius: 12px;
+            border: 1px solid var(--beige-dark);
+            color: var(--muted);
+            transition: all 0.2s;
+        }
+
+        .log-chip.done {
+            background: var(--beige);
+            color: var(--black);
+            border-color: #ccc5b0;
+        }
+
+        .log-chip.current {
+            background: var(--yellow);
+            color: var(--black);
+            border-color: var(--yellow-dark);
+            font-weight: 700;
+        }
+
+        /* error */
+        .err {
+            color: #c0392b;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.75rem;
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- ══ SCREEN 1: SPLASH ══ -->
+    <div class="screen active" id="screen-splash">
+        <div class="card">
+            <button class="info-btn" title="Info">i</button>
+            <div class="splash-pre">John Deere × Arduino</div>
+            <div class="splash-title">The <span class="accent">Sandozer</span></div>
+            <div class="splash-sub">Mission Control</div>
+            <div class="splash-divider"></div>
+            <div class="splash-about-grid">
+                <div class="about-box">
+                    <h3>About John Deere</h3>
+                    <p>Leading manufacturer of agricultural and construction machinery since 1837. Pioneering autonomous
+                        navigation in real-world terrain.</p>
+                    <div class="jd-logo">JOHN DEERE</div>
+                </div>
+                <div class="about-box">
+                    <h3>About Our Robot</h3>
+                    <ul>
+                        <li>Bulldozer + flat blade</li>
+                        <li>Arduino Elegoo Oullot Tank Kit</li>
+                        <li>5×5 grid navigation</li>
+                        <li>Real-time terrain sensing</li>
+                    </ul>
+                </div>
+            </div>
+            <button class="btn-pill" onclick="goTo('screen-mode')">CONTINUE →</button>
+        </div>
+    </div>
+
+    <!-- ══ SCREEN 2: MODE SELECT ══ -->
+    <div class="screen" id="screen-mode">
+        <div class="card">
+            <button class="info-btn" onclick="goTo('screen-splash')">←</button>
+            <div style="text-align:center; padding: 20px 0 36px;">
+                <div class="splash-title" style="font-size:2rem;">The <span class="accent">Sandozer</span></div>
+                <div class="splash-sub" style="font-size:0.8rem;">Mission Control</div>
+            </div>
+            <div class="mode-question">I WANT TO:</div>
+            <div class="mode-btns">
+                <button class="mode-btn" id="btn-observe" onclick="selectMode('observe')">OBSERVE</button>
+                <button class="mode-btn" id="btn-test" onclick="selectMode('test')">TEST</button>
+            </div>
+            <div style="text-align:center;">
+                <button class="btn-pill" id="mode-continue" onclick="continueMode()"
+                    style="opacity:0.4;pointer-events:none;">CONTINUE →</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ══ SCREEN 3: OBSERVE ══ -->
+    <div class="screen" id="screen-observe">
+        <div class="card">
+            <div class="card-tag">OBSERVATION</div>
+            <div class="screen-title">The Sandozer Traversal</div>
+            <div class="observe-layout">
+                <!-- Mini Grid -->
+                <div class="mini-grid-wrap" id="obs-grid-wrap">
+                    <table class="mini-grid" id="obs-grid"></table>
+                    <svg class="mini-svg" id="obs-svg"></svg>
+                    <div class="mini-robot" id="obs-robot" style="display:none">
+                        <div class="mini-robot-dot pulse">
+                            <svg viewBox="0 0 24 24">
+                                <rect x="5" y="8" width="14" height="11" rx="2" />
+                                <rect x="8" y="4" width="8" height="5" rx="1.5" />
+                                <circle cx="9" cy="13" r="1.8" fill="#1a1a1a" />
+                                <circle cx="15" cy="13" r="1.8" fill="#1a1a1a" />
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Observation Panel -->
+                <div class="obs-panel">
+                    <div class="obs-row">
+                        <span class="obs-label">Sandbox dimensions:</span>
+                        <span class="obs-val">5 × 5 grid</span>
+                    </div>
+                    <div class="obs-row">
+                        <span class="obs-label">X-coord (how far from left):</span>
+                        <span class="obs-val" id="obs-x">0</span>
+                    </div>
+                    <div class="obs-row">
+                        <span class="obs-label">Y-coord (how far from top):</span>
+                        <span class="obs-val" id="obs-y">0</span>
+                    </div>
+                    <div class="obs-row">
+                        <span class="obs-label">Altitude:</span>
+                        <span class="obs-val" id="obs-alt">0.00 m</span>
+                    </div>
+                    <div class="obs-row">
+                        <span class="obs-label">Vertical tilt:</span>
+                        <span class="obs-val highlight" id="obs-tilt">0.000°</span>
+                    </div>
+                    <div class="obs-row">
+                        <span class="obs-label">How close to nearest wall:</span>
+                        <span class="obs-val" id="obs-wall">—</span>
+                    </div>
+                    <div class="obs-row" style="border:none; flex-direction:column; gap:8px;">
+                        <span class="obs-label">Terrain:</span>
+                        <div class="terrain-row">
+                            <span class="terrain-opt flat" id="t-flat">FLAT</span>
+                            <span class="terrain-opt smooth" id="t-smooth">SOMEWHAT SMOOTH</span>
+                            <span class="terrain-opt bump" id="t-bump">BUMP</span>
+                        </div>
+                    </div>
+
+                    <div class="obs-controls">
+                        <span class="step-badge-large" id="obs-step-badge">STEP 0/0</span>
+                        <div class="timer-mini">
+                            <div class="timer-fill" id="obs-timer-fill" style="width:100%"></div>
+                        </div>
+                        <span class="mono" style="font-size:0.7rem;color:var(--muted);" id="obs-countdown">10.0s</span>
+                        <button class="btn-pill outline" id="obs-pause-btn" onclick="toggleObsPause()"
+                            style="padding:8px 18px;font-size:0.7rem;">⏸</button>
+                    </div>
+
+                    <div class="path-log-mini" id="obs-log"></div>
+
+                    <div style="margin-top:8px;">
+                        <button class="btn-pill outline" style="padding:8px 20px;font-size:0.72rem;"
+                            onclick="goTo('screen-mode')">← BACK</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ══ SCREEN 4: TEST ══ -->
+    <div class="screen" id="screen-test">
+        <div class="card">
+            <div class="card-tag">TEST</div>
+            <div class="screen-title">The Sandozer Traversal</div>
+            <div class="test-layout">
+                <!-- Mini Grid (test) -->
+                <div class="mini-grid-wrap" id="test-grid-wrap">
+                    <table class="mini-grid" id="test-grid"></table>
+                    <svg class="mini-svg" id="test-svg"></svg>
+                    <div class="mini-robot" id="test-robot" style="display:none">
+                        <div class="mini-robot-dot">
+                            <svg viewBox="0 0 24 24">
+                                <rect x="5" y="8" width="14" height="11" rx="2" />
+                                <rect x="8" y="4" width="8" height="5" rx="1.5" />
+                                <circle cx="9" cy="13" r="1.8" fill="#1a1a1a" />
+                                <circle cx="15" cy="13" r="1.8" fill="#1a1a1a" />
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Test Panel -->
+                <div class="test-panel">
+                    <div
+                        style="font-family:'Share Tech Mono',monospace;font-size:0.75rem;color:var(--muted);line-height:1.6;background:var(--beige);border-radius:10px;padding:12px 14px;border:1px solid var(--beige-dark);">
+                        Enter a target cell. The robot will automatically find the shortest path from <strong
+                            style="color:var(--black)">(0,0)</strong> and report the terrain at the destination.
+                    </div>
+
+                    <div class="test-input-group">
+                        <label class="test-label">Navigate to: (row, col)</label>
+                        <input class="test-input" id="test-target" placeholder="e.g. 3,4" maxlength="5" />
+                        <div class="hint-small">Values 0–4. Robot starts at (0,0) and takes shortest path.</div>
+                        <div class="err" id="test-err">Invalid coordinates. Use row,col (0–4).</div>
+                    </div>
+
+                    <button class="go-btn" onclick="runTest()">GO!</button>
+
+                    <div style="margin-top:4px;">
+                        <button class="btn-pill outline" style="padding:8px 20px;font-size:0.72rem;"
+                            onclick="goTo('screen-mode')">← BACK</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ══ SCREEN 5: TEST RESULT ══ -->
+    <div class="screen" id="screen-result">
+        <div class="card">
+            <div class="card-tag">TEST</div>
+            <div class="screen-title">The Sandozer Traversal</div>
+            <div class="result-layout">
+                <!-- Mini Grid (result) -->
+                <div class="mini-grid-wrap" id="res-grid-wrap">
+                    <table class="mini-grid" id="res-grid"></table>
+                    <svg class="mini-svg" id="res-svg"></svg>
+                    <div class="mini-robot" id="res-robot" style="display:none">
+                        <div class="mini-robot-dot">
+                            <svg viewBox="0 0 24 24">
+                                <rect x="5" y="8" width="14" height="11" rx="2" />
+                                <rect x="8" y="4" width="8" height="5" rx="1.5" />
+                                <circle cx="9" cy="13" r="1.8" fill="#1a1a1a" />
+                                <circle cx="15" cy="13" r="1.8" fill="#1a1a1a" />
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Result Panel -->
+                <div class="result-panel">
+                    <div class="result-row">
+                        <span class="result-label">Position:</span>
+                        <span class="result-val" id="res-pos">—</span>
+                    </div>
+                    <div class="result-row">
+                        <span class="result-label">Facing:</span>
+                        <span class="result-val" id="res-dir">—</span>
+                    </div>
+                    <div class="result-row">
+                        <span class="result-label">Target reached:</span>
+                        <span class="result-val" id="res-reached">—</span>
+                    </div>
+                    <div class="result-row">
+                        <span class="result-label">Vertical tilt:</span>
+                        <span class="result-val tilt" id="res-tilt">—</span>
+                    </div>
+                    <div class="result-row" style="border:none;flex-direction:column;gap:8px;">
+                        <span class="result-label">Terrain:</span>
+                        <div class="result-terrain">
+                            <span class="terrain-opt flat" id="rt-flat">FLAT</span>
+                            <span class="terrain-opt smooth" id="rt-smooth">SOMEWHAT SMOOTH</span>
+                            <span class="terrain-opt bump" id="rt-bump">BUMP</span>
+                        </div>
+                    </div>
+                    <div class="path-log-mini" id="res-log" style="max-height:80px;overflow-y:auto;"></div>
+                    <div style="display:flex;gap:10px;margin-top:8px;flex-wrap:wrap;">
+                        <button class="btn-pill" style="padding:10px 24px;font-size:0.78rem;"
+                            onclick="goTo('screen-test')">TRY AGAIN</button>
+                        <button class="btn-pill outline" style="padding:10px 20px;font-size:0.72rem;"
+                            onclick="goTo('screen-mode')">← BACK</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ══════════════ JAVASCRIPT ══════════════ -->
+    <script>
+        // ── NAVIGATION ────────────────────────────────────────
+        function goTo(screenId) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(screenId).classList.add('active');
+
+            if (screenId === 'screen-observe') initObserve();
+            if (screenId === 'screen-test') initTestGrid();
+        }
+
+        // ── MODE SELECT ───────────────────────────────────────
+        let selectedMode = null;
+
+        function selectMode(mode) {
+            selectedMode = mode;
+            document.getElementById('btn-observe').classList.toggle('selected', mode === 'observe');
+            document.getElementById('btn-test').classList.toggle('selected', mode === 'test');
+            const cont = document.getElementById('mode-continue');
+            cont.style.opacity = '1';
+            cont.style.pointerEvents = 'auto';
+        }
+
+        function continueMode() {
+            if (!selectedMode) return;
+            goTo(selectedMode === 'observe' ? 'screen-observe' : 'screen-test');
+        }
+
+        // ── SHARED GRID BUILDER ───────────────────────────────
+        const CELL = 44, GAP = 3;
+
+        function buildMiniGrid(tableEl) {
+            tableEl.innerHTML = '';
+            const cells = [];
+            for (let r = 0; r < 5; r++) {
+                cells[r] = [];
+                const tr = document.createElement('tr');
+                for (let c = 0; c < 5; c++) {
+                    const td = document.createElement('td');
+                    td.className = 'mini-cell';
+                    td.innerHTML = `<span class="mc-label">${r},${c}</span>`;
+                    tr.appendChild(td);
+                    cells[r][c] = td;
+                }
+                tableEl.appendChild(tr);
+            }
+            return cells;
+        }
+
+        function cellCenter(row, col) {
+            const sp = 3 + 6; // border-spacing + padding
+            const x = sp + col * (CELL + 3) + CELL / 2;
+            const y = sp + row * (CELL + 3) + CELL / 2;
+            return { x, y };
+        }
+
+        function gridTotalSize() {
+            const sp = 3 + 6;
+            return sp + 5 * (CELL + 3);
+        }
+
+        // ── DIRECTION SYSTEM ──────────────────────────────────
+        // Start facing East (forward = increase col)
+        const DIRS = ['E', 'S', 'W', 'N'];
+        const DELTA = { E: [0, 1], S: [1, 0], W: [0, -1], N: [-1, 0] };
+        const DIR_LABEL = { E: 'East →', S: 'South ↓', W: 'West ←', N: 'North ↑' };
+
+        function parseCommands(text) {
+            const tokens = text.toLowerCase().match(/[fblr]/g);
+            if (!tokens || !tokens.length) return null;
+            const path = [];
+            let row = 0, col = 0, di = 0;
+            path.push({ row, col, dir: DIRS[di], cmd: 'START' });
+            for (const cmd of tokens) {
+                if (cmd === 'l') { di = (di + 3) % 4; path.push({ row, col, dir: DIRS[di], cmd: 'L' }); }
+                else if (cmd === 'r') { di = (di + 1) % 4; path.push({ row, col, dir: DIRS[di], cmd: 'R' }); }
+                else {
+                    const [dr, dc] = DELTA[DIRS[di]];
+                    row = Math.max(0, Math.min(4, row + (cmd === 'f' ? dr : -dr)));
+                    col = Math.max(0, Math.min(4, col + (cmd === 'f' ? dc : -dc)));
+                    path.push({ row, col, dir: DIRS[di], cmd: cmd === 'f' ? 'F' : 'B' });
+                }
+            }
+            return path;
+        }
+
+        // ── SENSOR DATA — randomly generated once at startup ──
+        // Tilt: random float in [0.000, 0.300] degrees per cell
+        // Terrain derived from tilt: <0.05=flat, 0.05-0.15=smooth, >0.15=bump
+        const TILT_MAP = (() => {
+            const map = [];
+            for (let r = 0; r < 5; r++) {
+                map[r] = [];
+                for (let c = 0; c < 5; c++) {
+                    map[r][c] = Math.round(Math.random() * 300) / 1000;
+                }
+            }
+            map[0][0] = Math.round(Math.random() * 49) / 1000; // keep start flat
+            return map;
+        })();
+
+        const ALTITUDE_MAP = (() => {
+            const map = [];
+            for (let r = 0; r < 5; r++) {
+                map[r] = [];
+                for (let c = 0; c < 5; c++) {
+                    map[r][c] = Math.round(Math.random() * 150) / 1000;
+                }
+            }
+            return map;
+        })();
+
+        function tiltToTerrain(tilt) {
+            if (tilt < 0.05) return 'flat';
+            if (tilt <= 0.15) return 'smooth';
+            return 'bump';
+        }
+
+        function getSensorData(row, col) {
+            const tilt = TILT_MAP[row][col];
+            const terrain = tiltToTerrain(tilt);
+            const alt = ALTITUDE_MAP[row][col];
+            const wallDist = Math.min(row, col, 4 - row, 4 - col);
+            return { terrain, alt, tilt, wallDist };
+        }
+
+        // ── DRAW PATH ON SVG ──────────────────────────────────
+        function drawPath(svgEl, steps, upTo) {
+            const sz = gridTotalSize();
+            svgEl.setAttribute('viewBox', `0 0 ${sz} ${sz}`);
+            svgEl.setAttribute('width', sz);
+            svgEl.setAttribute('height', sz);
+            svgEl.innerHTML = '';
+            if (upTo < 1) return;
+
+            const pts = [];
+            for (let i = 0; i <= upTo; i++) {
+                const { x, y } = cellCenter(steps[i].row, steps[i].col);
+                if (!pts.length || pts[pts.length - 1].x !== x || pts[pts.length - 1].y !== y)
+                    pts.push({ x, y });
+            }
+            if (pts.length < 2) return;
+
+            const ptStr = pts.map(p => `${p.x},${p.y}`).join(' ');
+
+            // road shadow
+            const bg = makePoly(ptStr, '#b0a890', 11);
+            svgEl.appendChild(bg);
+            // main road
+            svgEl.appendChild(makePoly(ptStr, '#1a1a1a', 7));
+            // dashes
+            const dash = makePoly(ptStr, '#f5c800', 2);
+            dash.setAttribute('stroke-dasharray', '6 8');
+            svgEl.appendChild(dash);
+
+            // dots
+            const seen = new Set();
+            for (let i = 0; i <= upTo; i++) {
+                const { row, col } = steps[i];
+                const key = `${row},${col}`;
+                if (!seen.has(key)) {
+                    seen.add(key);
+                    const { x, y } = cellCenter(row, col);
+                    const c = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                    c.setAttribute('cx', x); c.setAttribute('cy', y); c.setAttribute('r', i === 0 ? 5 : 4);
+                    c.setAttribute('fill', i === 0 ? '#f5c800' : '#1a1a1a');
+                    c.setAttribute('stroke', '#fff'); c.setAttribute('stroke-width', '1.5');
+                    svgEl.appendChild(c);
+                }
+            }
+        }
+
+        function makePoly(pts, stroke, width) {
+            const el = document.createElementNS('http://www.w3.org/2000/svg', 'polyline');
+            el.setAttribute('points', pts);
+            el.setAttribute('stroke', stroke);
+            el.setAttribute('stroke-width', width);
+            el.setAttribute('stroke-linecap', 'round');
+            el.setAttribute('stroke-linejoin', 'round');
+            el.setAttribute('fill', 'none');
+            return el;
+        }
+
+        function moveRobot(robotEl, row, col) {
+            const { x, y } = cellCenter(row, col);
+            robotEl.style.left = x + 'px';
+            robotEl.style.top = y + 'px';
+            robotEl.style.display = 'block';
+        }
+
+        // ── OBSERVE SCREEN ────────────────────────────────────
+        let obsSteps = [], obsStep = 0, obsPaused = false, obsTimer = null, obsElapsed = 0;
+        const OBS_INTERVAL = 10000;
+
+        function initObserve() {
+            clearInterval(obsTimer);
+            // Default route for observe mode
+            const defaultCmds = 'f f f r f f l f f';
+            obsSteps = parseCommands(defaultCmds) || [];
+            obsStep = 0;
+            obsPaused = false;
+
+            buildMiniGrid(document.getElementById('obs-grid'));
+            const sz = gridTotalSize();
+            const svg = document.getElementById('obs-svg');
+            svg.setAttribute('width', sz); svg.setAttribute('height', sz);
+            svg.innerHTML = '';
+
+            buildObsLog();
+            renderObsStep(0);
+            startObsTimer();
+        }
+
+        function buildObsLog() {
+            const log = document.getElementById('obs-log');
+            log.innerHTML = '';
+            obsSteps.forEach((s, i) => {
+                const chip = document.createElement('span');
+                chip.className = 'log-chip' + (i === 0 ? ' current' : '');
+                chip.textContent = `(${s.row},${s.col})`;
+                log.appendChild(chip);
+            });
+        }
+
+        function renderObsStep(idx) {
+            const s = obsSteps[idx];
+            if (!s) return;
+            const sensor = getSensorData(s.row, s.col);
+
+            // robot
+            moveRobot(document.getElementById('obs-robot'), s.row, s.col);
+            // path
+            drawPath(document.getElementById('obs-svg'), obsSteps, idx);
+
+            // data
+            document.getElementById('obs-x').textContent = s.col;
+            document.getElementById('obs-y').textContent = s.row;
+            document.getElementById('obs-alt').textContent = sensor.alt.toFixed(2) + ' m';
+            const tiltEl = document.getElementById('obs-tilt');
+            tiltEl.textContent = sensor.tilt.toFixed(3) + '°';
+            tiltEl.style.color = sensor.terrain === 'flat' ? 'var(--green)' :
+                sensor.terrain === 'smooth' ? '#b87900' : '#c0392b';
+            document.getElementById('obs-wall').textContent = sensor.wallDist + ' cell' + (sensor.wallDist !== 1 ? 's' : '');
+            document.getElementById('obs-step-badge').textContent = `STEP ${idx}/${obsSteps.length - 1}`;
+
+            // terrain — highlight based on tilt thresholds
+            setTerrainHighlight('t-', sensor.terrain);
+
+            // log chips
+            document.querySelectorAll('#obs-log .log-chip').forEach((el, i) => {
+                el.className = 'log-chip' + (i < idx ? ' done' : i === idx ? ' current' : '');
+            });
+            const cur = document.querySelector('#obs-log .current');
+            if (cur) cur.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+
+        function startObsTimer() {
+            clearInterval(obsTimer);
+            obsElapsed = 0; updateObsTimerUI();
+            obsTimer = setInterval(() => {
+                if (obsPaused) return;
+                obsElapsed += 100;
+                updateObsTimerUI();
+                if (obsElapsed >= OBS_INTERVAL) {
+                    obsElapsed = 0;
+                    if (obsStep < obsSteps.length - 1) { obsStep++; renderObsStep(obsStep); }
+                    else { clearInterval(obsTimer); document.getElementById('obs-timer-fill').style.width = '0%'; }
+                }
+            }, 100);
+        }
+
+        function updateObsTimerUI() {
+            const rem = Math.max(0, OBS_INTERVAL - obsElapsed);
+            document.getElementById('obs-timer-fill').style.width = ((rem / OBS_INTERVAL) * 100) + '%';
+            document.getElementById('obs-countdown').textContent = (rem / 1000).toFixed(1) + 's';
+        }
+
+        function toggleObsPause() {
+            obsPaused = !obsPaused;
+            document.getElementById('obs-pause-btn').textContent = obsPaused ? '▶' : '⏸';
+        }
+
+        // ── TERRAIN HIGHLIGHT HELPER ──────────────────────────
+        // prefix: 't-' for observe, 'rt-' for result
+        function setTerrainHighlight(prefix, terrain) {
+            ['flat', 'smooth', 'bump'].forEach(t => {
+                document.getElementById(prefix + t).classList.toggle('active', terrain === t);
+            });
+        }
+
+        // ── BFS SHORT PATH ────────────────────────────────────
+        // Returns array of {row,col} from (0,0) to (tr,tc) using BFS (shortest path)
+        function bfsPath(tr, tc) {
+            if (tr === 0 && tc === 0) return [{ row: 0, col: 0 }];
+            const visited = Array.from({ length: 5 }, () => Array(5).fill(false));
+            const parent = Array.from({ length: 5 }, () => Array(5).fill(null));
+            const q = [{ row: 0, col: 0 }];
+            visited[0][0] = true;
+            const dirs = [[0, 1], [1, 0], [0, -1], [-1, 0]];
+            while (q.length) {
+                const { row, col } = q.shift();
+                if (row === tr && col === tc) {
+                    // reconstruct
+                    const path = [];
+                    let cur = { row, col };
+                    while (cur) { path.unshift(cur); cur = parent[cur.row][cur.col]; }
+                    return path;
+                }
+                for (const [dr, dc] of dirs) {
+                    const nr = row + dr, nc = col + dc;
+                    if (nr >= 0 && nr < 5 && nc >= 0 && nc < 5 && !visited[nr][nc]) {
+                        visited[nr][nc] = true;
+                        parent[nr][nc] = { row, col };
+                        q.push({ row: nr, col: nc });
+                    }
+                }
+            }
+            return [{ row: 0, col: 0 }];
+        }
+
+        // Convert BFS cell-path into steps format for drawPath/moveRobot
+        function bfsToSteps(cellPath) {
+            return cellPath.map((p, i) => ({ row: p.row, col: p.col, dir: 'E', cmd: i === 0 ? 'START' : 'F' }));
+        }
+
+        // ── TEST SCREEN ───────────────────────────────────────
+        function initTestGrid() {
+            buildMiniGrid(document.getElementById('test-grid'));
+            const sz = gridTotalSize();
+            const svg = document.getElementById('test-svg');
+            svg.setAttribute('width', sz); svg.setAttribute('height', sz);
+            svg.innerHTML = '';
+            document.getElementById('test-robot').style.display = 'none';
+            moveRobot(document.getElementById('test-robot'), 0, 0);
+        }
+
+        function runTest() {
+            const targetText = document.getElementById('test-target').value.trim();
+            const err = document.getElementById('test-err');
+
+            const m = targetText.match(/(\d)\s*,\s*(\d)/);
+            if (!m || +m[1] > 4 || +m[2] > 4) {
+                err.style.display = 'block';
+                err.textContent = 'Invalid target. Use row,col with values 0–4.';
+                setTimeout(() => err.style.display = 'none', 3000);
+                return;
+            }
+            const targetRow = +m[1], targetCol = +m[2];
+            const cellPath = bfsPath(targetRow, targetCol);
+            const steps = bfsToSteps(cellPath);
+            animateTest(steps, targetRow, targetCol);
+        }
+
+        function animateTest(steps, targetRow, targetCol) {
+            const grid = document.getElementById('test-grid');
+            const svg = document.getElementById('test-svg');
+            const robot = document.getElementById('test-robot');
+            buildMiniGrid(grid);
+            const sz = gridTotalSize();
+            svg.setAttribute('width', sz); svg.setAttribute('height', sz);
+            svg.innerHTML = '';
+
+            let i = 0;
+            function next() {
+                drawPath(svg, steps, i);
+                moveRobot(robot, steps[i].row, steps[i].col);
+                if (i < steps.length - 1) { i++; setTimeout(next, 700); }
+                else { setTimeout(() => showResult(steps, targetRow, targetCol), 900); }
+            }
+            next();
+        }
+
+        // ── RESULT SCREEN ─────────────────────────────────────
+        function showResult(steps, targetRow, targetCol) {
+            const last = steps[steps.length - 1];
+            const sensor = getSensorData(last.row, last.col);
+
+            goTo('screen-result');
+
+            // build grid + draw full path
+            const resCells = buildMiniGrid(document.getElementById('res-grid'));
+            const resSvg = document.getElementById('res-svg');
+            const sz = gridTotalSize();
+            resSvg.setAttribute('width', sz); resSvg.setAttribute('height', sz);
+            drawPath(resSvg, steps, steps.length - 1);
+            moveRobot(document.getElementById('res-robot'), last.row, last.col);
+
+            // fill data
+            document.getElementById('res-pos').textContent = `(${last.row}, ${last.col})`;
+            document.getElementById('res-dir').textContent = DIR_LABEL[last.dir];
+
+            if (targetRow !== null) {
+                const reached = last.row === targetRow && last.col === targetCol;
+                const reachEl = document.getElementById('res-reached');
+                reachEl.textContent = reached ? '✓ YES' : `✗ NO — ended at (${last.row},${last.col})`;
+                reachEl.style.color = reached ? 'var(--green)' : '#c0392b';
+                reachEl.parentElement.style.display = 'flex';
+            } else {
+                document.getElementById('res-reached').parentElement.style.display = 'none';
+            }
+
+            document.getElementById('res-tilt').textContent = sensor.tilt.toFixed(3) + '°';
+
+            // terrain
+            setTerrainHighlight('rt-', sensor.terrain);
+
+            // log
+            const resLog = document.getElementById('res-log');
+            resLog.innerHTML = '';
+            steps.forEach((s, i) => {
+                const chip = document.createElement('span');
+                chip.className = 'log-chip done';
+                chip.textContent = `${s.cmd}→(${s.row},${s.col})`;
+                resLog.appendChild(chip);
+            });
+        }
+
+        // ── INIT ──────────────────────────────────────────────
+        // Pre-build grids for observe and test on load
+        window.addEventListener('load', () => {
+            buildMiniGrid(document.getElementById('obs-grid'));
+            buildMiniGrid(document.getElementById('test-grid'));
+            buildMiniGrid(document.getElementById('res-grid'));
+            const sz = gridTotalSize();
+            ['obs-svg', 'test-svg', 'res-svg'].forEach(id => {
+                const el = document.getElementById(id);
+                el.setAttribute('width', sz); el.setAttribute('height', sz);
+            });
+        });
+    </script>
+</body>
+
+</html>
