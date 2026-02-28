@@ -390,6 +390,121 @@
             letter-spacing: 0.02em;
         }
 
+        /* ── RESPONSIVE / MOBILE ── */
+        @media (max-width: 700px) {
+            body {
+                overflow-y: auto;
+                align-items: flex-start;
+            }
+
+            .screen {
+                position: relative;
+                inset: auto;
+                min-height: 100vh;
+                align-items: flex-start;
+                padding: 12px 0 80px;
+            }
+
+            .card {
+                padding: 20px 16px;
+                border-radius: 12px;
+            }
+
+            #screen-splash .card,
+            #screen-mode .card {
+                width: 100%;
+            }
+
+            #screen-observe .card,
+            #screen-test .card,
+            #screen-result .card {
+                width: 100%;
+                padding: 16px 14px;
+            }
+
+            .observe-layout,
+            .test-layout,
+            .result-layout {
+                grid-template-columns: 1fr !important;
+                gap: 18px;
+            }
+
+            .mini-grid-wrap {
+                display: flex;
+                justify-content: center;
+                width: 100%;
+            }
+
+            .mini-grid {
+                transform-origin: top center;
+            }
+
+            .screen-title {
+                font-size: 1rem;
+                margin-bottom: 10px;
+            }
+
+            .splash-title {
+                font-size: 2rem;
+            }
+
+            .splash-about-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .mode-btns {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .mode-btn {
+                width: 100%;
+                max-width: 260px;
+            }
+
+            #estop-btn {
+                bottom: 12px;
+                right: 12px;
+                padding: 10px 14px;
+                font-size: 0.7rem;
+            }
+
+            #mic-fab {
+                bottom: 12px;
+                left: 12px;
+                width: 44px;
+                height: 44px;
+                font-size: 1.1rem;
+            }
+
+            #mic-status {
+                bottom: 68px;
+                left: 12px;
+            }
+
+            .obs-label {
+                min-width: 110px;
+                font-size: 0.68rem;
+            }
+
+            .safety-indicators {
+                gap: 4px;
+            }
+
+            .safety-ind {
+                font-size: 0.6rem;
+                padding: 2px 7px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .mini-grid {
+                transform: scale(0.85);
+                transform-origin: top center;
+                margin-bottom: -24px;
+            }
+        }
+
         .mini-grid-wrap {
             position: relative;
             flex-shrink: 0;
@@ -1235,7 +1350,7 @@
                     <h3>About Our Robot</h3>
                     <ul>
                         <li>Bulldozer + flat blade</li>
-                        <li>Arduino Elegoo Owlbot Tank Kit</li>
+                        <li>Arduino Elegoo Oullot Tank Kit</li>
                         <li>5×5 grid navigation</li>
                         <li>Real-time terrain sensing</li>
                     </ul>
@@ -1633,6 +1748,24 @@
             if (!isSpeaking) drainQueue();
         }
 
+        // Speak for traversal steps — flushes any queued (not yet playing) narrations
+        // so the audio always reflects the CURRENT robot position, not a stale one.
+        function speakStep(text, pillId, labelId) {
+            // Drop all pending narrations that haven't started playing yet
+            audioQueue = [];
+            // Stop current audio immediately so we jump to the new step's narration
+            if (currentAudio) {
+                currentAudio.onended = null;
+                currentAudio.onerror = null;
+                currentAudio.pause();
+                currentAudio = null;
+                isSpeaking = false;
+                setVoicePill(pillId, labelId, false);
+            }
+            audioQueue.push({ text, pillId, labelId, onComplete: null });
+            if (!isSpeaking) drainQueue();
+        }
+
         async function drainQueue() {
             if (!audioQueue.length) { isSpeaking = false; return; }
             isSpeaking = true;
@@ -1710,42 +1843,34 @@
         }
 
         // ════════════════════════════════════════════════════
-        // WALL PROXIMITY SAFETY  — fires at ≤2 cells always
+        // WALL PROXIMITY SAFETY — visual only, no voice narration
+        // Step 0 is always on the border so we never alert there.
         // ════════════════════════════════════════════════════
         const CELL_SIZE_M = 0.20;
-        let lastWallAlertStep = -999; // track by step index to avoid spamming
 
-        function checkWallProximity(row, col, pillId, labelId, stepIdx) {
+        function checkWallProximity(row, col, stepIdx) {
             const wallDist = Math.min(row, col, 4 - row, 4 - col);
             const wrap = document.getElementById('obs-wall-alert-wrap');
-
-            // Update safety indicator (works for both screens)
             const screenPfx = (currentScreen === 'screen-observe') ? 'si' : 'tsi';
             const siEl = document.getElementById(screenPfx + '-boundary');
 
+            // Always clear on step 0 (starting position is always on the boundary)
+            if (stepIdx === 0) {
+                if (wrap) wrap.innerHTML = '';
+                if (siEl) { siEl.textContent = '📍 Boundary: SAFE'; siEl.className = 'safety-ind ok'; }
+                return;
+            }
+
             if (wallDist === 0) {
-                if (wrap) wrap.innerHTML = `<span class="wall-alert">⛔ AT BOUNDARY — ${(wallDist * CELL_SIZE_M).toFixed(2)} m</span>`;
+                const m = (0 * CELL_SIZE_M).toFixed(2);
+                if (wrap) wrap.innerHTML = `<span class="wall-alert">⛔ AT BOUNDARY</span>`;
                 if (siEl) { siEl.textContent = '📍 Boundary: AT WALL'; siEl.className = 'safety-ind danger'; }
-                if (stepIdx !== lastWallAlertStep) {
-                    lastWallAlertStep = stepIdx;
-                    speak(`Warning! Robot is at the wall boundary. Approaching boundary. Hazard mitigation engaged. Please check surroundings.`, pillId, labelId);
-                }
             } else if (wallDist === 1) {
-                const m = (wallDist * CELL_SIZE_M).toFixed(2);
-                if (wrap) wrap.innerHTML = `<span class="wall-alert">⚠ APPROACHING BOUNDARY — ${m} m</span>`;
+                if (wrap) wrap.innerHTML = `<span class="wall-alert">⚠ APPROACHING BOUNDARY</span>`;
                 if (siEl) { siEl.textContent = '📍 Boundary: WARNING'; siEl.className = 'safety-ind danger'; }
-                if (stepIdx !== lastWallAlertStep) {
-                    lastWallAlertStep = stepIdx;
-                    speak(`Approaching boundary. ${m} meters to wall. Reduce speed and prepare to stop.`, pillId, labelId);
-                }
             } else if (wallDist === 2) {
-                const m = (wallDist * CELL_SIZE_M).toFixed(2);
-                if (wrap) wrap.innerHTML = `<span class="wall-alert warn-yellow">⚠ NEAR BOUNDARY — ${m} m</span>`;
+                if (wrap) wrap.innerHTML = `<span class="wall-alert warn-yellow">⚠ NEAR BOUNDARY</span>`;
                 if (siEl) { siEl.textContent = '📍 Boundary: CAUTION'; siEl.className = 'safety-ind warn'; }
-                if (stepIdx !== lastWallAlertStep) {
-                    lastWallAlertStep = stepIdx;
-                    speak(`Caution. Approaching boundary. ${m} meters remaining.`, pillId, labelId);
-                }
             } else {
                 if (wrap) wrap.innerHTML = '';
                 if (siEl) { siEl.textContent = '📍 Boundary: SAFE'; siEl.className = 'safety-ind ok'; }
@@ -1988,7 +2113,6 @@
         function initObserve() {
             clearInterval(obsTimer);
             stopAllAudio();
-            lastWallAlertStep = -999;
             obsStep = 0;
             obsPaused = false;
 
@@ -2015,7 +2139,6 @@
             obsSteps = parseCommands(cmds) || [{ row: 0, col: 0, dir: 'E', cmd: 'START' }];
             obsStep = 0;
             obsPaused = false;
-            lastWallAlertStep = -999;
 
             buildMiniGrid(document.getElementById('obs-grid'));
             buildObsLog();
@@ -2076,10 +2199,10 @@
             const cur = document.querySelector('#obs-log .current');
             if (cur) cur.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 
-            // Boundary check fires before step narration
-            checkWallProximity(s.row, s.col, 'obs-voice-pill', 'obs-voice-label', idx);
+            // Boundary check: visual only (no voice) — see checkWallProximity
+            checkWallProximity(s.row, s.col, idx);
             const text = buildNarration(s, sensor, idx, obsSteps.length);
-            speak(text, 'obs-voice-pill', 'obs-voice-label');
+            speakStep(text, 'obs-voice-pill', 'obs-voice-label');
         }
 
         function startObsTimer() {
@@ -2174,13 +2297,12 @@
             svg.innerHTML = '';
             const robot = document.getElementById('test-robot');
             let i = 0;
-            lastWallAlertStep = -999;
 
             function next() {
                 drawPath(svg, steps, i);
                 moveRobot(robot, steps[i].row, steps[i].col);
                 const sensor = getSensorData(steps[i].row, steps[i].col);
-                checkWallProximity(steps[i].row, steps[i].col, 'test-voice-pill', 'test-voice-label', i);
+                checkWallProximity(steps[i].row, steps[i].col, i);
                 checkTiltSafety(sensor.tilt, sensor.terrain, 'tsi');
                 checkAQSafety(sensor.airQuality, 'tsi', 'test-voice-pill', 'test-voice-label', i);
                 if (i < steps.length - 1) { i++; setTimeout(next, 700); }
