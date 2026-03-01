@@ -1637,7 +1637,10 @@
                 btn.textContent = '⚠ ERROR SAVING';
                 setTimeout(() => {
                     btn.textContent = '💾 SAVE TO ACTIAN VECTOR DB';
-                    btn.style = ''; // reset styles
+                    btn.style.background = '';
+                    btn.style.borderColor = '';
+                    btn.style.color = '';
+                    btn.style.pointerEvents = 'auto'; // reset styles
                 }, 3000);
             }
         }
@@ -2263,7 +2266,9 @@
             const btn = document.getElementById('actian-save-btn');
             if (btn) {
                 btn.textContent = '💾 SAVE TO ACTIAN VECTOR DB';
-                btn.style = ''; // reset color
+                btn.style.background = '';
+                btn.style.borderColor = '';
+                btn.style.color = ''; // reset color
                 btn.style.pointerEvents = 'auto';
             }
 
