@@ -1854,6 +1854,7 @@
             <div class="model-url-box" id="vision-model-url-box" style="margin-bottom:14px;">
                 <label>TEACHABLE MACHINE MODEL URL</label>
                 <div style="display:flex;gap:8px;align-items:center;margin-top:5px;">
+                    <!-- FIX: placeholder shows example URL but value is blank so user must enter their own -->
                     <input class="model-url-input" id="vision-model-url" style="flex:1;"
                         placeholder="https://teachablemachine.withgoogle.com/models/DY2JHXYYe/" value="">
                     <button onclick="loadVisionModel('vision')"
@@ -2033,14 +2034,12 @@
         // COMPUTER VISION — TEACHABLE MACHINE
         // ════════════════════════════════════════════════════
 
-        // Vision state per panel
         const visionState = {
-            obs: { model: null, webcam: null, running: false, classes: [], lastClass: null, lastConf: 0, snapMode: false },
-            test: { model: null, webcam: null, running: false, classes: [], lastClass: null, lastConf: 0, snapMode: false },
-            vision: { model: null, webcam: null, running: false, classes: [], lastClass: null, lastConf: 0, snapMode: false }
+            obs: { model: null, webcam: null, running: false, classes: [], lastClass: null, lastConf: 0 },
+            test: { model: null, webcam: null, running: false, classes: [], lastClass: null, lastConf: 0 },
+            vision: { model: null, webcam: null, running: false, classes: [], lastClass: null, lastConf: 0 }
         };
 
-        // CV terrain labels (desert/forest/mountain/plains) — standalone, no robot terrain influence
         function cvTerrainColor(className) {
             const lc = className.toLowerCase();
             if (lc.includes('desert')) return '#e8a000';
@@ -2050,21 +2049,20 @@
             return '#f5c800';
         }
 
+        // FIX: getModelUrl no longer treats the example URL as a placeholder to skip.
+        // It simply returns whatever the user typed, trimmed.
         function getModelUrl(prefix) {
             const urlEl = document.getElementById(prefix + '-model-url');
-            let url = urlEl ? urlEl.value.trim() : '';
-            // Treat empty or placeholder as no model
-            if (!url || url.includes('DY2JHXYYe') || url === 'https://teachablemachine.withgoogle.com/models//') return '';
+            if (!urlEl) return '';
+            let url = urlEl.value.trim();
+            if (!url) return '';
             if (!url.endsWith('/')) url += '/';
             return url;
         }
 
-        function isValidModelUrl(prefix) {
-            return getModelUrl(prefix) !== '';
-        }
-
         async function initVision(prefix) {
             const vs = visionState[prefix];
+            // FIX: prevent double-init if already running
             if (vs.running) return;
 
             const overlay = document.getElementById(prefix + '-start-overlay');
@@ -2072,12 +2070,11 @@
             const activeLabel = document.getElementById(prefix + '-active-label');
             const urlBox = document.getElementById(prefix + '-model-url-box');
             const stopBtn = document.getElementById(prefix + '-stop-btn');
-            const modeToggle = document.getElementById(prefix + '-mode-toggle');
 
             if (overlay) overlay.style.display = 'none';
             if (activeLabel) { activeLabel.style.display = 'block'; activeLabel.textContent = 'STARTING CAMERA…'; }
 
-            // ── Step 1: Start webcam FIRST (no model needed) ──
+            // ── Step 1: Start webcam ──
             try {
                 vs.webcam = new tmImage.Webcam(300, 200, true);
                 await vs.webcam.setup();
@@ -2086,11 +2083,14 @@
                 const container = document.getElementById(prefix + '-webcam-container');
                 if (container) { container.innerHTML = ''; container.appendChild(vs.webcam.canvas); }
 
+                // FIX: Mark running=true immediately so stopVision guards work
                 vs.running = true;
                 if (dot) dot.className = 'vision-status-dot active';
                 if (stopBtn) stopBtn.style.display = 'inline-block';
-                if (modeToggle) modeToggle.style.display = 'inline-block';
-                if (urlBox) urlBox.style.display = 'none';
+                // FIX: Keep the model URL box visible so user can paste & load their model
+                // Only hide it if a model URL is already present
+                const modelUrl = getModelUrl(prefix);
+                if (modelUrl && urlBox) urlBox.style.display = 'none';
 
             } catch (camErr) {
                 console.warn('[Vision] Camera failed:', camErr);
@@ -2099,36 +2099,16 @@
                 if (overlay) {
                     overlay.style.display = 'flex';
                     const txt = overlay.querySelector('.vision-start-text');
-                    if (txt) txt.textContent = 'CAMERA BLOCKED';
-                    const sub = overlay.querySelector('.vision-start-subtext') || overlay.querySelector('div:last-child');
-                    if (sub) sub.textContent = 'Serve via localhost or HTTPS · Use Upload tab instead';
+                    if (txt) txt.textContent = '⚠ CAMERA BLOCKED — USE UPLOAD TAB';
                 }
-                // Show a user-friendly alert with fix instructions
-                const msg = [
-                    'Camera access was blocked. This is usually because:',
-                    '',
-                    '1. You opened index.html directly (file://).',
-                    '   Fix: serve via a local server, e.g.:',
-                    '   npx serve  OR  python -m http.server 8000',
-                    '   Then open http://localhost:8000',
-                    '',
-                    '2. You denied camera permission.',
-                    '   Fix: click the camera icon in the address bar and Allow.',
-                    '',
-                    'Alternatively, use the "Upload Image" tab — no camera needed.'
-                ].join('');
-                console.info(msg);
                 return;
             }
 
-            // ── Step 2: Load model (non-blocking — webcam already live) ──
+            // ── Step 2: Load model if URL provided ──
             const modelUrl = getModelUrl(prefix);
-            const isPlaceholder = modelUrl.includes('DY2JHXYYe');
-
-            if (isPlaceholder) {
-                // No real model URL — show live feed without classification, prompt user to enter URL
-                if (activeLabel) activeLabel.textContent = 'LIVE — paste your model URL above to classify';
-                const urlBox = document.getElementById(prefix + '-model-url-box');
+            if (!modelUrl) {
+                // No model URL — webcam live, waiting for user to paste URL and hit Load
+                if (activeLabel) activeLabel.textContent = 'LIVE — paste model URL above & click LOAD';
                 if (urlBox) { urlBox.style.display = 'block'; urlBox.style.border = '2px solid var(--warn)'; urlBox.style.borderRadius = '8px'; }
                 visionLoopNoModel(prefix);
                 return;
@@ -2138,33 +2118,26 @@
 
             try {
                 vs.model = await tmImage.load(modelUrl + 'model.json', modelUrl + 'metadata.json');
-                vs.classes = [];
-                for (let i = 0; i < vs.model.getTotalClasses(); i++) {
-                    vs.classes.push(vs.model.getClassLabels()[i]);
-                }
+                vs.classes = vs.model.getClassLabels ? Array.from({ length: vs.model.getTotalClasses() }, (_, i) => vs.model.getClassLabels()[i]) : [];
                 buildVisionReadout(prefix);
                 if (activeLabel) activeLabel.textContent = 'SCANNING…';
                 visionLoop(prefix);
-
             } catch (modelErr) {
                 console.warn('[Vision] Model load failed:', modelErr);
-                // Webcam still works — just can't classify
-                if (activeLabel) activeLabel.textContent = 'MODEL ERROR — check URL';
+                if (activeLabel) activeLabel.textContent = 'MODEL ERROR — check URL above';
+                if (urlBox) { urlBox.style.display = 'block'; urlBox.style.border = '2px solid var(--danger)'; urlBox.style.borderRadius = '8px'; }
                 visionLoopNoModel(prefix);
             }
         }
 
-        // Run webcam loop without classification (shows live feed only)
         function visionLoopNoModel(prefix) {
             const vs = visionState[prefix];
             if (!vs.running || !vs.webcam) return;
             vs.webcam.update();
-            // If model loaded in the meantime, switch to classifying loop
             if (vs.model) { visionLoop(prefix); return; }
             requestAnimationFrame(() => visionLoopNoModel(prefix));
         }
 
-        // Load/reload model for a running webcam — called by "Load Model" button
         async function loadVisionModel(prefix) {
             const vs = visionState[prefix];
             const modelUrl = getModelUrl(prefix);
@@ -2174,34 +2147,35 @@
 
             if (!modelUrl) {
                 if (urlBox) { urlBox.style.border = '2px solid var(--danger)'; urlBox.style.borderRadius = '8px'; }
-                if (activeLabel) activeLabel.textContent = 'ENTER A VALID MODEL URL';
+                if (activeLabel) activeLabel.textContent = 'ENTER A VALID MODEL URL FIRST';
                 return;
             }
 
             if (urlBox) { urlBox.style.border = ''; }
-            if (activeLabel) activeLabel.textContent = 'LOADING MODEL…';
+            if (activeLabel) { activeLabel.style.display = 'block'; activeLabel.textContent = 'LOADING MODEL…'; }
             if (dot) dot.className = 'vision-status-dot';
 
             try {
                 vs.model = await tmImage.load(modelUrl + 'model.json', modelUrl + 'metadata.json');
-                vs.classes = [];
-                for (let i = 0; i < vs.model.getTotalClasses(); i++) {
-                    vs.classes.push(vs.model.getClassLabels()[i] || ('Class ' + i));
-                }
+                vs.classes = vs.model.getClassLabels
+                    ? Array.from({ length: vs.model.getTotalClasses() }, (_, i) => vs.model.getClassLabels()[i] || ('Class ' + i))
+                    : [];
                 buildVisionReadout(prefix);
                 if (dot) dot.className = 'vision-status-dot active';
                 if (activeLabel) activeLabel.textContent = 'MODEL LOADED — SCANNING…';
                 if (urlBox) urlBox.style.display = 'none';
-                // If webcam is running switch to full loop; otherwise start fresh
+
+                // FIX: start webcam loop if not already running; otherwise switch to classify loop
                 if (vs.running && vs.webcam) {
                     visionLoop(prefix);
-                } else if (!vs.running) {
+                } else {
+                    // Webcam not started yet — start it
                     initVision(prefix);
                 }
             } catch (err) {
                 console.warn('[loadVisionModel]', err);
                 if (dot) dot.className = 'vision-status-dot error';
-                if (activeLabel) activeLabel.textContent = 'MODEL LOAD FAILED — check URL';
+                if (activeLabel) { activeLabel.style.display = 'block'; activeLabel.textContent = 'MODEL LOAD FAILED — check URL'; }
                 if (urlBox) { urlBox.style.display = 'block'; urlBox.style.border = '2px solid var(--danger)'; urlBox.style.borderRadius = '8px'; }
             }
         }
@@ -2248,7 +2222,6 @@
                     if (pct) { pct.textContent = pctVal + '%'; pct.className = 'vision-pct'; }
                 });
 
-                // Highlight highest
                 predictions.forEach((p, i) => {
                     const bar = document.getElementById(prefix + '-bar-' + i);
                     const pct = document.getElementById(prefix + '-pct-' + i);
@@ -2264,7 +2237,6 @@
                 const activeLabel = document.getElementById(prefix + '-active-label');
                 if (activeLabel) activeLabel.textContent = `${highest.className.toUpperCase()} ${(highest.probability * 100).toFixed(0)}%`;
 
-                // Always update big label on vision screen (works for both webcam and photo upload)
                 const bigLabel = document.getElementById('vision-big-label');
                 const bigConf = document.getElementById('vision-big-conf');
                 if (bigLabel && highest.className) {
@@ -2274,26 +2246,21 @@
                 if (bigConf && highest.className) {
                     bigConf.textContent = (highest.probability * 100).toFixed(0) + '%';
                 }
-                // Update overlay label on uploaded image preview
                 const snapOverlay = document.getElementById('vision-snap-overlay-label');
                 if (snapOverlay && highest.className) {
                     snapOverlay.textContent = highest.className.toUpperCase() + ' ' + (highest.probability * 100).toFixed(0) + '%';
                     snapOverlay.style.display = 'block';
                 }
-                // Reset dropzone text after classification completes
-                const dz = document.getElementById('vision-dropzone');
-                if (dz && prefix === 'vision' && !visionState['vision'].running) {
-                    dz.innerHTML = '<div style="font-size:1.5rem;margin-bottom:4px;">🖼</div><div style="font-family:Orbitron,monospace;font-size:0.75rem;font-weight:700;color:var(--black);margin-bottom:4px;">DROP ANOTHER IMAGE</div><div style="font-family:Share Tech Mono,monospace;font-size:0.62rem;color:var(--muted);">or click to browse</div>';
-                }
-                // NOTE: CV terrain never updates robot terrain indicators (flat/smooth/bump)
 
             } catch (e) {
                 console.warn('[Predict]', e);
             }
         }
 
+        // FIX: stopVision now guards against stopping a webcam that was never started
         function stopVision(prefix) {
             const vs = visionState[prefix];
+            if (!vs.running && !vs.webcam) return; // nothing to stop
             vs.running = false;
             if (vs.webcam) { try { vs.webcam.stop(); } catch (e) { } vs.webcam = null; }
             const container = document.getElementById(prefix + '-webcam-container');
@@ -2301,126 +2268,21 @@
             const dot = document.getElementById(prefix + '-vision-dot');
             if (dot) dot.className = 'vision-status-dot';
             const activeLabel = document.getElementById(prefix + '-active-label');
-            if (activeLabel) { activeLabel.textContent = 'IDLE'; }
+            if (activeLabel) { activeLabel.textContent = 'IDLE'; activeLabel.style.display = 'none'; }
             const overlay = document.getElementById(prefix + '-start-overlay');
-            if (overlay) { overlay.style.display = 'flex'; overlay.querySelector('.vision-start-text').textContent = 'TAP TO START VISION'; }
+            if (overlay) {
+                overlay.style.display = 'flex';
+                const txt = overlay.querySelector('.vision-start-text');
+                if (txt) txt.textContent = '▶ TAP TO START WEBCAM';
+            }
             const stopBtn = document.getElementById(prefix + '-stop-btn');
             if (stopBtn) stopBtn.style.display = 'none';
-            const modeToggle = document.getElementById(prefix + '-mode-toggle');
-            if (modeToggle) modeToggle.style.display = 'none';
             const urlBox = document.getElementById(prefix + '-model-url-box');
-            if (urlBox) urlBox.style.display = 'block';
+            if (urlBox) { urlBox.style.display = 'block'; urlBox.style.border = ''; }
             const readout = document.getElementById(prefix + '-vision-readout');
             if (readout) readout.style.display = 'none';
         }
 
-        function switchToSnap(prefix) {
-            stopVision(prefix);
-            const snapArea = document.getElementById(prefix + '-snap-area');
-            if (snapArea) snapArea.style.display = 'block';
-            const feedWrap = document.getElementById(prefix + '-feed-wrap');
-            if (feedWrap) feedWrap.style.display = 'none';
-            const snapControls = document.querySelector('#' + prefix + '-vision-section .vision-snap-controls');
-            if (snapControls) snapControls.style.display = 'none';
-        }
-
-        function handleFileCapture(prefix, input) {
-            const file = input.files[0];
-            if (!file) return;
-            const vs = visionState[prefix];
-            const canvas = document.getElementById(prefix + '-snap-canvas');
-
-            // Show a loading state on big label if on vision screen
-            if (prefix === 'vision') {
-                const bigLabel = document.getElementById('vision-big-label');
-                const bigConf = document.getElementById('vision-big-conf');
-                if (bigLabel) { bigLabel.textContent = 'LOADING…'; bigLabel.style.color = '#888'; }
-                if (bigConf) bigConf.textContent = '…';
-            }
-
-            const reader = new FileReader();
-            reader.onload = async (e) => {
-                const img = new Image();
-                img.onload = async () => {
-                    // Show preview area (vision screen only)
-                    const previewWrap = document.getElementById(prefix + '-preview-wrap');
-                    if (previewWrap) previewWrap.style.display = 'block';
-
-                    // Draw image to canvas
-                    canvas.style.display = 'block';
-                    canvas.width = img.naturalWidth;
-                    canvas.height = img.naturalHeight;
-                    const ctx = canvas.getContext('2d');
-                    ctx.drawImage(img, 0, 0);
-
-                    // Update dropzone to show filename
-                    const dz = document.getElementById('vision-dropzone');
-                    if (dz && prefix === 'vision') {
-                        dz.innerHTML = '<div style="font-size:1.5rem;margin-bottom:4px;">✅</div><div style="font-family:Share Tech Mono,monospace;font-size:0.65rem;color:var(--green);">IMAGE LOADED — classifying…</div>';
-                    }
-
-                    // Load model if not already loaded
-                    if (!vs.model) {
-                        const modelUrl = getModelUrl(prefix);
-                        if (!modelUrl) {
-                            // No valid model URL — show clear message
-                            const bigLabel = document.getElementById('vision-big-label');
-                            const bigConf = document.getElementById('vision-big-conf');
-                            if (bigLabel) { bigLabel.textContent = 'PASTE MODEL URL'; bigLabel.style.color = 'var(--warn)'; }
-                            if (bigConf) bigConf.textContent = '↑ above';
-                            const urlBox = document.getElementById(prefix + '-model-url-box');
-                            if (urlBox) { urlBox.style.display = 'block'; urlBox.style.border = '2px solid var(--warn)'; urlBox.style.borderRadius = '8px'; }
-                            return;
-                        }
-                        try {
-                            const dot = document.getElementById(prefix + '-vision-dot');
-                            if (dot) dot.className = 'vision-status-dot';
-
-                            vs.model = await tmImage.load(modelUrl + 'model.json', modelUrl + 'metadata.json');
-                            const total = vs.model.getTotalClasses();
-                            vs.classes = [];
-                            for (let i = 0; i < total; i++) {
-                                // tmImage models expose class labels via getClassLabels() or internal metadata
-                                const label = vs.model.getClassLabels ? vs.model.getClassLabels()[i] : `Class ${i}`;
-                                vs.classes.push(label || `Class ${i}`);
-                            }
-
-                            if (dot) dot.className = 'vision-status-dot active';
-                        } catch (err) {
-                            console.warn('[handleFileCapture] Model load failed:', err);
-                            if (prefix === 'vision') {
-                                const bigLabel = document.getElementById('vision-big-label');
-                                if (bigLabel) { bigLabel.textContent = 'MODEL ERROR'; bigLabel.style.color = 'var(--danger)'; }
-                                const bigConf = document.getElementById('vision-big-conf');
-                                if (bigConf) bigConf.textContent = '—';
-                            }
-                            return;
-                        }
-                    }
-
-                    // Build/rebuild the confidence bar readout
-                    buildVisionReadout(prefix);
-                    const readoutEl = document.getElementById(prefix + '-vision-readout');
-                    if (readoutEl) readoutEl.style.display = 'block';
-
-                    // Run prediction
-                    await predictFromCanvas(prefix, canvas);
-                };
-                img.onerror = () => console.warn('[handleFileCapture] Image load error');
-                img.src = e.target.result;
-            };
-            reader.readAsDataURL(file);
-        }
-
-        function getLastVisionClass(prefix) {
-            const vs = visionState[prefix];
-            if (!vs.lastClass) return null;
-            return { className: vs.lastClass, confidence: vs.lastConf };
-        }
-
-        // ════════════════════════════════════════════════════
-        // VISION SCREEN — TAB SWITCHING & UPLOAD HELPERS
-        // ════════════════════════════════════════════════════
         function switchVisionTab(tab) {
             const webcamPanel = document.getElementById('vision-tab-webcam');
             const uploadPanel = document.getElementById('vision-tab-upload');
@@ -2441,8 +2303,8 @@
                 tabUpload.style.color = 'var(--black)';
                 tabWebcam.style.background = 'var(--beige)';
                 tabWebcam.style.color = 'var(--muted)';
-                // Stop webcam if running when switching to upload tab
-                stopVision('vision');
+                // FIX: only stop webcam if it's actually running
+                if (visionState['vision'].running) stopVision('vision');
             }
         }
 
@@ -2452,16 +2314,85 @@
             if (dropzone) dropzone.style.borderColor = '#ccc5b0';
             const files = event.dataTransfer.files;
             if (!files || !files[0]) return;
-            if (!files[0].type.startsWith('image/')) {
-                alert('Please drop an image file (JPG, PNG, WEBP)');
-                return;
-            }
-            // Simulate file input change
+            if (!files[0].type.startsWith('image/')) { alert('Please drop an image file (JPG, PNG, WEBP)'); return; }
             const dt = new DataTransfer();
             dt.items.add(files[0]);
             const input = document.getElementById('vision-file-input');
             input.files = dt.files;
             handleFileCapture('vision', input);
+        }
+
+        // FIX: handleFileCapture — shows a clear "paste your model URL" message instead of silent MODEL ERROR
+        function handleFileCapture(prefix, input) {
+            const file = input.files[0];
+            if (!file) return;
+            const vs = visionState[prefix];
+            const canvas = document.getElementById(prefix + '-snap-canvas');
+
+            const bigLabel = document.getElementById('vision-big-label');
+            const bigConf = document.getElementById('vision-big-conf');
+            if (bigLabel) { bigLabel.textContent = 'LOADING…'; bigLabel.style.color = '#888'; }
+            if (bigConf) bigConf.textContent = '…';
+
+            const reader = new FileReader();
+            reader.onload = async (e) => {
+                const img = new Image();
+                img.onload = async () => {
+                    const previewWrap = document.getElementById(prefix + '-preview-wrap');
+                    if (previewWrap) previewWrap.style.display = 'block';
+
+                    canvas.style.display = 'block';
+                    canvas.width = img.naturalWidth;
+                    canvas.height = img.naturalHeight;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0);
+
+                    const dz = document.getElementById('vision-dropzone');
+                    if (dz && prefix === 'vision') {
+                        dz.innerHTML = '<div style="font-size:1.5rem;margin-bottom:4px;">✅</div><div style="font-family:Share Tech Mono,monospace;font-size:0.65rem;color:var(--green);">IMAGE LOADED — classifying…</div>';
+                    }
+
+                    // FIX: Check for model URL first and prompt clearly if missing
+                    if (!vs.model) {
+                        const modelUrl = getModelUrl(prefix);
+                        if (!modelUrl) {
+                            if (bigLabel) { bigLabel.textContent = 'PASTE MODEL URL'; bigLabel.style.color = 'var(--warn)'; }
+                            if (bigConf) { bigConf.textContent = '↑ above'; bigConf.style.color = 'var(--warn)'; }
+                            const urlBox = document.getElementById(prefix + '-model-url-box');
+                            if (urlBox) { urlBox.style.display = 'block'; urlBox.style.border = '2px solid var(--warn)'; urlBox.style.borderRadius = '8px'; }
+                            if (dz) dz.innerHTML = '<div style="font-size:1.5rem;margin-bottom:4px;">⚠️</div><div style="font-family:Share Tech Mono,monospace;font-size:0.65rem;color:var(--warn);">PASTE MODEL URL ABOVE FIRST</div>';
+                            return;
+                        }
+                        try {
+                            const dot = document.getElementById(prefix + '-vision-dot');
+                            if (dot) dot.className = 'vision-status-dot';
+                            if (bigLabel) { bigLabel.textContent = 'LOADING MODEL…'; bigLabel.style.color = '#888'; }
+                            vs.model = await tmImage.load(modelUrl + 'model.json', modelUrl + 'metadata.json');
+                            const total = vs.model.getTotalClasses();
+                            vs.classes = Array.from({ length: total }, (_, i) =>
+                                vs.model.getClassLabels ? vs.model.getClassLabels()[i] : `Class ${i}`
+                            );
+                            if (dot) dot.className = 'vision-status-dot active';
+                        } catch (err) {
+                            console.warn('[handleFileCapture] Model load failed:', err);
+                            if (bigLabel) { bigLabel.textContent = 'MODEL LOAD FAILED'; bigLabel.style.color = 'var(--danger)'; }
+                            if (bigConf) bigConf.textContent = 'check URL ↑';
+                            const urlBox = document.getElementById(prefix + '-model-url-box');
+                            if (urlBox) { urlBox.style.display = 'block'; urlBox.style.border = '2px solid var(--danger)'; urlBox.style.borderRadius = '8px'; }
+                            return;
+                        }
+                    }
+
+                    buildVisionReadout(prefix);
+                    const readoutEl = document.getElementById(prefix + '-vision-readout');
+                    if (readoutEl) readoutEl.style.display = 'block';
+
+                    await predictFromCanvas(prefix, canvas);
+                };
+                img.onerror = () => console.warn('[handleFileCapture] Image load error');
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
         }
 
         function clearVisionUpload() {
@@ -2473,17 +2404,18 @@
             const bigConf = document.getElementById('vision-big-conf');
             const dot = document.getElementById('vision-vision-dot');
             const input = document.getElementById('vision-file-input');
+            const dz = document.getElementById('vision-dropzone');
 
             if (canvas) { const ctx = canvas.getContext('2d'); ctx.clearRect(0, 0, canvas.width, canvas.height); }
             if (preview) preview.style.display = 'none';
             if (overlay) overlay.style.display = 'none';
             if (readout) readout.style.display = 'none';
             if (bigLabel) { bigLabel.textContent = '—'; bigLabel.style.color = 'var(--yellow)'; }
-            if (bigConf) bigConf.textContent = '—';
+            if (bigConf) { bigConf.textContent = '—'; bigConf.style.color = '#fff'; }
             if (dot) dot.className = 'vision-status-dot';
             if (input) input.value = '';
+            if (dz) dz.innerHTML = '<div style="font-size:2.5rem;margin-bottom:8px;">🖼</div><div style="font-family:Orbitron,monospace;font-size:0.8rem;font-weight:700;color:var(--black);margin-bottom:6px;">DROP IMAGE HERE</div><div style="font-family:Share Tech Mono,monospace;font-size:0.65rem;color:var(--muted);">or click to browse · JPG, PNG, WEBP</div>';
 
-            // Reset visionState
             const vs = visionState['vision'];
             vs.lastClass = null; vs.lastConf = 0;
         }
@@ -2491,7 +2423,7 @@
         // ════════════════════════════════════════════════════
         // CONFIG
         // ════════════════════════════════════════════════════
-        let ELEVEN_VOICE = 'Aa6nEBJJMKJwJkCx8VU2'; // Bella
+        let ELEVEN_VOICE = 'Aa6nEBJJMKJwJkCx8VU2';
         let latestMissionData = null;
         let currentScreen = 'screen-splash';
 
@@ -2501,37 +2433,23 @@
         async function saveMissionToBothDBs() {
             const btn = document.getElementById('snowflake-save-btn');
             if (!latestMissionData) return;
-
             const tractionEl = document.getElementById(currentScreen === 'screen-observe' ? 'obs-traction' : 'test-traction');
             const traction = tractionEl ? tractionEl.value : 'standard';
             const payload = { ...latestMissionData, traction_setting: traction };
-
             btn.textContent = '⏳ SAVING TO BOTH...';
             btn.style.pointerEvents = 'none';
-
             try {
-                const snowflakePromise = fetch('/api/snowflake-archive', {
-                    method: 'POST', headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
-                const kvPromise = fetch('/api/vector-save', {
-                    method: 'POST', headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
-                const [snowRes, kvRes] = await Promise.all([snowflakePromise, kvPromise]);
+                const [snowRes, kvRes] = await Promise.all([
+                    fetch('/api/snowflake-archive', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) }),
+                    fetch('/api/vector-save', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) })
+                ]);
                 if (!snowRes.ok || !kvRes.ok) throw new Error('One or more saves failed');
                 btn.textContent = '✅ SAVED TO SNOWFLAKE & KV';
-                btn.style.background = '#d4f5db';
-                btn.style.color = '#1e7e34';
+                btn.style.background = '#d4f5db'; btn.style.color = '#1e7e34';
             } catch (err) {
                 console.error('[Database Error]', err);
                 btn.textContent = '⚠️ ERROR SAVING';
-                setTimeout(() => {
-                    btn.textContent = '❄️ SAVE TO SNOWFLAKE';
-                    btn.style.background = '';
-                    btn.style.color = '';
-                    btn.style.pointerEvents = 'auto';
-                }, 3000);
+                setTimeout(() => { btn.textContent = '❄️ SAVE TO SNOWFLAKE'; btn.style.background = ''; btn.style.color = ''; btn.style.pointerEvents = 'auto'; }, 3000);
             }
         }
 
@@ -2543,7 +2461,6 @@
             'dry loose sand': { info: '⚠ Loose surface. Reduce speed 30%. Increased wheel slip risk — wide turns recommended.', cls: 'warn-text', safeLabel: '🔧 Traction: CAUTION' },
             'wet moist sand': { info: '⛔ Wet surface. Reduce speed 50%. High skid risk — avoid sharp turns and slopes.', cls: 'danger-text', safeLabel: '🔧 Traction: HAZARD' }
         };
-
         function updateTractionInfo(prefix) {
             const sel = document.getElementById(prefix + '-traction');
             const info = document.getElementById(prefix + '-traction-info');
@@ -2562,21 +2479,14 @@
         // ELEVENLABS TTS
         // ════════════════════════════════════════════════════
         let audioQueue = [], isSpeaking = false, currentAudio = null;
-
         function terrainLabel(t) { return t === 'flat' ? 'flat' : t === 'smooth' ? 'somewhat smooth' : 'bumpy'; }
-
         function buildNarration(step, sensor, idx, total) {
             const terrain = terrainLabel(sensor.terrain);
             if (idx === 0) return 'Sandozer Mission Control online. Beginning sandbox traversal. Starting at position zero zero. All sensors active.';
             if (idx === total - 1) return `Traversal complete. Final position: row ${step.row}, column ${step.col}. Vertical tilt ${sensor.tilt.toFixed(3)} degrees. Terrain is ${terrain}. Air quality index ${sensor.airQuality}. Mission scan finished.`;
             return `Step ${idx} of ${total - 1}. Moving to row ${step.row}, column ${step.col}. Tilt ${sensor.tilt.toFixed(3)} degrees. Terrain: ${terrain}. Air quality: ${sensor.airQuality}.`;
         }
-
-        async function speak(text, pillId, labelId, onComplete) {
-            audioQueue.push({ text, pillId, labelId, onComplete });
-            if (!isSpeaking) drainQueue();
-        }
-
+        async function speak(text, pillId, labelId, onComplete) { audioQueue.push({ text, pillId, labelId, onComplete }); if (!isSpeaking) drainQueue(); }
         async function drainQueue() {
             if (!audioQueue.length) { isSpeaking = false; return; }
             isSpeaking = true;
@@ -2591,19 +2501,13 @@
                 currentAudio.onended = () => { URL.revokeObjectURL(url); setVoicePill(pillId, labelId, false); currentAudio = null; drainQueue(); if (!audioQueue.length && onComplete) setTimeout(onComplete, 150); };
                 currentAudio.onerror = () => { setVoicePill(pillId, labelId, false); currentAudio = null; drainQueue(); };
                 await currentAudio.play();
-            } catch (e) {
-                console.warn('[TTS]', e.message);
-                setVoicePill(pillId, labelId, false); currentAudio = null; drainQueue();
-                if (onComplete) setTimeout(onComplete, 150);
-            }
+            } catch (e) { console.warn('[TTS]', e.message); setVoicePill(pillId, labelId, false); currentAudio = null; drainQueue(); if (onComplete) setTimeout(onComplete, 150); }
         }
-
         function setVoicePill(pillId, labelId, active) {
             const pill = document.getElementById(pillId), label = document.getElementById(labelId);
             if (pill) pill.classList.toggle('active', active);
             if (label) label.textContent = active ? 'SPEAKING…' : 'VOICE IDLE';
         }
-
         function stopAllAudio() {
             audioQueue = []; isSpeaking = false;
             if (currentAudio) { currentAudio.pause(); currentAudio.src = ''; currentAudio = null; }
@@ -2622,7 +2526,6 @@
             const labelId = currentScreen === 'screen-test' ? 'test-voice-label' : 'obs-voice-label';
             speak('Emergency stop activated. Robot halted. All movement suspended.', pillId, labelId);
         }
-
         function showEStop(show) { document.getElementById('estop-btn').className = show ? 'active' : ''; }
 
         // ════════════════════════════════════════════════════
@@ -2637,8 +2540,7 @@
             if (stepIdx === 0) { lastWallZone = wallDist; if (wrap) wrap.innerHTML = ''; if (siEl) { siEl.textContent = '📍 Boundary: SAFE'; siEl.className = 'safety-ind ok'; } return; }
             const pillId = currentScreen === 'screen-observe' ? 'obs-voice-pill' : 'test-voice-pill';
             const labelId = currentScreen === 'screen-observe' ? 'obs-voice-label' : 'test-voice-label';
-            const zoneChanged = wallDist !== lastWallZone;
-            lastWallZone = wallDist;
+            const zoneChanged = wallDist !== lastWallZone; lastWallZone = wallDist;
             if (wallDist === 0) {
                 if (wrap) wrap.innerHTML = `<span class="wall-alert">⛔ AT BOUNDARY</span>`;
                 if (siEl) { siEl.textContent = '📍 Boundary: AT WALL'; siEl.className = 'safety-ind danger'; }
@@ -2655,20 +2557,15 @@
                 if (siEl) { siEl.textContent = '📍 Boundary: SAFE'; siEl.className = 'safety-ind ok'; }
             }
         }
-
         function checkAQSafety(aq, prefix, pillId, labelId, stepIdx) {
             const siEl = document.getElementById(prefix + '-aq');
             if (!siEl) return;
             if (aq > 150) {
                 siEl.textContent = '💨 Air: DANGEROUS'; siEl.className = 'safety-ind danger';
                 if (stepIdx !== undefined && stepIdx % 3 === 0) speak(`Air quality alert. AQI is ${aq}. Conditions are hazardous.`, pillId, labelId);
-            } else if (aq > 100) {
-                siEl.textContent = '💨 Air: MODERATE'; siEl.className = 'safety-ind warn';
-            } else {
-                siEl.textContent = '💨 Air: GOOD'; siEl.className = 'safety-ind ok';
-            }
+            } else if (aq > 100) { siEl.textContent = '💨 Air: MODERATE'; siEl.className = 'safety-ind warn'; }
+            else { siEl.textContent = '💨 Air: GOOD'; siEl.className = 'safety-ind ok'; }
         }
-
         function checkTiltSafety(tilt, terrain, prefix) {
             const siEl = document.getElementById(prefix + '-tilt');
             if (!siEl) return;
@@ -2679,6 +2576,8 @@
 
         // ════════════════════════════════════════════════════
         // NAVIGATION
+        // FIX: goTo no longer calls stopVision on screens that aren't currently
+        //      running vision — only stops if vs.running is true for that prefix
         // ════════════════════════════════════════════════════
         function goTo(screenId) {
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
@@ -2686,16 +2585,18 @@
             currentScreen = screenId;
             showEStop(screenId === 'screen-observe' || screenId === 'screen-test');
             if (screenId !== 'screen-observe') stopAllAudio();
+
+            // FIX: Only stop vision for a prefix if we're actually leaving that screen
+            if (screenId !== 'screen-observe' && visionState['obs'].running) stopVision('obs');
+            if (screenId !== 'screen-test' && visionState['test'].running) stopVision('test');
+            if (screenId !== 'screen-vision' && visionState['vision'].running) stopVision('vision');
+
             if (screenId === 'screen-observe') initObserve();
             if (screenId === 'screen-test') {
                 initTestGrid(); updateTractionInfo('test');
                 speak('Hello! What position would you like to navigate to? Say two numbers for row and column, each between 0 and 4.', 'test-voice-pill', 'test-voice-label',
                     () => { if (currentScreen === 'screen-test') { continuousListen = true; startGlobalMic(); } });
             }
-            // Stop all vision when leaving respective screens
-            if (screenId !== 'screen-observe') stopVision('obs');
-            if (screenId !== 'screen-test') stopVision('test');
-            if (screenId !== 'screen-vision') stopVision('vision');
             if (screenId === 'screen-chat') initChat();
             updateMicContext(screenId);
         }
@@ -2733,7 +2634,6 @@
                 tableEl.appendChild(tr);
             }
         }
-
         function cellCenter(row, col) { return { x: 3 + 6 + col * (CELL + 3) + CELL / 2, y: 3 + 6 + row * (CELL + 3) + CELL / 2 }; }
         function gridTotalSize() { return (3 + 6) + 5 * (CELL + 3); }
 
@@ -2765,12 +2665,12 @@
         // ════════════════════════════════════════════════════
         const TILT_MAP = (() => {
             const m = [];
-            for (let r = 0; r < 5; r++) { m[r] = []; for (let c = 0; c < 5; c++)m[r][c] = Math.round(Math.random() * 300) / 1000; }
+            for (let r = 0; r < 5; r++) { m[r] = []; for (let c = 0; c < 5; c++) m[r][c] = Math.round(Math.random() * 300) / 1000; }
             m[0][0] = Math.round(Math.random() * 49) / 1000;
             return m;
         })();
-        const ALTITUDE_MAP = (() => { const m = []; for (let r = 0; r < 5; r++) { m[r] = []; for (let c = 0; c < 5; c++)m[r][c] = Math.round(Math.random() * 150) / 1000; } return m; })();
-        const AIR_QUALITY_MAP = (() => { const m = []; for (let r = 0; r < 5; r++) { m[r] = []; for (let c = 0; c < 5; c++)m[r][c] = Math.round((40 + Math.random() * 160) / 5) * 5; } return m; })();
+        const ALTITUDE_MAP = (() => { const m = []; for (let r = 0; r < 5; r++) { m[r] = []; for (let c = 0; c < 5; c++) m[r][c] = Math.round(Math.random() * 150) / 1000; } return m; })();
+        const AIR_QUALITY_MAP = (() => { const m = []; for (let r = 0; r < 5; r++) { m[r] = []; for (let c = 0; c < 5; c++) m[r][c] = Math.round((40 + Math.random() * 160) / 5) * 5; } return m; })();
 
         function tiltToTerrain(t) { return t < 0.05 ? 'flat' : t <= 0.15 ? 'smooth' : 'bump'; }
         function getSensorData(row, col) {
@@ -2809,7 +2709,6 @@
                 }
             }
         }
-
         function makePoly(pts, stroke, width) {
             const el = document.createElementNS('http://www.w3.org/2000/svg', 'polyline');
             el.setAttribute('points', pts); el.setAttribute('stroke', stroke);
@@ -2817,12 +2716,10 @@
             el.setAttribute('stroke-linejoin', 'round'); el.setAttribute('fill', 'none');
             return el;
         }
-
         function moveRobot(robotEl, row, col) {
             const { x, y } = cellCenter(row, col);
             robotEl.style.left = x + 'px'; robotEl.style.top = y + 'px'; robotEl.style.display = 'block';
         }
-
         function setTerrainHighlight(prefix, terrain) {
             ['flat', 'smooth', 'bump'].forEach(t => document.getElementById(prefix + t)?.classList.toggle('active', terrain === t));
         }
@@ -2845,7 +2742,6 @@
             speak('Observation mode ready. Please set traction, enter path commands, and press Start.', 'obs-voice-pill', 'obs-voice-label',
                 () => { if (currentScreen === 'screen-observe') { continuousListen = true; startGlobalMic(); } });
         }
-
         function startObserveSequence() {
             let cmds = document.getElementById('obs-commands').value.trim().replace('🎤 ', '');
             if (!cmds) cmds = 'f f f r f f';
@@ -2860,7 +2756,6 @@
             speak(safetyMsg, 'obs-voice-pill', 'obs-voice-label');
             renderObsStep(0); startObsTimer();
         }
-
         function buildObsLog() {
             const log = document.getElementById('obs-log'); log.innerHTML = '';
             obsSteps.forEach((s, i) => {
@@ -2869,7 +2764,6 @@
                 chip.textContent = `(${s.row},${s.col})`; log.appendChild(chip);
             });
         }
-
         function renderObsStep(idx) {
             const s = obsSteps[idx]; if (!s) return;
             const sensor = getSensorData(s.row, s.col);
@@ -2886,23 +2780,18 @@
             const aqEl = document.getElementById('obs-aq'), aq = sensor.airQuality;
             aqEl.textContent = aq + ' AQI — ' + (aq <= 100 ? 'Good' : aq <= 150 ? 'Moderate' : 'Poor');
             aqEl.className = 'obs-val ' + (aq <= 100 ? 'aq-good' : aq <= 150 ? 'aq-moderate' : 'aq-poor');
-
-            // Robot terrain only — CV terrain on Vision screen is separate
             setTerrainHighlight('t-', sensor.terrain);
             checkTiltSafety(sensor.tilt, sensor.terrain, 'si');
             checkAQSafety(aq, 'si', 'obs-voice-pill', 'obs-voice-label', idx);
-
             document.querySelectorAll('#obs-log .log-chip').forEach((el, i) => {
                 el.className = 'log-chip' + (i < idx ? ' done' : i === idx ? ' current' : '');
             });
             const cur = document.querySelector('#obs-log .current');
             if (cur) cur.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
             checkWallProximity(s.row, s.col, idx);
-            const text = buildNarration(s, sensor, idx, obsSteps.length);
-            speak(text, 'obs-voice-pill', 'obs-voice-label');
+            speak(buildNarration(s, sensor, idx, obsSteps.length), 'obs-voice-pill', 'obs-voice-label');
             if (idx === obsSteps.length - 1) setTimeout(() => showResult(obsSteps, s.row, s.col), 900);
         }
-
         function startObsTimer() {
             clearInterval(obsTimer); obsElapsed = 0; updateObsTimerUI();
             obsTimer = setInterval(() => {
@@ -2915,13 +2804,11 @@
                 }
             }, 100);
         }
-
         function updateObsTimerUI() {
             const rem = Math.max(0, OBS_INTERVAL - obsElapsed);
             document.getElementById('obs-timer-fill').style.width = ((rem / OBS_INTERVAL) * 100) + '%';
             document.getElementById('obs-countdown').textContent = (rem / 1000).toFixed(1) + 's';
         }
-
         function toggleObsPause() {
             obsPaused = !obsPaused;
             document.getElementById('obs-pause-btn').textContent = obsPaused ? '▶' : '⏸';
@@ -2950,7 +2837,6 @@
             }
             return [{ row: 0, col: 0 }];
         }
-
         function bfsToSteps(cellPath) {
             return cellPath.map((p, i) => ({ row: p.row, col: p.col, dir: 'E', cmd: i === 0 ? 'START' : 'F' }));
         }
@@ -2965,7 +2851,6 @@
             document.getElementById('test-robot').style.display = 'none';
             moveRobot(document.getElementById('test-robot'), 0, 0);
         }
-
         function runTest() {
             const targetText = document.getElementById('test-target').value.trim();
             const err = document.getElementById('test-err');
@@ -2979,7 +2864,6 @@
             speak(`Commencing test traversal to row ${targetRow}, column ${targetCol}. Traction optimized for ${traction}.`, 'test-voice-pill', 'test-voice-label');
             animateTest(bfsToSteps(bfsPath(targetRow, targetCol)), targetRow, targetCol);
         }
-
         function animateTest(steps, targetRow, targetCol) {
             buildMiniGrid(document.getElementById('test-grid'));
             const sz = gridTotalSize(), svg = document.getElementById('test-svg');
@@ -3004,52 +2888,41 @@
         function showResult(steps, targetRow, targetCol) {
             const last = steps[steps.length - 1];
             const sensor = getSensorData(last.row, last.col);
-
             latestMissionData = {
                 mission_type: targetRow !== undefined ? 'Test Navigation' : 'Observation Patrol',
                 end_position: [last.row, last.col],
                 terrain_classification: sensor.terrain,
-
                 tilt_degrees: sensor.tilt,
                 air_quality_aqi: sensor.airQuality,
                 path_taken: steps.map(s => `[${s.row},${s.col}]`).join(' -> '),
                 timestamp: new Date().toISOString()
             };
-
             const btn = document.getElementById('snowflake-save-btn');
             if (btn) { btn.textContent = '❄️ SAVE TO SNOWFLAKE'; btn.style.background = ''; btn.style.color = ''; btn.style.pointerEvents = 'auto'; }
-
             goTo('screen-result');
             buildMiniGrid(document.getElementById('res-grid'));
             const sz = gridTotalSize(), resSvg = document.getElementById('res-svg');
             resSvg.setAttribute('width', sz); resSvg.setAttribute('height', sz);
             drawPath(resSvg, steps, steps.length - 1);
             moveRobot(document.getElementById('res-robot'), last.row, last.col);
-
             document.getElementById('res-pos').textContent = `(${last.row}, ${last.col})`;
             document.getElementById('res-dir').textContent = DIR_LABEL[last.dir];
-
             const reached = last.row === targetRow && last.col === targetCol;
             const reachEl = document.getElementById('res-reached');
             if (targetRow === undefined) { reachEl.textContent = '✓ Patrol Finished'; reachEl.style.color = 'var(--green)'; }
             else { reachEl.textContent = reached ? '✓ YES — destination reached!' : `✗ NO — ended at (${last.row},${last.col})`; reachEl.style.color = reached ? 'var(--green)' : 'var(--danger)'; }
-
             const tiltEl = document.getElementById('res-tilt');
             tiltEl.textContent = sensor.tilt.toFixed(3) + '°';
             tiltEl.style.color = sensor.terrain === 'flat' ? 'var(--green)' : sensor.terrain === 'smooth' ? '#b87900' : 'var(--danger)';
-
             const resAqEl = document.getElementById('res-aq'), aq = sensor.airQuality;
             resAqEl.textContent = aq + ' AQI — ' + (aq <= 100 ? 'Safe' : aq <= 150 ? 'Medium' : 'Dangerous');
             resAqEl.className = 'result-val ' + (aq <= 100 ? 'aq-good' : aq <= 150 ? 'aq-moderate' : 'aq-poor');
-
             setTerrainHighlight('rt-', sensor.terrain);
-
             const resLog = document.getElementById('res-log'); resLog.innerHTML = '';
             steps.forEach((s, i) => {
                 const chip = document.createElement('span'); chip.className = 'log-chip done';
                 chip.textContent = i === 0 ? `START(${s.row},${s.col})` : `→(${s.row},${s.col})`; resLog.appendChild(chip);
             });
-
             const terrain = terrainLabel(sensor.terrain);
             const terrainDetail = sensor.terrain === 'flat' ? 'No leveling required.' : sensor.terrain === 'smooth' ? 'Moderate leveling recommended.' : 'High priority for leveling.';
             const narration = (reached || targetRow === undefined)
@@ -3075,7 +2948,6 @@ Answer in 2–4 sentences.`;
 
         let chatHistory = [];
         function initChat() { chatHistory = []; }
-
         async function sendChat() {
             const input = document.getElementById('chat-input');
             const msg = input.value.trim(); if (!msg) return; input.value = '';
@@ -3102,11 +2974,8 @@ Answer in 2–4 sentences.`;
                 typingEl.className = 'chat-bubble bot'; typingEl.textContent = reply;
                 document.getElementById('chat-messages').scrollTop = 99999;
                 speak(reply, 'chat-voice-pill', 'chat-voice-label');
-            } catch (e) {
-                typingEl.className = 'chat-bubble bot'; typingEl.textContent = '⚠ ' + e.message;
-            }
+            } catch (e) { typingEl.className = 'chat-bubble bot'; typingEl.textContent = '⚠ ' + e.message; }
         }
-
         function appendChatBubble(text, type) {
             const msgs = document.getElementById('chat-messages');
             const wrap = document.createElement('div'); wrap.className = 'chat-bubble-wrap';
@@ -3144,7 +3013,6 @@ Answer in 2–4 sentences.`;
         // GLOBAL SPEECH RECOGNITION
         // ════════════════════════════════════════════════════
         let globalRecognition = null, chatRecognition = null, globalMicActive = false, chatMicActive = false, continuousListen = false;
-
         function normalizeNumbers(t) {
             return t.replace(/\bzero\b/g, '0').replace(/\bone\b/g, '1').replace(/\b(two|too)\b/g, '2').replace(/\bthree\b/g, '3').replace(/\b(four)\b/g, '4').replace(/\boh\b/g, '0');
         }
@@ -3226,12 +3094,10 @@ Answer in 2–4 sentences.`;
                 const parsedDirs = normalizeDirections(transcript);
                 if (parsedDirs.length > 0) { document.getElementById('obs-commands').value = parsedDirs; continuousListen = false; stopGlobalMic(); setTimeout(startObserveSequence, 500); return true; }
             }
-            else if (screen === 'screen-vision') { return false; }
             else if (screen === 'screen-result') { if (/\b(again|retry|repeat|redo)\b/.test(transcript)) { goTo('screen-test'); return true; } }
             else if (screen === 'screen-chat') { if (!/\b(back|menu|home)\b/.test(transcript)) { document.getElementById('chat-input').value = transcript; sendChat(); return true; } }
             return false;
         }
-
         function toggleChatMic() { if (chatMicActive) stopChatMic(); else startChatMic(); }
         function startChatMic() {
             const SR = window.SpeechRecognition || window.webkitSpeechRecognition; if (!SR) return;
@@ -3257,7 +3123,6 @@ Answer in 2–4 sentences.`;
             updateTractionInfo('obs');
             updateTractionInfo('test');
         });
-
     </script>
 </body>
 
