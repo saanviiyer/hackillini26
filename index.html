@@ -1842,78 +1842,110 @@
      VISION SCREEN
 ══════════════════════════════════ -->
     <div class="screen" id="screen-vision">
-        <div class="card" style="width:720px;">
+        <div class="card" style="width:760px;">
             <div class="card-tag">VISION</div>
             <div class="screen-title">Terrain Vision — CV Classifier</div>
-            <p style="font-family:'Share Tech Mono',monospace;font-size:0.72rem;color:var(--muted);margin-bottom:16px;">
-                Real-time terrain classification using your Teachable Machine model.<br>
-                Classes: <strong style="color:var(--black);">DESERT · FOREST · MOUNTAIN · PLAINS</strong>
+            <p style="font-family:'Share Tech Mono',monospace;font-size:0.7rem;color:var(--muted);margin-bottom:14px;">
+                Classify terrain using your Teachable Machine model &nbsp;·&nbsp;
+                <strong style="color:var(--black);">DESERT · FOREST · MOUNTAIN · PLAINS</strong>
             </p>
 
             <!-- Model URL -->
-            <div class="model-url-box" id="vision-model-url-box" style="margin-bottom:12px;">
+            <div class="model-url-box" id="vision-model-url-box" style="margin-bottom:14px;">
                 <label>TEACHABLE MACHINE MODEL URL</label>
                 <input class="model-url-input" id="vision-model-url"
-                    placeholder="https://teachablemachine.withgoogle.com/models/DY2JHXYYe/"
-                    value="https://teachablemachine.withgoogle.com/models/DY2JHXYYe/">
+                    placeholder="https://teachablemachine.withgoogle.com/models/YOUR_MODEL_ID/"
+                    value="https://teachablemachine.withgoogle.com/models/YOUR_MODEL_ID/">
             </div>
 
-            <!-- Camera feed -->
-            <div class="vision-section" id="vision-section" style="margin-bottom:12px;">
-                <div class="vision-header">
-                    <span class="vision-title">📷 LIVE WEBCAM FEED</span>
-                    <div id="vision-vision-dot" class="vision-status-dot"></div>
+            <!-- Input method tabs -->
+            <div
+                style="display:flex;gap:0;margin-bottom:0;border-radius:10px 10px 0 0;overflow:hidden;border:2px solid var(--beige-dark);">
+                <button id="tab-webcam" onclick="switchVisionTab('webcam')"
+                    style="flex:1;padding:10px;font-family:'Orbitron',monospace;font-size:0.72rem;font-weight:700;letter-spacing:0.08em;
+               background:var(--yellow);border:none;cursor:pointer;border-right:1px solid var(--beige-dark);transition:all 0.15s;">
+                    📷 WEBCAM
+                </button>
+                <button id="tab-upload" onclick="switchVisionTab('upload')" style="flex:1;padding:10px;font-family:'Orbitron',monospace;font-size:0.72rem;font-weight:700;letter-spacing:0.08em;
+               background:var(--beige);border:none;cursor:pointer;transition:all 0.15s;">
+                    🖼 UPLOAD IMAGE
+                </button>
+            </div>
+
+            <!-- WEBCAM PANEL -->
+            <div id="vision-tab-webcam"
+                style="border:2px solid var(--beige-dark);border-top:none;border-radius:0 0 10px 10px;overflow:hidden;margin-bottom:14px;">
+                <div class="vision-section" id="vision-section" style="margin-bottom:0;border-radius:0;border:none;">
+                    <div class="vision-header">
+                        <span class="vision-title">📷 LIVE WEBCAM</span>
+                        <div id="vision-vision-dot" class="vision-status-dot"></div>
+                    </div>
+                    <div class="vision-feed-wrap" id="vision-feed-wrap" style="height:240px;">
+                        <div class="vision-start-btn" id="vision-start-overlay" onclick="initVision('vision')">
+                            <div class="vision-start-icon">📷</div>
+                            <div class="vision-start-text">▶ TAP TO START WEBCAM</div>
+                            <div
+                                style="font-family:'Share Tech Mono',monospace;font-size:0.55rem;color:#666;margin-top:4px;">
+                                LIVE TERRAIN CV CLASSIFICATION</div>
+                        </div>
+                        <div id="vision-webcam-container"></div>
+                        <div class="vision-scanline"></div>
+                        <div class="vision-corner tl"></div>
+                        <div class="vision-corner tr"></div>
+                        <div class="vision-corner bl"></div>
+                        <div class="vision-corner br"></div>
+                        <div class="vision-active-label" id="vision-active-label" style="display:none">SCANNING…</div>
+                    </div>
+                    <div class="vision-snap-controls" style="padding:6px 10px;">
+                        <button class="snap-btn" onclick="stopVision('vision')" id="vision-stop-btn"
+                            style="display:none">⏹ STOP WEBCAM</button>
+                    </div>
                 </div>
-                <div class="vision-feed-wrap" id="vision-feed-wrap" style="height:260px;">
-                    <div class="vision-start-btn" id="vision-start-overlay" onclick="initVision('vision')">
-                        <div class="vision-start-icon">📷</div>
-                        <div class="vision-start-text">▶ TAP TO START WEBCAM</div>
+            </div>
+
+            <!-- UPLOAD IMAGE PANEL -->
+            <div id="vision-tab-upload"
+                style="display:none;border:2px solid var(--beige-dark);border-top:none;border-radius:0 0 10px 10px;overflow:hidden;margin-bottom:14px;background:#fafaf8;">
+                <div style="padding:20px;">
+                    <!-- Drop zone -->
+                    <div id="vision-dropzone" onclick="document.getElementById('vision-file-input').click()"
+                        ondragover="event.preventDefault();this.style.borderColor='var(--yellow-dark)'"
+                        ondragleave="this.style.borderColor='#ccc5b0'" ondrop="handleVisionDrop(event)"
+                        style="border:2.5px dashed #ccc5b0;border-radius:12px;padding:36px 20px;text-align:center;cursor:pointer;transition:all 0.2s;background:#fff;">
+                        <div style="font-size:2.5rem;margin-bottom:8px;">🖼</div>
                         <div
-                            style="font-family:'Share Tech Mono',monospace;font-size:0.55rem;color:#666;margin-top:4px;">
-                            TERRAIN CV CLASSIFICATION</div>
+                            style="font-family:'Orbitron',monospace;font-size:0.8rem;font-weight:700;color:var(--black);margin-bottom:6px;">
+                            DROP IMAGE HERE</div>
+                        <div style="font-family:'Share Tech Mono',monospace;font-size:0.65rem;color:var(--muted);">or
+                            click to browse &nbsp;·&nbsp; JPG, PNG, WEBP</div>
                     </div>
-                    <div id="vision-webcam-container"></div>
-                    <div class="vision-scanline"></div>
-                    <div class="vision-corner tl"></div>
-                    <div class="vision-corner tr"></div>
-                    <div class="vision-corner bl"></div>
-                    <div class="vision-corner br"></div>
-                    <div class="vision-active-label" id="vision-active-label" style="display:none">SCANNING…</div>
-                </div>
-                <div class="vision-snap-controls">
-                    <button class="snap-btn" onclick="stopVision('vision')" id="vision-stop-btn" style="display:none">⏹
-                        STOP</button>
-                    <span class="vision-mode-toggle" id="vision-mode-toggle" onclick="switchToSnap('vision')"
-                        style="display:none">use photo instead</span>
-                </div>
-                <!-- Photo upload — always visible on vision screen -->
-                <div id="vision-snap-area"
-                    style="display:block; padding:10px 12px; background:#1a1a1a; border-top:1px solid #333;">
-                    <input type="file" id="vision-file-input" accept="image/*" capture="environment"
-                        style="display:none" onchange="handleFileCapture('vision', this)">
-                    <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px;">
-                        <button class="snap-btn" style="font-size:0.7rem;padding:6px 14px;"
-                            onclick="document.getElementById('vision-file-input').click()">📸 UPLOAD TERRAIN
-                            PHOTO</button>
-                        <span style="font-family:'Share Tech Mono',monospace;font-size:0.58rem;color:#666;">upload or
-                            take a photo to classify</span>
+                    <input type="file" id="vision-file-input" accept="image/*" style="display:none"
+                        onchange="handleFileCapture('vision', this)">
+
+                    <!-- Preview canvas -->
+                    <div id="vision-preview-wrap" style="display:none;margin-top:14px;position:relative;">
+                        <canvas id="vision-snap-canvas"
+                            style="width:100%;max-height:260px;object-fit:contain;border-radius:10px;background:#111;display:block;"></canvas>
+                        <div id="vision-snap-overlay-label"
+                            style="position:absolute;bottom:10px;left:10px;font-family:'Share Tech Mono',monospace;font-size:0.7rem;background:rgba(0,0,0,0.75);color:var(--yellow);padding:4px 10px;border-radius:5px;border:1px solid var(--yellow);display:none;">
+                        </div>
+                        <button onclick="clearVisionUpload()"
+                            style="position:absolute;top:8px;right:8px;background:rgba(0,0,0,0.6);border:1px solid #555;color:#fff;font-size:0.7rem;padding:3px 10px;border-radius:5px;cursor:pointer;font-family:'Share Tech Mono',monospace;">✕
+                            CLEAR</button>
                     </div>
-                    <canvas id="vision-snap-canvas"
-                        style="width:100%;border-radius:6px;display:none;max-height:220px;object-fit:contain;background:#000;"></canvas>
                 </div>
             </div>
 
-            <!-- Classification bars -->
+            <!-- Confidence bars (shared between webcam + upload) -->
             <div id="vision-vision-readout"
-                style="display:none; background:#111; border-radius:0 0 10px 10px; padding:10px 14px; margin-top:-12px; margin-bottom:12px;">
-            </div>
+                style="display:none;background:#111;border-radius:10px;padding:10px 14px;margin-bottom:14px;"></div>
 
-            <!-- Current detection big display -->
+            <!-- Big result display -->
             <div
                 style="background:var(--black);border-radius:12px;padding:20px 24px;display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
                 <div>
                     <div
-                        style="font-family:'Share Tech Mono',monospace;font-size:0.65rem;color:#666;letter-spacing:0.15em;margin-bottom:6px;">
+                        style="font-family:'Share Tech Mono',monospace;font-size:0.62rem;color:#666;letter-spacing:0.15em;margin-bottom:6px;">
                         DETECTED TERRAIN TYPE</div>
                     <div id="vision-big-label"
                         style="font-family:'Orbitron',monospace;font-size:2rem;font-weight:900;color:var(--yellow);">—
@@ -1921,7 +1953,7 @@
                 </div>
                 <div style="text-align:right;">
                     <div
-                        style="font-family:'Share Tech Mono',monospace;font-size:0.65rem;color:#666;letter-spacing:0.15em;margin-bottom:6px;">
+                        style="font-family:'Share Tech Mono',monospace;font-size:0.62rem;color:#666;letter-spacing:0.15em;margin-bottom:6px;">
                         CONFIDENCE</div>
                     <div id="vision-big-conf"
                         style="font-family:'Orbitron',monospace;font-size:2rem;font-weight:900;color:#fff;">—</div>
@@ -2140,6 +2172,17 @@
                 if (bigConf && highest.className) {
                     bigConf.textContent = (highest.probability * 100).toFixed(0) + '%';
                 }
+                // Update overlay label on uploaded image preview
+                const snapOverlay = document.getElementById('vision-snap-overlay-label');
+                if (snapOverlay && highest.className) {
+                    snapOverlay.textContent = highest.className.toUpperCase() + ' ' + (highest.probability * 100).toFixed(0) + '%';
+                    snapOverlay.style.display = 'block';
+                }
+                // Reset dropzone text after classification completes
+                const dz = document.getElementById('vision-dropzone');
+                if (dz && prefix === 'vision' && !visionState['vision'].running) {
+                    dz.innerHTML = '<div style="font-size:1.5rem;margin-bottom:4px;">🖼</div><div style="font-family:Orbitron,monospace;font-size:0.75rem;font-weight:700;color:var(--black);margin-bottom:4px;">DROP ANOTHER IMAGE</div><div style="font-family:Share Tech Mono,monospace;font-size:0.62rem;color:var(--muted);">or click to browse</div>';
+                }
                 // NOTE: CV terrain never updates robot terrain indicators (flat/smooth/bump)
 
             } catch (e) {
@@ -2197,12 +2240,22 @@
             reader.onload = async (e) => {
                 const img = new Image();
                 img.onload = async () => {
-                    // Show the canvas with the uploaded image
+                    // Show preview area (vision screen only)
+                    const previewWrap = document.getElementById(prefix + '-preview-wrap');
+                    if (previewWrap) previewWrap.style.display = 'block';
+
+                    // Draw image to canvas
                     canvas.style.display = 'block';
                     canvas.width = img.naturalWidth;
                     canvas.height = img.naturalHeight;
                     const ctx = canvas.getContext('2d');
                     ctx.drawImage(img, 0, 0);
+
+                    // Update dropzone to show filename
+                    const dz = document.getElementById('vision-dropzone');
+                    if (dz && prefix === 'vision') {
+                        dz.innerHTML = '<div style="font-size:1.5rem;margin-bottom:4px;">✅</div><div style="font-family:Share Tech Mono,monospace;font-size:0.65rem;color:var(--green);">IMAGE LOADED — classifying…</div>';
+                    }
 
                     // Load model if not already loaded
                     if (!vs.model) {
@@ -2251,6 +2304,76 @@
             const vs = visionState[prefix];
             if (!vs.lastClass) return null;
             return { className: vs.lastClass, confidence: vs.lastConf };
+        }
+
+        // ════════════════════════════════════════════════════
+        // VISION SCREEN — TAB SWITCHING & UPLOAD HELPERS
+        // ════════════════════════════════════════════════════
+        function switchVisionTab(tab) {
+            const webcamPanel = document.getElementById('vision-tab-webcam');
+            const uploadPanel = document.getElementById('vision-tab-upload');
+            const tabWebcam = document.getElementById('tab-webcam');
+            const tabUpload = document.getElementById('tab-upload');
+
+            if (tab === 'webcam') {
+                webcamPanel.style.display = 'block';
+                uploadPanel.style.display = 'none';
+                tabWebcam.style.background = 'var(--yellow)';
+                tabWebcam.style.color = 'var(--black)';
+                tabUpload.style.background = 'var(--beige)';
+                tabUpload.style.color = 'var(--muted)';
+            } else {
+                webcamPanel.style.display = 'none';
+                uploadPanel.style.display = 'block';
+                tabUpload.style.background = 'var(--yellow)';
+                tabUpload.style.color = 'var(--black)';
+                tabWebcam.style.background = 'var(--beige)';
+                tabWebcam.style.color = 'var(--muted)';
+                // Stop webcam if running when switching to upload tab
+                stopVision('vision');
+            }
+        }
+
+        function handleVisionDrop(event) {
+            event.preventDefault();
+            const dropzone = document.getElementById('vision-dropzone');
+            if (dropzone) dropzone.style.borderColor = '#ccc5b0';
+            const files = event.dataTransfer.files;
+            if (!files || !files[0]) return;
+            if (!files[0].type.startsWith('image/')) {
+                alert('Please drop an image file (JPG, PNG, WEBP)');
+                return;
+            }
+            // Simulate file input change
+            const dt = new DataTransfer();
+            dt.items.add(files[0]);
+            const input = document.getElementById('vision-file-input');
+            input.files = dt.files;
+            handleFileCapture('vision', input);
+        }
+
+        function clearVisionUpload() {
+            const canvas = document.getElementById('vision-snap-canvas');
+            const preview = document.getElementById('vision-preview-wrap');
+            const overlay = document.getElementById('vision-snap-overlay-label');
+            const readout = document.getElementById('vision-vision-readout');
+            const bigLabel = document.getElementById('vision-big-label');
+            const bigConf = document.getElementById('vision-big-conf');
+            const dot = document.getElementById('vision-vision-dot');
+            const input = document.getElementById('vision-file-input');
+
+            if (canvas) { const ctx = canvas.getContext('2d'); ctx.clearRect(0, 0, canvas.width, canvas.height); }
+            if (preview) preview.style.display = 'none';
+            if (overlay) overlay.style.display = 'none';
+            if (readout) readout.style.display = 'none';
+            if (bigLabel) { bigLabel.textContent = '—'; bigLabel.style.color = 'var(--yellow)'; }
+            if (bigConf) bigConf.textContent = '—';
+            if (dot) dot.className = 'vision-status-dot';
+            if (input) input.value = '';
+
+            // Reset visionState
+            const vs = visionState['vision'];
+            vs.lastClass = null; vs.lastConf = 0;
         }
 
         // ════════════════════════════════════════════════════
