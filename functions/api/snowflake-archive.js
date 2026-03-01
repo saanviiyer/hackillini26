@@ -4,12 +4,14 @@ export async function onRequestPost(context) {
     try {
         const missionData = await request.json();
 
-        // Pull credentials from your Cloudflare environment variables
         const account = env.SNOWFLAKE_ACCOUNT;
         const token = env.SNOWFLAKE_TOKEN;
         const url = `https://${account}.snowflakecomputing.com/api/v2/statements`;
 
-        // Format the SQL query
+        // 🚨 DEBUG LOGGING: Check if environment variables are loading!
+        console.log("🚀 [Worker] Sending data to:", url);
+        console.log("🔑 [Worker] Token exists?", !!token);
+
         const sqlQuery = `
       INSERT INTO SANDOZER_DB.PUBLIC.MISSION_HISTORY 
       (MISSION_ID, MISSION_TYPE, TERRAIN, TILT_DEGREES, AQI_INDEX, TRACTION_SETTING)
@@ -41,7 +43,9 @@ export async function onRequestPost(context) {
 
         const result = await response.json();
 
-        // Snowflake API returns 200 even for SQL errors, so we check the response code field
+        // 🚨 DEBUG LOGGING: Print exactly what Snowflake says back
+        console.log("❄️ [Snowflake Response]:", JSON.stringify(result, null, 2));
+
         if (result.code && result.code !== '090001') {
             throw new Error(result.message || "Snowflake SQL Execution Error");
         }
@@ -51,6 +55,7 @@ export async function onRequestPost(context) {
         });
 
     } catch (err) {
+        console.error("❌ [Worker Error]:", err.message);
         return new Response(JSON.stringify({ error: err.message }), { status: 500 });
     }
 }
