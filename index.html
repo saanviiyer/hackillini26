@@ -479,8 +479,10 @@
         .vision-feed-wrap {
             position: relative;
             height: 160px;
+            min-height: 160px;
             background: #000;
             overflow: hidden;
+            display: block;
         }
 
         .vision-feed-wrap canvas {
@@ -620,25 +622,29 @@
             align-items: center;
             justify-content: center;
             gap: 8px;
-            background: rgba(0, 0, 0, 0.85);
+            background: #111;
+            border: 2px dashed #555;
             z-index: 10;
             cursor: pointer;
             transition: background 0.2s;
         }
 
         .vision-start-btn:hover {
-            background: rgba(0, 0, 0, 0.7);
+            background: #1a1a1a;
+            border-color: var(--yellow);
         }
 
         .vision-start-icon {
-            font-size: 2rem;
+            font-size: 2.5rem;
+            display: block;
         }
 
         .vision-start-text {
             font-family: 'Share Tech Mono', monospace;
-            font-size: 0.65rem;
+            font-size: 0.72rem;
             color: var(--yellow);
             letter-spacing: 0.12em;
+            font-weight: bold;
         }
 
         /* ── OBS/TEST PANELS ── */
@@ -1614,7 +1620,10 @@
                         <div class="vision-feed-wrap" id="obs-feed-wrap">
                             <div class="vision-start-btn" id="obs-start-overlay" onclick="initVision('obs')">
                                 <div class="vision-start-icon">📷</div>
-                                <div class="vision-start-text">TAP TO START VISION</div>
+                                <div class="vision-start-text">▶ TAP TO START WEBCAM</div>
+                                <div
+                                    style="font-family:'Share Tech Mono',monospace;font-size:0.55rem;color:#666;margin-top:2px;">
+                                    TERRAIN CV CLASSIFICATION</div>
                             </div>
                             <div id="obs-webcam-container"></div>
                             <div class="vision-scanline"></div>
@@ -1649,8 +1658,7 @@
                         <!-- Model URL -->
                         <div class="model-url-box" id="obs-model-url-box">
                             <label>TEACHABLE MACHINE MODEL URL (paste your exported model URL)</label>
-                            <input class="model-url-input" id="obs-model-url"
-                                placeholder="https://teachablemachine.withgoogle.com/models/DY2JHXYYe/"
+                            <input class="model-url-input" id="obs-model-url" placeholder="≈≈"
                                 value="https://teachablemachine.withgoogle.com/models/DY2JHXYYe/">
                         </div>
                     </div>
@@ -1780,7 +1788,10 @@
                         <div class="vision-feed-wrap" id="test-feed-wrap">
                             <div class="vision-start-btn" id="test-start-overlay" onclick="initVision('test')">
                                 <div class="vision-start-icon">📷</div>
-                                <div class="vision-start-text">TAP TO START VISION</div>
+                                <div class="vision-start-text">▶ TAP TO START WEBCAM</div>
+                                <div
+                                    style="font-family:'Share Tech Mono',monospace;font-size:0.55rem;color:#666;margin-top:2px;">
+                                    TERRAIN CV CLASSIFICATION</div>
                             </div>
                             <div id="test-webcam-container"></div>
                             <div class="vision-scanline"></div>
