@@ -27,6 +27,7 @@
             --danger-bg: #fde8e6;
             --warn: #e67e22;
             --warn-bg: #fdf0e0;
+            --actian-blue: #0052cc;
         }
 
         * {
@@ -156,6 +157,19 @@
             box-shadow: 0 6px 20px rgba(192, 57, 43, 0.4);
         }
 
+        .btn-pill.actian {
+            background: #fff;
+            border: 2px solid var(--actian-blue);
+            color: var(--actian-blue);
+            box-shadow: 0 2px 10px rgba(0, 82, 204, 0.15);
+        }
+
+        .btn-pill.actian:hover {
+            background: #f0f5ff;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0, 82, 204, 0.25);
+        }
+
         body::before {
             content: '';
             position: fixed;
@@ -268,6 +282,21 @@
             margin-top: 6px;
         }
 
+        .actian-badge {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.65rem;
+            color: var(--actian-blue);
+            border: 1px solid var(--actian-blue);
+            background: #f0f5ff;
+            padding: 4px 10px;
+            border-radius: 20px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            letter-spacing: 0.05em;
+            margin-top: 16px;
+        }
+
         /* VOICE PILL */
         .voice-pill {
             display: inline-flex;
@@ -305,18 +334,6 @@
 
             50% {
                 opacity: 0.4
-            }
-        }
-
-        @keyframes flashRed {
-
-            0%,
-            100% {
-                background: #fff
-            }
-
-            50% {
-                background: #fde8e6
             }
         }
 
@@ -368,13 +385,17 @@
             box-shadow: 0 6px 20px rgba(245, 200, 0, 0.35);
         }
 
-        /* OBSERVE */
-        #screen-observe .card {
+        /* OBSERVE & TEST & RESULT LAYOUT */
+        #screen-observe .card,
+        #screen-test .card,
+        #screen-result .card {
             width: 960px;
             padding: 28px;
         }
 
-        .observe-layout {
+        .observe-layout,
+        .test-layout,
+        .result-layout {
             display: grid;
             grid-template-columns: auto 1fr;
             gap: 28px;
@@ -408,18 +429,7 @@
             .card {
                 padding: 20px 16px;
                 border-radius: 12px;
-            }
-
-            #screen-splash .card,
-            #screen-mode .card {
-                width: 100%;
-            }
-
-            #screen-observe .card,
-            #screen-test .card,
-            #screen-result .card {
-                width: 100%;
-                padding: 16px 14px;
+                width: 100% !important;
             }
 
             .observe-layout,
@@ -439,19 +449,6 @@
                 transform-origin: top center;
             }
 
-            .screen-title {
-                font-size: 1rem;
-                margin-bottom: 10px;
-            }
-
-            .splash-title {
-                font-size: 2rem;
-            }
-
-            .splash-about-grid {
-                grid-template-columns: 1fr;
-            }
-
             .mode-btns {
                 flex-direction: column;
                 align-items: center;
@@ -462,38 +459,12 @@
                 max-width: 260px;
             }
 
-            #estop-btn {
-                bottom: 12px;
-                right: 12px;
-                padding: 10px 14px;
-                font-size: 0.7rem;
-            }
-
             #mic-fab {
                 bottom: 12px;
                 left: 12px;
                 width: 44px;
                 height: 44px;
                 font-size: 1.1rem;
-            }
-
-            #mic-status {
-                bottom: 68px;
-                left: 12px;
-            }
-
-            .obs-label {
-                min-width: 110px;
-                font-size: 0.68rem;
-            }
-
-            .safety-indicators {
-                gap: 4px;
-            }
-
-            .safety-ind {
-                font-size: 0.6rem;
-                padding: 2px 7px;
             }
         }
 
@@ -574,13 +545,16 @@
             animation: pulse 1.2s ease-in-out infinite;
         }
 
-        .obs-panel {
+        .obs-panel,
+        .test-panel,
+        .result-panel {
             display: flex;
             flex-direction: column;
             gap: 10px;
         }
 
-        .obs-row {
+        .obs-row,
+        .result-row {
             display: flex;
             align-items: baseline;
             gap: 10px;
@@ -588,11 +562,13 @@
             border-bottom: 1px solid var(--beige-dark);
         }
 
-        .obs-row:last-child {
+        .obs-row:last-child,
+        .result-row:last-child {
             border-bottom: none;
         }
 
-        .obs-label {
+        .obs-label,
+        .result-label {
             font-family: 'Share Tech Mono', monospace;
             font-size: 0.72rem;
             color: var(--muted);
@@ -601,19 +577,22 @@
             flex-shrink: 0;
         }
 
-        .obs-val {
+        .obs-val,
+        .result-val {
             font-family: 'Share Tech Mono', monospace;
             font-size: 0.9rem;
             color: var(--black);
             font-weight: 500;
         }
 
-        .obs-val.highlight {
+        .obs-val.highlight,
+        .result-val.tilt {
             color: var(--yellow-dark);
             font-weight: 700;
         }
 
-        .terrain-row {
+        .terrain-row,
+        .result-terrain {
             display: flex;
             gap: 10px;
             align-items: center;
@@ -697,25 +676,6 @@
             transition: width 0.1s linear;
         }
 
-        /* TEST */
-        #screen-test .card {
-            width: 960px;
-            padding: 28px;
-        }
-
-        .test-layout {
-            display: grid;
-            grid-template-columns: auto 1fr;
-            gap: 28px;
-            align-items: start;
-        }
-
-        .test-panel {
-            display: flex;
-            flex-direction: column;
-            gap: 16px;
-        }
-
         .test-input-group {
             display: flex;
             flex-direction: column;
@@ -781,60 +741,6 @@
             line-height: 1.5;
         }
 
-        /* RESULT */
-        #screen-result .card {
-            width: 960px;
-            padding: 28px;
-        }
-
-        .result-layout {
-            display: grid;
-            grid-template-columns: auto 1fr;
-            gap: 28px;
-            align-items: start;
-        }
-
-        .result-panel {
-            display: flex;
-            flex-direction: column;
-            gap: 14px;
-        }
-
-        .result-row {
-            display: flex;
-            align-items: baseline;
-            gap: 12px;
-            padding-bottom: 12px;
-            border-bottom: 1px solid var(--beige-dark);
-        }
-
-        .result-label {
-            font-family: 'Share Tech Mono', monospace;
-            font-size: 0.72rem;
-            color: var(--muted);
-            letter-spacing: 0.08em;
-            min-width: 130px;
-            flex-shrink: 0;
-        }
-
-        .result-val {
-            font-family: 'Share Tech Mono', monospace;
-            font-size: 1rem;
-            color: var(--black);
-            font-weight: 600;
-        }
-
-        .result-val.tilt {
-            color: var(--yellow-dark);
-            font-weight: 700;
-        }
-
-        .result-terrain {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
-
         .path-log-mini {
             display: flex;
             flex-wrap: wrap;
@@ -872,7 +778,7 @@
             display: none;
         }
 
-        /* ── SAFETY STATUS PANEL ── */
+        /* SAFETY STATUS PANEL */
         .safety-panel {
             background: var(--beige);
             border: 2px solid var(--beige-dark);
@@ -932,7 +838,7 @@
             animation: pulse 0.7s ease-in-out infinite;
         }
 
-        /* ── TRACTION CONFIG ── */
+        /* TRACTION CONFIG */
         .traction-select {
             font-family: 'Share Tech Mono', monospace;
             font-size: 0.8rem;
@@ -951,11 +857,23 @@
             border-color: var(--yellow-dark);
         }
 
-        .traction-row {
-            width: 100%;
+        .traction-info {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.64rem;
+            color: var(--muted);
+            margin-top: 4px;
+            line-height: 1.4;
         }
 
-        /* ── COMMAND INPUT AREA ── */
+        .traction-info.warn-text {
+            color: var(--warn);
+        }
+
+        .traction-info.danger-text {
+            color: var(--danger);
+        }
+
+        /* COMMAND INPUT AREA */
         .cmd-area {
             border: 2px solid var(--beige-dark);
             border-radius: 10px;
@@ -997,10 +915,6 @@
             border-color: var(--yellow-dark);
         }
 
-        .cmd-input::placeholder {
-            color: #c0b8a8;
-        }
-
         .cmd-mic-btn {
             width: 36px;
             height: 36px;
@@ -1028,7 +942,7 @@
             animation: pulse 0.8s ease-in-out infinite;
         }
 
-        /* ── WALL ALERT ── */
+        /* WALL ALERT */
         .wall-alert {
             display: inline-flex;
             align-items: center;
@@ -1056,7 +970,7 @@
             min-height: 22px;
         }
 
-        /* ── FLOATING MIC BUTTON ── */
+        /* FLOATING MIC BUTTON */
         #mic-fab {
             position: fixed;
             bottom: 28px;
@@ -1089,7 +1003,28 @@
             animation: pulse 0.8s ease-in-out infinite;
         }
 
-        /* ── EMERGENCY STOP BUTTON ── */
+        #mic-status {
+            position: fixed;
+            bottom: 90px;
+            left: 20px;
+            z-index: 999;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.65rem;
+            background: var(--black);
+            color: var(--yellow);
+            padding: 4px 10px;
+            border-radius: 12px;
+            letter-spacing: 0.1em;
+            opacity: 0;
+            transition: opacity 0.3s;
+            pointer-events: none;
+        }
+
+        #mic-status.show {
+            opacity: 1;
+        }
+
+        /* EMERGENCY STOP BUTTON */
         #estop-btn {
             position: fixed;
             bottom: 28px;
@@ -1119,27 +1054,6 @@
             display: flex;
             align-items: center;
             gap: 8px;
-        }
-
-        #mic-status {
-            position: fixed;
-            bottom: 90px;
-            left: 20px;
-            z-index: 999;
-            font-family: 'Share Tech Mono', monospace;
-            font-size: 0.65rem;
-            background: var(--black);
-            color: var(--yellow);
-            padding: 4px 10px;
-            border-radius: 12px;
-            letter-spacing: 0.1em;
-            opacity: 0;
-            transition: opacity 0.3s;
-            pointer-events: none;
-        }
-
-        #mic-status.show {
-            opacity: 1;
         }
 
         /* AQI COLORS */
@@ -1310,34 +1224,37 @@
             flex-direction: column;
         }
 
-        /* Traction info tooltip */
-        .traction-info {
+        /* ACTIAN TOGGLE */
+        .actian-toggle-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 8px;
             font-family: 'Share Tech Mono', monospace;
-            font-size: 0.64rem;
-            color: var(--muted);
-            margin-top: 4px;
-            line-height: 1.4;
+            font-size: 0.7rem;
+            color: var(--actian-blue);
+            background: #f0f5ff;
+            padding: 6px 12px;
+            border-radius: 8px;
+            border: 1px solid #cce0ff;
         }
 
-        .traction-info.warn-text {
-            color: var(--warn);
-        }
-
-        .traction-info.danger-text {
-            color: var(--danger);
+        .actian-toggle-row input {
+            cursor: pointer;
+            accent-color: var(--actian-blue);
         }
     </style>
 </head>
 
 <body>
 
-    <!-- ══════════ SPLASH ══════════ -->
     <div class="screen active" id="screen-splash">
         <div class="card">
             <button class="info-btn" title="Info">i</button>
             <div class="splash-pre">John Deere × Arduino</div>
             <div class="splash-title">The <span class="accent">Sandozer</span></div>
             <div class="splash-sub">Mission Control</div>
+            <div class="actian-badge">⚡ POWERED BY ACTIAN VECTOR AI DB</div>
             <div class="splash-divider"></div>
             <div class="splash-about-grid">
                 <div class="about-box">
@@ -1363,7 +1280,6 @@
         </div>
     </div>
 
-    <!-- ══════════ MODE SELECT ══════════ -->
     <div class="screen" id="screen-mode">
         <div class="card">
             <button class="info-btn" onclick="goTo('screen-splash')">←</button>
@@ -1384,7 +1300,6 @@
         </div>
     </div>
 
-    <!-- ══════════ OBSERVE ══════════ -->
     <div class="screen" id="screen-observe">
         <div class="card">
             <div class="card-tag">OBSERVATION</div>
@@ -1408,7 +1323,6 @@
 
                 <div class="obs-panel">
 
-                    <!-- SAFETY PANEL -->
                     <div class="safety-panel">
                         <div class="safety-panel-title">🛡 Safety Status</div>
                         <div class="safety-indicators">
@@ -1419,7 +1333,6 @@
                         </div>
                     </div>
 
-                    <!-- TRACTION CONFIG -->
                     <div style="display:flex;flex-direction:column;gap:4px;">
                         <label class="test-label"
                             style="color:var(--danger);font-family:'Orbitron',monospace;font-size:0.68rem;font-weight:700;letter-spacing:0.12em;">⚠
@@ -1433,7 +1346,6 @@
                             radius apply.</div>
                     </div>
 
-                    <!-- PATH COMMANDS + VOICE -->
                     <div class="cmd-area">
                         <div class="cmd-area-title">📡 Path Commands — type or speak</div>
                         <div class="cmd-input-row">
@@ -1452,7 +1364,6 @@
                             🎤 Listening for directions…</div>
                     </div>
 
-                    <!-- SENSOR ROWS -->
                     <div class="obs-row">
                         <span class="obs-label">Position:</span>
                         <span class="obs-val">(<span id="obs-y">0</span>,<span id="obs-x">0</span>)</span>
@@ -1514,7 +1425,6 @@
         </div>
     </div>
 
-    <!-- ══════════ TEST ══════════ -->
     <div class="screen" id="screen-test">
         <div class="card">
             <div class="card-tag">TEST</div>
@@ -1538,7 +1448,6 @@
 
                 <div class="test-panel">
 
-                    <!-- SAFETY PANEL -->
                     <div class="safety-panel">
                         <div class="safety-panel-title">🛡 Safety Status</div>
                         <div class="safety-indicators">
@@ -1549,7 +1458,6 @@
                         </div>
                     </div>
 
-                    <!-- TRACTION CONFIG -->
                     <div class="test-input-group">
                         <label class="test-label" style="color:var(--danger);">⚠ SAFETY: TRACTION CONFIG</label>
                         <select class="traction-select" id="test-traction" onchange="updateTractionInfo('test')">
@@ -1591,7 +1499,6 @@
         </div>
     </div>
 
-    <!-- ══════════ RESULT ══════════ -->
     <div class="screen" id="screen-result">
         <div class="card">
             <div class="card-tag">TEST</div>
@@ -1635,18 +1542,22 @@
                     <div class="path-log-mini" id="res-log" style="max-height:80px;overflow-y:auto;"></div>
                     <div style="margin-top:4px;"><span class="voice-pill" id="res-voice-pill"><span
                                 class="voice-dot"></span><span id="res-voice-label">VOICE IDLE</span></span></div>
+
                     <div style="display:flex;gap:10px;margin-top:8px;flex-wrap:wrap;">
-                        <button class="btn-pill" style="padding:10px 24px;font-size:0.78rem;"
-                            onclick="goTo('screen-test')">TRY AGAIN</button>
                         <button class="btn-pill outline" style="padding:10px 20px;font-size:0.72rem;"
                             onclick="goTo('screen-mode')">← BACK</button>
+                        <button class="btn-pill" style="padding:10px 24px;font-size:0.78rem;"
+                            onclick="goTo('screen-test')">TRY AGAIN</button>
+
+                        <button class="btn-pill actian" id="actian-save-btn"
+                            style="padding:10px 24px;font-size:0.78rem;" onclick="saveMissionToVectorDB()">💾 SAVE TO
+                            ACTIAN VECTOR DB</button>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- ══════════ CHAT ══════════ -->
     <div class="screen" id="screen-chat">
         <div class="card">
             <div class="chat-header">
@@ -1661,23 +1572,29 @@
                         onclick="goTo('screen-mode')">← BACK</button>
                 </div>
             </div>
+
             <div class="chat-messages" id="chat-messages">
                 <div class="chat-bubble-wrap">
                     <div class="bot-name">SANDOZER AI</div>
                     <div class="chat-bubble bot">👋 Hi! I'm the Sandozer AI assistant. Ask me anything about the
-                        Sandozer robot — its sensors, navigation, terrain detection, or mission capabilities!</div>
+                        Sandozer robot — its sensors, navigation, terrain detection, or past missions!</div>
                 </div>
             </div>
+
             <div class="chat-input-row">
-                <input class="chat-input" id="chat-input" placeholder="Ask about the Sandozer..."
+                <input class="chat-input" id="chat-input" placeholder="Ask about the Sandozer or past missions..."
                     onkeydown="if(event.key==='Enter')sendChat()" />
                 <button class="chat-send-btn" onclick="sendChat()">SEND →</button>
                 <button class="chat-mic-btn" id="chat-mic-btn" onclick="toggleChatMic()" title="Voice input">🎤</button>
             </div>
+
+            <div class="actian-toggle-row">
+                <input type="checkbox" id="use-rag-toggle" checked />
+                <label for="use-rag-toggle">⚡ Use Actian VectorAI DB (Semantic RAG Search)</label>
+            </div>
         </div>
     </div>
 
-    <!-- ══════════ FLOATING CONTROLS ══════════ -->
     <button id="mic-fab" onclick="toggleGlobalMic()" title="Voice control">🎤</button>
     <div id="mic-status">LISTENING…</div>
     <button id="estop-btn" onclick="emergencyStop()" title="Emergency Stop">🛑 E-STOP</button>
@@ -1687,6 +1604,43 @@
         // CONFIG
         // ════════════════════════════════════════════════════
         let ELEVEN_VOICE = 'Aa6nEBJJMKJwJkCx8VU2'; // Bella
+        let latestMissionData = null; // Store data temporarily to send to DB
+
+        // ════════════════════════════════════════════════════
+        // ACTIAN VECTOR DB INTEGRATION
+        // ════════════════════════════════════════════════════
+
+        async function saveMissionToVectorDB() {
+            const btn = document.getElementById('actian-save-btn');
+            if (!latestMissionData) return;
+
+            btn.textContent = '⏳ SAVING...';
+            btn.style.pointerEvents = 'none';
+
+            try {
+                // Here we send the mission stats to the backend to be vectorized and stored
+                const res = await fetch('/api/vector-save', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(latestMissionData)
+                });
+
+                if (!res.ok) throw new Error('DB Error');
+
+                btn.textContent = '✅ SAVED TO ACTIAN DB';
+                btn.style.background = '#d4f5db';
+                btn.style.borderColor = '#1e7e34';
+                btn.style.color = '#1e7e34';
+
+            } catch (err) {
+                console.error('[Actian DB]', err);
+                btn.textContent = '⚠ ERROR SAVING';
+                setTimeout(() => {
+                    btn.textContent = '💾 SAVE TO ACTIAN VECTOR DB';
+                    btn.style = ''; // reset styles
+                }, 3000);
+            }
+        }
 
         // ════════════════════════════════════════════════════
         // TRACTION SETTINGS
@@ -1719,7 +1673,7 @@
             const t = TRACTION_INFO[sel.value];
             info.textContent = t.info;
             info.className = 'traction-info' + (t.cls ? ' ' + t.cls : '');
-            // Update safety indicator
+
             const siEl = document.getElementById(prefix === 'obs' ? 'si-traction' : 'tsi-traction');
             if (siEl) {
                 siEl.textContent = t.safeLabel;
@@ -1828,11 +1782,10 @@
         }
 
         // ════════════════════════════════════════════════════
-        // WALL PROXIMITY SAFETY — visual always, voice only on zone entry
-        // Step 0 suppressed (robot always starts on the border).
+        // WALL PROXIMITY SAFETY
         // ════════════════════════════════════════════════════
         const CELL_SIZE_M = 0.20;
-        let lastWallZone = -1; // -1=none, 0=at wall, 1=1cell, 2=2cells
+        let lastWallZone = -1;
 
         function checkWallProximity(row, col, stepIdx) {
             const wallDist = Math.min(row, col, 4 - row, 4 - col);
@@ -1840,9 +1793,8 @@
             const screenPfx = (currentScreen === 'screen-observe') ? 'si' : 'tsi';
             const siEl = document.getElementById(screenPfx + '-boundary');
 
-            // Suppress on step 0 — starting position is always on the border
             if (stepIdx === 0) {
-                lastWallZone = wallDist; // seed so first real move doesn't re-fire
+                lastWallZone = wallDist;
                 if (wrap) wrap.innerHTML = '';
                 if (siEl) { siEl.textContent = '📍 Boundary: SAFE'; siEl.className = 'safety-ind ok'; }
                 return;
@@ -1864,14 +1816,12 @@
             } else if (wallDist === 2) {
                 if (wrap) wrap.innerHTML = `<span class="wall-alert warn-yellow">⚠ NEAR BOUNDARY</span>`;
                 if (siEl) { siEl.textContent = '📍 Boundary: CAUTION'; siEl.className = 'safety-ind warn'; }
-                // No voice for 2-cell distance — visual only
             } else {
                 if (wrap) wrap.innerHTML = '';
                 if (siEl) { siEl.textContent = '📍 Boundary: SAFE'; siEl.className = 'safety-ind ok'; }
             }
         }
 
-        // AQI safety check — updates indicator and can warn
         function checkAQSafety(aq, prefix, pillId, labelId, stepIdx) {
             const siEl = document.getElementById(prefix + '-aq');
             if (!siEl) return;
@@ -1890,7 +1840,6 @@
             }
         }
 
-        // Tilt safety check
         function checkTiltSafety(tilt, terrain, prefix) {
             const siEl = document.getElementById(prefix + '-tilt');
             if (!siEl) return;
@@ -1932,11 +1881,7 @@
             updateMicContext(screenId);
         }
 
-        // ════════════════════════════════════════════════════
-        // MODE SELECT
-        // ════════════════════════════════════════════════════
         let selectedMode = null;
-
         function selectMode(mode) {
             selectedMode = mode;
             document.getElementById('btn-observe').classList.toggle('selected', mode === 'observe');
@@ -1945,7 +1890,6 @@
             const cont = document.getElementById('mode-continue');
             cont.style.opacity = '1'; cont.style.pointerEvents = 'auto';
         }
-
         function continueMode() {
             if (!selectedMode) return;
             const dest = selectedMode === 'observe' ? 'screen-observe' : selectedMode === 'test' ? 'screen-test' : 'screen-chat';
@@ -1956,7 +1900,6 @@
         // GRID BUILDER
         // ════════════════════════════════════════════════════
         const CELL = 44, GAP = 3;
-
         function buildMiniGrid(tableEl) {
             tableEl.innerHTML = '';
             const cells = [];
@@ -1974,16 +1917,9 @@
             return cells;
         }
 
-        function cellCenter(row, col) {
-            const sp = 3 + 6;
-            return { x: sp + col * (CELL + 3) + CELL / 2, y: sp + row * (CELL + 3) + CELL / 2 };
-        }
-
+        function cellCenter(row, col) { return { x: 3 + 6 + col * (CELL + 3) + CELL / 2, y: 3 + 6 + row * (CELL + 3) + CELL / 2 }; }
         function gridTotalSize() { return (3 + 6) + 5 * (CELL + 3); }
 
-        // ════════════════════════════════════════════════════
-        // DIRECTION SYSTEM
-        // ════════════════════════════════════════════════════
         const DIRS = ['E', 'S', 'W', 'N'];
         const DELTA = { E: [0, 1], S: [1, 0], W: [0, -1], N: [-1, 0] };
         const DIR_LABEL = { E: 'East →', S: 'South ↓', W: 'West ←', N: 'North ↑' };
@@ -2040,9 +1976,6 @@
             return { tilt, terrain, alt, wallDist, airQuality };
         }
 
-        // ════════════════════════════════════════════════════
-        // DRAW PATH
-        // ════════════════════════════════════════════════════
         function drawPath(svgEl, steps, upTo) {
             const sz = gridTotalSize();
             svgEl.setAttribute('viewBox', `0 0 ${sz} ${sz}`);
@@ -2089,9 +2022,6 @@
             robotEl.style.left = x + 'px'; robotEl.style.top = y + 'px'; robotEl.style.display = 'block';
         }
 
-        // ════════════════════════════════════════════════════
-        // TERRAIN HIGHLIGHT
-        // ════════════════════════════════════════════════════
         function setTerrainHighlight(prefix, terrain) {
             ['flat', 'smooth', 'bump'].forEach(t =>
                 document.getElementById(prefix + t).classList.toggle('active', terrain === t)
@@ -2195,10 +2125,14 @@
             const cur = document.querySelector('#obs-log .current');
             if (cur) cur.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 
-            // Boundary check: visual only (no voice) — see checkWallProximity
             checkWallProximity(s.row, s.col, idx);
             const text = buildNarration(s, sensor, idx, obsSteps.length);
             speak(text, 'obs-voice-pill', 'obs-voice-label');
+
+            // Auto trigger result screen when done
+            if (idx === obsSteps.length - 1) {
+                setTimeout(() => showResult(obsSteps, s.row, s.col), 900);
+            }
         }
 
         function startObsTimer() {
@@ -2280,7 +2214,6 @@
             }
             const targetRow = +m[1], targetCol = +m[2];
             const traction = document.getElementById('test-traction').value;
-            const tractionT = TRACTION_INFO[traction];
             speak(`Commencing test traversal to row ${targetRow}, column ${targetCol}. Traction optimized for ${traction}.`, 'test-voice-pill', 'test-voice-label');
             animateTest(bfsToSteps(bfsPath(targetRow, targetCol)), targetRow, targetCol);
         }
@@ -2315,6 +2248,25 @@
             const last = steps[steps.length - 1];
             const sensor = getSensorData(last.row, last.col);
 
+            // SAVE STATE FOR DB
+            latestMissionData = {
+                mission_type: targetRow ? 'Test Navigation' : 'Observation Patrol',
+                end_position: [last.row, last.col],
+                terrain_classification: sensor.terrain,
+                tilt_degrees: sensor.tilt,
+                air_quality_aqi: sensor.airQuality,
+                path_taken: steps.map(s => `[${s.row},${s.col}]`).join(' -> '),
+                timestamp: new Date().toISOString()
+            };
+
+            // Reset DB button state
+            const btn = document.getElementById('actian-save-btn');
+            if (btn) {
+                btn.textContent = '💾 SAVE TO ACTIAN VECTOR DB';
+                btn.style = ''; // reset color
+                btn.style.pointerEvents = 'auto';
+            }
+
             goTo('screen-result');
 
             buildMiniGrid(document.getElementById('res-grid'));
@@ -2329,8 +2281,14 @@
 
             const reached = last.row === targetRow && last.col === targetCol;
             const reachEl = document.getElementById('res-reached');
-            reachEl.textContent = reached ? '✓ YES — destination reached!' : `✗ NO — ended at (${last.row},${last.col})`;
-            reachEl.style.color = reached ? 'var(--green)' : 'var(--danger)';
+
+            if (targetRow === undefined) {
+                reachEl.textContent = '✓ Patrol Finished';
+                reachEl.style.color = 'var(--green)';
+            } else {
+                reachEl.textContent = reached ? '✓ YES — destination reached!' : `✗ NO — ended at (${last.row},${last.col})`;
+                reachEl.style.color = reached ? 'var(--green)' : 'var(--danger)';
+            }
 
             const tiltEl = document.getElementById('res-tilt');
             tiltEl.textContent = sensor.tilt.toFixed(3) + '°';
@@ -2355,14 +2313,14 @@
 
             const terrain = terrainLabel(sensor.terrain);
             const terrainDetail = sensor.terrain === 'flat' ? 'No leveling required.' : sensor.terrain === 'smooth' ? 'Moderate leveling recommended.' : 'High priority for leveling.';
-            const narration = reached
+            const narration = (reached || targetRow === undefined)
                 ? `Mission complete. Destination reached at row ${last.row}, column ${last.col}. Vertical tilt is ${sensor.tilt.toFixed(3)} degrees. Terrain is ${terrain}. ${terrainDetail} Air quality index is ${sensor.airQuality}.`
                 : `Mission ended at row ${last.row}, column ${last.col}. Target was not reached. Terrain is ${terrain}. Air quality index is ${sensor.airQuality}.`;
             speak(narration, 'res-voice-pill', 'res-voice-label');
         }
 
         // ════════════════════════════════════════════════════
-        // GEMINI CHATBOT
+        // GEMINI CHATBOT + ACTIAN RAG
         // ════════════════════════════════════════════════════
         const SANDOZER_SYSTEM = `You are the Sandozer AI assistant — an expert on the Sandozer robot built for the UIUC Hackathon in partnership with John Deere.
 
@@ -2372,14 +2330,11 @@ Here are key facts about the Sandozer robot:
 - Navigation: 5×5 grid, BFS shortest-path navigation
 - Sensors: MPU-6050 IMU (tilt), HC-SR04 ultrasonic (wall detection), air quality sensor, altitude sensor
 - Terrain: Flat (<0.05°), Somewhat Smooth (0.05–0.15°), Bumpy (>0.15°)
-- Safety: Boundary alerts ≤2 grid cells from any wall. Voice says "Approaching boundary."
+- Safety: Boundary alerts ≤2 grid cells from any wall.
 - Traction Config: Dry Packed (normal), Dry Loose (−30% speed, slip risk), Wet Moist (−50% speed, skid risk)
-- Emergency Stop: Available on observe and test screens
-- Air Quality: AQI 50–100 = Good, 101–150 = Moderate, 151+ = Poor/Dangerous
-- Voice: ElevenLabs TTS (Bella) + Web Speech API
-- Modes: Observe (manual path patrol), Test (auto BFS pathfinding), Chat
+- Database: Uses Actian VectorAI DB to store past mission logs and perform semantic RAG search to recall past terrain data.
 
-Answer questions concisely in 2–4 sentences unless detail is needed.`;
+Answer questions concisely in 2–4 sentences.`;
 
         let chatHistory = [];
         function initChat() { chatHistory = []; }
@@ -2389,25 +2344,62 @@ Answer questions concisely in 2–4 sentences unless detail is needed.`;
             const msg = input.value.trim();
             if (!msg) return;
             input.value = '';
+
             appendChatBubble(msg, 'user');
             chatHistory.push({ role: 'user', parts: [{ text: msg }] });
-            const typingEl = appendChatBubble('Thinking…', 'typing');
+
+            const useRag = document.getElementById('use-rag-toggle').checked;
+            let typingMsg = useRag ? '🔍 Querying Actian Vector DB...' : 'Thinking…';
+            const typingEl = appendChatBubble(typingMsg, 'typing');
 
             try {
+                let contextAddendum = "";
+
+                // 1. If RAG is enabled, hit the VectorDB proxy first!
+                if (useRag) {
+                    try {
+                        const ragRes = await fetch('/api/vector-search', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ query: msg })
+                        });
+
+                        if (ragRes.ok) {
+                            const ragData = await ragRes.json();
+                            if (ragData.context) {
+                                contextAddendum = `\n\n[ACTIAN VECTOR DB CONTEXT RETRIEVED]: ${ragData.context}`;
+                            }
+                        }
+                    } catch (e) {
+                        console.warn('Actian Vector DB not yet connected on backend.', e);
+                    }
+                }
+
+                // 2. Add context to prompt and send to Gemini
+                const systemPrompt = SANDOZER_SYSTEM + contextAddendum;
+
                 const requestBody = {
-                    systemInstruction: { parts: [{ text: SANDOZER_SYSTEM }] },
+                    systemInstruction: { parts: [{ text: systemPrompt }] },
                     contents: chatHistory,
                     generationConfig: { maxOutputTokens: 300, temperature: 0.7 }
                 };
+
+                typingEl.textContent = '🧠 Analyzing context...';
+
                 const res = await fetch('/api/gemini', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(requestBody) });
                 const data = await res.json();
+
                 if (!res.ok || data.error) throw new Error(data.error?.message || 'API Error');
+
                 const reply = data.candidates?.[0]?.content?.parts?.[0]?.text || 'No response received.';
+
                 chatHistory.push({ role: 'model', parts: [{ text: reply }] });
                 typingEl.className = 'chat-bubble bot';
                 typingEl.textContent = reply;
+
                 document.getElementById('chat-messages').scrollTop = 99999;
                 speak(reply, 'chat-voice-pill', 'chat-voice-label');
+
             } catch (e) {
                 typingEl.className = 'chat-bubble bot';
                 typingEl.textContent = '⚠ ' + e.message;
@@ -2577,7 +2569,6 @@ Answer questions concisely in 2–4 sentences unless detail is needed.`;
         function handleVoiceCommand(transcript) {
             const screen = currentScreen;
 
-            // Emergency stop voice command
             if (/\b(emergency stop|stop now|halt|e.?stop)\b/.test(transcript) && (screen === 'screen-observe' || screen === 'screen-test')) {
                 emergencyStop(); return true;
             }
@@ -2637,7 +2628,6 @@ Answer questions concisely in 2–4 sentences unless detail is needed.`;
             return false;
         }
 
-        // Chat mic
         function toggleChatMic() { if (chatMicActive) stopChatMic(); else startChatMic(); }
 
         function startChatMic() {
@@ -2670,7 +2660,6 @@ Answer questions concisely in 2–4 sentences unless detail is needed.`;
                 const el = document.getElementById(id);
                 el.setAttribute('width', sz); el.setAttribute('height', sz);
             });
-            // Init traction info on load
             updateTractionInfo('obs');
             updateTractionInfo('test');
         });
