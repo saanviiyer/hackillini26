@@ -12,7 +12,8 @@ export async function onRequestPost(context) {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'X-Gemini-Key': geminiKey  // 👈 Passing the key to Python!
+                'X-Gemini-Key': geminiKey,
+                'ngrok-skip-browser-warning': 'true' // 👈 ADD THIS LINE
             },
             body: JSON.stringify(missionData)
         });
