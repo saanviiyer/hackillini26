@@ -25,15 +25,16 @@ export async function onRequestPost(context) {
       );
     `;
 
+        const myHeaders = new Headers();
+        myHeaders.append("Authorization", `Bearer ${token}`);
+        myHeaders.append("Content-Type", "application/json");
+        myHeaders.append("Accept", "application/json");
+        myHeaders.append("X-Snowflake-Authorization-Token-Type", "bearer");
+        myHeaders.append("User-Agent", "SandozerApp/1.0"); // Hard-setting the user agent
+
         const response = await fetch(url, {
             method: 'POST',
-            headers: {
-                "Authorization": `Bearer ${token}`,
-                "Content-Type": "application/json",
-                "Accept": "application/json",
-                "X-Snowflake-Authorization-Token-Type": "bearer",
-                "User-Agent": "SandozerApp/1.0" // <-- ADD THIS EXACT LINE
-            },
+            headers: myHeaders,
             body: JSON.stringify({
                 statement: sqlQuery,
                 warehouse: "COMPUTE_WH",
