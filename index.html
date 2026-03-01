@@ -349,14 +349,14 @@
         }
 
         /* ── WIDE CARDS ── */
-        #screen-observe .card,
+        #screen-navigate .card,
         #screen-test .card,
         #screen-result .card {
             width: 980px;
             padding: 28px;
         }
 
-        .observe-layout,
+        .navigate-layout,
         .test-layout,
         .result-layout {
             display: grid;
@@ -1406,7 +1406,7 @@
                 width: 100% !important;
             }
 
-            .observe-layout,
+            .navigate-layout,
             .test-layout,
             .result-layout {
                 grid-template-columns: 1fr !important;
@@ -1574,7 +1574,7 @@
             </div>
             <div class="mode-question">I WANT TO:</div>
             <div class="mode-btns">
-                <button class="mode-btn" id="btn-observe" onclick="selectMode('observe')">OBSERVE</button>
+                <button class="mode-btn" id="btn-navigate" onclick="selectMode('navigate')">NAVIGATE</button>
                 <button class="mode-btn" id="btn-test" onclick="selectMode('test')">TEST</button>
                 <button class="mode-btn" id="btn-vision" onclick="selectMode('vision')">VISION 📷</button>
                 <button class="mode-btn" id="btn-chat" onclick="selectMode('chat')">CHAT 🤖</button>
@@ -1587,13 +1587,13 @@
     </div>
 
     <!-- ══════════════════════════════════
-     OBSERVE SCREEN
+     NAVIGATE SCREEN
 ══════════════════════════════════ -->
-    <div class="screen" id="screen-observe">
+    <div class="screen" id="screen-navigate">
         <div class="card">
-            <div class="card-tag">OBSERVATION</div>
+            <div class="card-tag">NAVIGATION</div>
             <div class="screen-title">The Sandozer Traversal</div>
-            <div class="observe-layout">
+            <div class="navigate-layout">
 
                 <div class="mini-grid-wrap">
                     <table class="mini-grid" id="obs-grid"></table>
@@ -1641,7 +1641,7 @@
                             <input class="cmd-input" id="obs-commands" placeholder="e.g. f f r f l f" />
                             <button class="cmd-mic-btn" id="obs-cmd-mic" onclick="toggleCmdMic()"
                                 title="Speak directions">🎤</button>
-                            <button class="btn-pill" onclick="startObserveSequence()"
+                            <button class="btn-pill" onclick="startNavigateSequence()"
                                 style="padding:7px 14px;font-size:0.72rem;border-radius:8px;">▶ START</button>
                         </div>
                         <div class="hint-small" style="margin-top:6px;">Commands: <strong>f</strong>=forward &nbsp;
@@ -2427,7 +2427,7 @@
         async function saveMissionToBothDBs() {
             const btn = document.getElementById('snowflake-save-btn');
             if (!latestMissionData) return;
-            const tractionEl = document.getElementById(currentScreen === 'screen-observe' ? 'obs-traction' : 'test-traction');
+            const tractionEl = document.getElementById(currentScreen === 'screen-navigate' ? 'obs-traction' : 'test-traction');
             const traction = tractionEl ? tractionEl.value : 'standard';
             const payload = { ...latestMissionData, traction_setting: traction };
             btn.textContent = '⏳ SAVING TO BOTH...';
@@ -2529,11 +2529,11 @@
         function checkWallProximity(row, col, stepIdx) {
             const wallDist = Math.min(row, col, 4 - row, 4 - col);
             const wrap = document.getElementById('obs-wall-alert-wrap');
-            const screenPfx = (currentScreen === 'screen-observe') ? 'si' : 'tsi';
+            const screenPfx = (currentScreen === 'screen-navigate') ? 'si' : 'tsi';
             const siEl = document.getElementById(screenPfx + '-boundary');
             if (stepIdx === 0) { lastWallZone = wallDist; if (wrap) wrap.innerHTML = ''; if (siEl) { siEl.textContent = '📍 Boundary: SAFE'; siEl.className = 'safety-ind ok'; } return; }
-            const pillId = currentScreen === 'screen-observe' ? 'obs-voice-pill' : 'test-voice-pill';
-            const labelId = currentScreen === 'screen-observe' ? 'obs-voice-label' : 'test-voice-label';
+            const pillId = currentScreen === 'screen-navigate' ? 'obs-voice-pill' : 'test-voice-pill';
+            const labelId = currentScreen === 'screen-navigate' ? 'obs-voice-label' : 'test-voice-label';
             const zoneChanged = wallDist !== lastWallZone; lastWallZone = wallDist;
             if (wallDist === 0) {
                 if (wrap) wrap.innerHTML = `<span class="wall-alert">⛔ AT BOUNDARY</span>`;
@@ -2577,15 +2577,15 @@
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
             document.getElementById(screenId).classList.add('active');
             currentScreen = screenId;
-            showEStop(screenId === 'screen-observe' || screenId === 'screen-test');
-            if (screenId !== 'screen-observe') stopAllAudio();
+            showEStop(screenId === 'screen-navigate' || screenId === 'screen-test');
+            if (screenId !== 'screen-navigate') stopAllAudio();
 
             // FIX: Only stop vision for a prefix if we're actually leaving that screen
-            if (screenId !== 'screen-observe' && visionState['obs'].running) stopVision('obs');
+            if (screenId !== 'screen-navigate' && visionState['obs'].running) stopVision('obs');
             if (screenId !== 'screen-test' && visionState['test'].running) stopVision('test');
             if (screenId !== 'screen-vision' && visionState['vision'].running) stopVision('vision');
 
-            if (screenId === 'screen-observe') initObserve();
+            if (screenId === 'screen-navigate') initNavigate();
             if (screenId === 'screen-test') {
                 initTestGrid(); updateTractionInfo('test');
                 speak('Hello! What position would you like to navigate to? Say two numbers for row and column, each between 0 and 4.', 'test-voice-pill', 'test-voice-label',
@@ -2598,7 +2598,7 @@
         let selectedMode = null;
         function selectMode(mode) {
             selectedMode = mode;
-            document.getElementById('btn-observe').classList.toggle('selected', mode === 'observe');
+            document.getElementById('btn-navigate').classList.toggle('selected', mode === 'navigate');
             document.getElementById('btn-test').classList.toggle('selected', mode === 'test');
             document.getElementById('btn-vision').classList.toggle('selected', mode === 'vision');
             document.getElementById('btn-chat').classList.toggle('selected', mode === 'chat');
@@ -2607,7 +2607,7 @@
         }
         function continueMode() {
             if (!selectedMode) return;
-            const dest = selectedMode === 'observe' ? 'screen-observe' : selectedMode === 'test' ? 'screen-test' : selectedMode === 'vision' ? 'screen-vision' : 'screen-chat';
+            const dest = selectedMode === 'navigate' ? 'screen-navigate' : selectedMode === 'test' ? 'screen-test' : selectedMode === 'vision' ? 'screen-vision' : 'screen-chat';
             goTo(dest);
         }
 
@@ -2719,12 +2719,12 @@
         }
 
         // ════════════════════════════════════════════════════
-        // OBSERVE SCREEN
+        // NAVIGATE SCREEN
         // ════════════════════════════════════════════════════
         let obsSteps = [], obsStep = 0, obsPaused = false, obsTimer = null, obsElapsed = 0;
         const OBS_INTERVAL = 10000;
 
-        function initObserve() {
+        function initNavigate() {
             clearInterval(obsTimer); stopAllAudio(); lastWallZone = -1; obsStep = 0; obsPaused = false;
             buildMiniGrid(document.getElementById('obs-grid'));
             const sz = gridTotalSize(); const svg = document.getElementById('obs-svg');
@@ -2734,9 +2734,9 @@
             document.getElementById('obs-wall-alert-wrap').innerHTML = '';
             updateTractionInfo('obs');
             speak('Observation mode ready. Please set traction, enter path commands, and press Start.', 'obs-voice-pill', 'obs-voice-label',
-                () => { if (currentScreen === 'screen-observe') { continuousListen = true; startGlobalMic(); } });
+                () => { if (currentScreen === 'screen-navigate') { continuousListen = true; startGlobalMic(); } });
         }
-        function startObserveSequence() {
+        function startNavigateSequence() {
             let cmds = document.getElementById('obs-commands').value.trim().replace('🎤 ', '');
             if (!cmds) cmds = 'f f f r f f';
             obsSteps = parseCommands(cmds) || [{ row: 0, col: 0, dir: 'E', cmd: 'START' }];
@@ -2992,7 +2992,7 @@ Answer in 2–4 sentences.`;
             cmdMicRecognition.onresult = (e) => {
                 const raw = e.results[0][0].transcript.toLowerCase().trim();
                 const normalized = normalizeDirections(raw);
-                if (normalized.length > 0) { document.getElementById('obs-commands').value = normalized; setTimeout(startObserveSequence, 400); }
+                if (normalized.length > 0) { document.getElementById('obs-commands').value = normalized; setTimeout(startNavigateSequence, 400); }
             };
             cmdMicRecognition.onend = () => { cmdMicActive = false; document.getElementById('obs-cmd-mic').classList.remove('listening'); document.getElementById('obs-cmd-mic-status').style.display = 'none'; };
             cmdMicRecognition.onerror = () => { cmdMicActive = false; document.getElementById('obs-cmd-mic').classList.remove('listening'); document.getElementById('obs-cmd-mic-status').style.display = 'none'; };
@@ -3024,7 +3024,7 @@ Answer in 2–4 sentences.`;
         }
         function updateMicContext(screenId) {
             currentScreen = screenId;
-            if (screenId !== 'screen-test' && screenId !== 'screen-observe') { continuousListen = false; stopGlobalMic(); }
+            if (screenId !== 'screen-test' && screenId !== 'screen-navigate') { continuousListen = false; stopGlobalMic(); }
         }
         function buildSpeechRecognition() {
             const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -3041,12 +3041,12 @@ Answer in 2–4 sentences.`;
             globalRecognition.onresult = (e) => {
                 const transcripts = Array.from(e.results[0]).map(alt => alt.transcript.toLowerCase().trim());
                 if (currentScreen === 'screen-test') document.getElementById('test-target').value = '🎤 ' + transcripts[0];
-                else if (currentScreen === 'screen-observe') document.getElementById('obs-commands').value = '🎤 ' + transcripts[0];
+                else if (currentScreen === 'screen-navigate') document.getElementById('obs-commands').value = '🎤 ' + transcripts[0];
                 for (const t of transcripts) { if (handleVoiceCommand(t)) break; }
             };
             globalRecognition.onend = () => {
                 globalMicActive = false;
-                if (continuousListen && (currentScreen === 'screen-test' || currentScreen === 'screen-observe') && !isSpeaking) { setTimeout(() => { if (continuousListen) startGlobalMic(); }, 350); }
+                if (continuousListen && (currentScreen === 'screen-test' || currentScreen === 'screen-navigate') && !isSpeaking) { setTimeout(() => { if (continuousListen) startGlobalMic(); }, 350); }
                 else { document.getElementById('mic-fab').classList.remove('listening'); document.getElementById('mic-status').classList.remove('show'); }
             };
             globalRecognition.onerror = (e) => {
@@ -3065,11 +3065,11 @@ Answer in 2–4 sentences.`;
         }
         function handleVoiceCommand(transcript) {
             const screen = currentScreen;
-            if (/\b(emergency stop|stop now|halt|e.?stop)\b/.test(transcript) && (screen === 'screen-observe' || screen === 'screen-test')) { emergencyStop(); return true; }
+            if (/\b(emergency stop|stop now|halt|e.?stop)\b/.test(transcript) && (screen === 'screen-navigate' || screen === 'screen-test')) { emergencyStop(); return true; }
             if (/\b(back|go back|menu|home)\b/.test(transcript) && screen !== 'screen-splash' && screen !== 'screen-mode') { goTo('screen-mode'); return true; }
             if (screen === 'screen-splash') { if (/\b(start|begin|launch|go|continue)\b/.test(transcript)) { goTo('screen-mode'); return true; } }
             else if (screen === 'screen-mode') {
-                if (/\bobserv/.test(transcript)) { selectMode('observe'); continueMode(); return true; }
+                if (/\bnavig/.test(transcript)) { selectMode('navigate'); continueMode(); return true; }
                 if (/\btest\b/.test(transcript)) { selectMode('test'); continueMode(); return true; }
                 if (/\bchat\b/.test(transcript)) { selectMode('chat'); continueMode(); return true; }
                 if (/\b(continue|proceed|go|confirm|next|enter)\b/.test(transcript)) { continueMode(); return true; }
@@ -3080,13 +3080,13 @@ Answer in 2–4 sentences.`;
                 if (m) { const r = +m[1], c = +m[2]; if (r <= 4 && c <= 4) { continuousListen = false; stopGlobalMic(); document.getElementById('test-target').value = `${r},${c}`; setTimeout(() => runTest(), 400); return true; } }
                 return false;
             }
-            else if (screen === 'screen-observe') {
+            else if (screen === 'screen-navigate') {
                 if (/\b(pause|stop|freeze)\b/.test(transcript)) { toggleObsPause(); return true; }
                 if (/\b(resume|play|continue|unpause)\b/.test(transcript)) { if (obsPaused) toggleObsPause(); return true; }
                 if (/\b(next|skip)\b/.test(transcript)) { if (obsStep < obsSteps.length - 1) { obsStep++; obsElapsed = 0; renderObsStep(obsStep); } return true; }
-                if (/\b(start|begin|go|patrol)\b/.test(transcript)) { startObserveSequence(); return true; }
+                if (/\b(start|begin|go|patrol)\b/.test(transcript)) { startNavigateSequence(); return true; }
                 const parsedDirs = normalizeDirections(transcript);
-                if (parsedDirs.length > 0) { document.getElementById('obs-commands').value = parsedDirs; continuousListen = false; stopGlobalMic(); setTimeout(startObserveSequence, 500); return true; }
+                if (parsedDirs.length > 0) { document.getElementById('obs-commands').value = parsedDirs; continuousListen = false; stopGlobalMic(); setTimeout(startNavigateSequence, 500); return true; }
             }
             else if (screen === 'screen-result') { if (/\b(again|retry|repeat|redo)\b/.test(transcript)) { goTo('screen-test'); return true; } }
             else if (screen === 'screen-chat') { if (!/\b(back|menu|home)\b/.test(transcript)) { document.getElementById('chat-input').value = transcript; sendChat(); return true; } }
