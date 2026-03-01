@@ -4,3 +4,9 @@
 !.dev.vars.example
 .env*
 !.env.example
+venv/
+.venv/
+env/
+__pycache__/
+*.pyc
+.DS_Store
