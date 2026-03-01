@@ -29,7 +29,7 @@ export async function onRequestPost(context) {
         myHeaders.append("Authorization", `Bearer ${token}`);
         myHeaders.append("Content-Type", "application/json");
         myHeaders.append("Accept", "application/json");
-        myHeaders.append("X-Snowflake-Authorization-Token-Type", "bearer");
+        myHeaders.append("X-Snowflake-Authorization-Token-Type", "KEYPAIR_JWT");
         myHeaders.append("User-Agent", "SandozerApp/1.0"); // Hard-setting the user agent
 
         const response = await fetch(url, {
