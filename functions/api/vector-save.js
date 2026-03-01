@@ -8,7 +8,7 @@ export async function onRequestPost(context) {
 
         if (!geminiKey) throw new Error("Missing Gemini Key in Cloudflare!");
 
-        const response = await fetch(`${vectorDBUrl}/insert`, {
+        const response = await fetch(`${vectorDBUrl}`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
