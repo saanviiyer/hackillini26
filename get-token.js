@@ -19,7 +19,7 @@ const payload = {
     iss: `${account}.${user}.${fingerprint}`,
     sub: `${account}.${user}`,
     iat: Math.floor(Date.now() / 1000),
-    exp: Math.floor(Date.now() / 1000) + 3600 // Expires in 1 hour
+    exp: Math.floor(Date.now() / 1000) + 21600 // 21600 seconds = 6 hours
 };
 
 // 5. Generate and print the token!
