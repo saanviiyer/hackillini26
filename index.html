@@ -1886,18 +1886,20 @@
                     <span class="vision-mode-toggle" id="vision-mode-toggle" onclick="switchToSnap('vision')"
                         style="display:none">use photo instead</span>
                 </div>
-                <!-- Snapshot fallback -->
-                <div id="vision-snap-area" style="display:none; padding:10px; background:#111;">
+                <!-- Photo upload — always visible on vision screen -->
+                <div id="vision-snap-area"
+                    style="display:block; padding:10px 12px; background:#1a1a1a; border-top:1px solid #333;">
                     <input type="file" id="vision-file-input" accept="image/*" capture="environment"
                         style="display:none" onchange="handleFileCapture('vision', this)">
                     <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px;">
-                        <button class="snap-btn" onclick="document.getElementById('vision-file-input').click()">📸 TAKE
-                            / UPLOAD PHOTO</button>
-                        <span style="font-family:'Share Tech Mono',monospace;font-size:0.6rem;color:#888;">or upload
-                            terrain image</span>
+                        <button class="snap-btn" style="font-size:0.7rem;padding:6px 14px;"
+                            onclick="document.getElementById('vision-file-input').click()">📸 UPLOAD TERRAIN
+                            PHOTO</button>
+                        <span style="font-family:'Share Tech Mono',monospace;font-size:0.58rem;color:#666;">upload or
+                            take a photo to classify</span>
                     </div>
                     <canvas id="vision-snap-canvas"
-                        style="width:100%;border-radius:6px;display:none;max-height:200px;object-fit:cover;"></canvas>
+                        style="width:100%;border-radius:6px;display:none;max-height:220px;object-fit:contain;background:#000;"></canvas>
                 </div>
             </div>
 
@@ -2128,12 +2130,15 @@
                 const activeLabel = document.getElementById(prefix + '-active-label');
                 if (activeLabel) activeLabel.textContent = `${highest.className.toUpperCase()} ${(highest.probability * 100).toFixed(0)}%`;
 
-                // Update big label on dedicated vision screen (only)
-                if (prefix === 'vision') {
-                    const bigLabel = document.getElementById('vision-big-label');
-                    const bigConf = document.getElementById('vision-big-conf');
-                    if (bigLabel) { bigLabel.textContent = highest.className.toUpperCase(); bigLabel.style.color = cvTerrainColor(highest.className); }
-                    if (bigConf) bigConf.textContent = (highest.probability * 100).toFixed(0) + '%';
+                // Always update big label on vision screen (works for both webcam and photo upload)
+                const bigLabel = document.getElementById('vision-big-label');
+                const bigConf = document.getElementById('vision-big-conf');
+                if (bigLabel && highest.className) {
+                    bigLabel.textContent = highest.className.toUpperCase();
+                    bigLabel.style.color = cvTerrainColor(highest.className);
+                }
+                if (bigConf && highest.className) {
+                    bigConf.textContent = (highest.probability * 100).toFixed(0) + '%';
                 }
                 // NOTE: CV terrain never updates robot terrain indicators (flat/smooth/bump)
 
@@ -2179,32 +2184,64 @@
             if (!file) return;
             const vs = visionState[prefix];
             const canvas = document.getElementById(prefix + '-snap-canvas');
+
+            // Show a loading state on big label if on vision screen
+            if (prefix === 'vision') {
+                const bigLabel = document.getElementById('vision-big-label');
+                const bigConf = document.getElementById('vision-big-conf');
+                if (bigLabel) { bigLabel.textContent = 'LOADING…'; bigLabel.style.color = '#888'; }
+                if (bigConf) bigConf.textContent = '…';
+            }
+
             const reader = new FileReader();
             reader.onload = async (e) => {
                 const img = new Image();
                 img.onload = async () => {
+                    // Show the canvas with the uploaded image
                     canvas.style.display = 'block';
-                    canvas.width = img.width;
-                    canvas.height = img.height;
+                    canvas.width = img.naturalWidth;
+                    canvas.height = img.naturalHeight;
                     const ctx = canvas.getContext('2d');
                     ctx.drawImage(img, 0, 0);
 
+                    // Load model if not already loaded
                     if (!vs.model) {
-                        // Try loading model first
                         try {
                             const modelUrl = getModelUrl(prefix);
+                            const dot = document.getElementById(prefix + '-vision-dot');
+                            if (dot) dot.className = 'vision-status-dot';
+
                             vs.model = await tmImage.load(modelUrl + 'model.json', modelUrl + 'metadata.json');
-                            vs.classes = vs.model.getClassLabels ? vs.model.getClassLabels() : [];
-                            buildVisionReadout(prefix);
-                            document.getElementById(prefix + '-vision-readout').style.display = 'block';
+                            const total = vs.model.getTotalClasses();
+                            vs.classes = [];
+                            for (let i = 0; i < total; i++) {
+                                // tmImage models expose class labels via getClassLabels() or internal metadata
+                                const label = vs.model.getClassLabels ? vs.model.getClassLabels()[i] : `Class ${i}`;
+                                vs.classes.push(label || `Class ${i}`);
+                            }
+
+                            if (dot) dot.className = 'vision-status-dot active';
                         } catch (err) {
-                            console.warn('Model not loaded, cannot classify image');
+                            console.warn('[handleFileCapture] Model load failed:', err);
+                            if (prefix === 'vision') {
+                                const bigLabel = document.getElementById('vision-big-label');
+                                if (bigLabel) { bigLabel.textContent = 'MODEL ERROR'; bigLabel.style.color = 'var(--danger)'; }
+                                const bigConf = document.getElementById('vision-big-conf');
+                                if (bigConf) bigConf.textContent = '—';
+                            }
                             return;
                         }
                     }
 
+                    // Build/rebuild the confidence bar readout
+                    buildVisionReadout(prefix);
+                    const readoutEl = document.getElementById(prefix + '-vision-readout');
+                    if (readoutEl) readoutEl.style.display = 'block';
+
+                    // Run prediction
                     await predictFromCanvas(prefix, canvas);
                 };
+                img.onerror = () => console.warn('[handleFileCapture] Image load error');
                 img.src = e.target.result;
             };
             reader.readAsDataURL(file);
