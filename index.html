@@ -31,7 +31,6 @@
             --warn: #e67e22;
             --warn-bg: #fdf0e0;
             --cloudflare-orange: #f38020;
-            --snowflake-blue: #1976d2;
         }
 
         * {
@@ -48,19 +47,6 @@
             align-items: center;
             justify-content: center;
             overflow: auto;
-        }
-
-        body::before {
-            content: '';
-            position: fixed;
-            inset: 0;
-            background-image:
-                linear-gradient(var(--grid-line) 1px, transparent 1px),
-                linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
-            background-size: 28px 28px;
-            opacity: 0.45;
-            pointer-events: none;
-            z-index: -1;
         }
 
         .screen {
@@ -89,7 +75,134 @@
             position: relative;
         }
 
-        /* ── BUTTONS ── */
+        /* CV VISION STYLES */
+        .vision-container {
+            border: 2px solid var(--black);
+            background: #000;
+            border-radius: 12px;
+            overflow: hidden;
+            position: relative;
+            margin-bottom: 12px;
+            height: 180px;
+        }
+
+        canvas {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .vision-overlay {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: rgba(0, 0, 0, 0.7);
+            color: var(--yellow);
+            padding: 4px 8px;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.65rem;
+            border-radius: 4px;
+            border-left: 3px solid var(--yellow);
+        }
+
+        .vision-status {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            font-family: 'Orbitron', monospace;
+            font-size: 0.75rem;
+            color: #fff;
+            text-shadow: 0 0 5px #000;
+        }
+
+        .btn-pill.cloudflare {
+            /* Renamed from .actian */
+            background: #fff;
+            border: 2px solid var(--cloudflare-orange);
+            color: var(--cloudflare-orange);
+            box-shadow: 0 2px 10px rgba(243, 128, 32, 0.15);
+        }
+
+        .btn-pill.cloudflare:hover {
+            background: #fff9f5;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(243, 128, 32, 0.25);
+        }
+
+        .cloudflare-badge {
+            /* Renamed from .actian-badge */
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.65rem;
+            color: var(--cloudflare-orange);
+            border: 1px solid var(--cloudflare-orange);
+            background: #fff9f5;
+            padding: 4px 10px;
+            border-radius: 20px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            letter-spacing: 0.05em;
+            margin-top: 16px;
+        }
+
+        .cloudflare-toggle-row {
+            /* Renamed from .actian-toggle-row */
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 8px;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.7rem;
+            color: var(--cloudflare-orange);
+            background: #fff9f5;
+            padding: 6px 12px;
+            border-radius: 8px;
+            border: 1px solid #ffe8d9;
+        }
+
+        .cloudflare-toggle-row input {
+            cursor: pointer;
+            accent-color: var(--cloudflare-orange);
+        }
+
+        .card-tag {
+            position: absolute;
+            top: 16px;
+            right: 20px;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.7rem;
+            color: var(--muted);
+            letter-spacing: 0.1em;
+            background: var(--beige);
+            padding: 3px 10px;
+            border-radius: 20px;
+            border: 1px solid var(--beige-dark);
+        }
+
+        .info-btn {
+            position: absolute;
+            top: 14px;
+            right: 14px;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            border: 2px solid var(--beige-dark);
+            background: #fff;
+            color: var(--muted);
+            font-size: 0.75rem;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.15s;
+        }
+
+        .info-btn:hover {
+            border-color: var(--black);
+            color: var(--black);
+        }
+
         .btn-pill {
             background: var(--yellow);
             border: none;
@@ -132,56 +245,38 @@
             box-shadow: 0 2px 12px rgba(192, 57, 43, 0.3);
         }
 
-        .btn-pill.snowflake {
-            background: #fff;
-            border: 2px solid var(--snowflake-blue);
-            color: var(--snowflake-blue);
+        .btn-pill.danger:hover {
+            background: #a93226;
+            box-shadow: 0 6px 20px rgba(192, 57, 43, 0.4);
         }
 
-        .btn-pill.snowflake:hover {
-            background: #e3f2fd;
+        .btn-pill.actian {
+            background: #fff;
+            border: 2px solid var(--actian-blue);
+            color: var(--actian-blue);
+            box-shadow: 0 2px 10px rgba(0, 82, 204, 0.15);
+        }
+
+        .btn-pill.actian:hover {
+            background: #f0f5ff;
             transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0, 82, 204, 0.25);
         }
 
-        .card-tag {
-            position: absolute;
-            top: 16px;
-            right: 20px;
-            font-family: 'Share Tech Mono', monospace;
-            font-size: 0.7rem;
-            color: var(--muted);
-            letter-spacing: 0.1em;
-            background: var(--beige);
-            padding: 3px 10px;
-            border-radius: 20px;
-            border: 1px solid var(--beige-dark);
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image:
+                linear-gradient(var(--grid-line) 1px, transparent 1px),
+                linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+            background-size: 28px 28px;
+            opacity: 0.45;
+            pointer-events: none;
+            z-index: -1;
         }
 
-        .info-btn {
-            position: absolute;
-            top: 14px;
-            right: 14px;
-            width: 28px;
-            height: 28px;
-            border-radius: 50%;
-            border: 2px solid var(--beige-dark);
-            background: #fff;
-            color: var(--muted);
-            font-size: 0.75rem;
-            font-weight: 700;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.15s;
-        }
-
-        .info-btn:hover {
-            border-color: var(--black);
-            color: var(--black);
-        }
-
-        /* ── SPLASH ── */
+        /* SPLASH */
         #screen-splash .card {
             width: 720px;
             text-align: center;
@@ -280,12 +375,12 @@
             margin-top: 6px;
         }
 
-        .snowflake-badge {
+        .actian-badge {
             font-family: 'Share Tech Mono', monospace;
             font-size: 0.65rem;
-            color: var(--snowflake-blue);
-            border: 1px solid var(--snowflake-blue);
-            background: #e3f2fd;
+            color: var(--actian-blue);
+            border: 1px solid var(--actian-blue);
+            background: #f0f5ff;
             padding: 4px 10px;
             border-radius: 20px;
             display: inline-flex;
@@ -295,7 +390,51 @@
             margin-top: 16px;
         }
 
-        /* ── MODE SELECT ── */
+        /* VOICE PILL */
+        .voice-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.68rem;
+            padding: 4px 11px;
+            border-radius: 20px;
+            border: 1px solid var(--beige-dark);
+            color: var(--muted);
+            background: var(--beige);
+            transition: all 0.2s;
+        }
+
+        .voice-pill.active {
+            border-color: #f5c800;
+            color: #8a6800;
+            background: #fdf6cc;
+        }
+
+        .voice-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: currentColor;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                opacity: 1
+            }
+
+            50% {
+                opacity: 0.4
+            }
+        }
+
+        .voice-pill.active .voice-dot {
+            animation: pulse 0.9s ease-in-out infinite;
+        }
+
+        /* MODE SELECT */
         #screen-mode .card {
             text-align: center;
             padding: 56px 48px;
@@ -339,20 +478,11 @@
             box-shadow: 0 6px 20px rgba(245, 200, 0, 0.35);
         }
 
-        .screen-title {
-            font-family: 'Orbitron', monospace;
-            font-size: 1.3rem;
-            font-weight: 900;
-            color: var(--black);
-            margin-bottom: 16px;
-            letter-spacing: 0.02em;
-        }
-
-        /* ── WIDE CARDS ── */
+        /* OBSERVE & TEST & RESULT LAYOUT */
         #screen-observe .card,
         #screen-test .card,
         #screen-result .card {
-            width: 980px;
+            width: 960px;
             padding: 28px;
         }
 
@@ -365,7 +495,80 @@
             align-items: start;
         }
 
-        /* ── GRID ── */
+        .screen-title {
+            font-family: 'Orbitron', monospace;
+            font-size: 1.3rem;
+            font-weight: 900;
+            color: var(--black);
+            margin-bottom: 16px;
+            letter-spacing: 0.02em;
+        }
+
+        /* ── RESPONSIVE / MOBILE ── */
+        @media (max-width: 700px) {
+            body {
+                overflow-y: auto;
+                align-items: flex-start;
+            }
+
+            .screen {
+                position: relative;
+                inset: auto;
+                min-height: 100vh;
+                align-items: flex-start;
+                padding: 12px 0 80px;
+            }
+
+            .card {
+                padding: 20px 16px;
+                border-radius: 12px;
+                width: 100% !important;
+            }
+
+            .observe-layout,
+            .test-layout,
+            .result-layout {
+                grid-template-columns: 1fr !important;
+                gap: 18px;
+            }
+
+            .mini-grid-wrap {
+                display: flex;
+                justify-content: center;
+                width: 100%;
+            }
+
+            .mini-grid {
+                transform-origin: top center;
+            }
+
+            .mode-btns {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .mode-btn {
+                width: 100%;
+                max-width: 260px;
+            }
+
+            #mic-fab {
+                bottom: 12px;
+                left: 12px;
+                width: 44px;
+                height: 44px;
+                font-size: 1.1rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .mini-grid {
+                transform: scale(0.85);
+                transform-origin: top center;
+                margin-bottom: -24px;
+            }
+        }
+
         .mini-grid-wrap {
             position: relative;
             flex-shrink: 0;
@@ -431,223 +634,10 @@
             fill: var(--yellow);
         }
 
-        /* ── VISION PANEL ── */
-        .vision-section {
-            background: var(--black);
-            border-radius: 12px;
-            border: 2px solid var(--beige-dark);
-            overflow: hidden;
-            position: relative;
-            margin-bottom: 10px;
+        .pulse {
+            animation: pulse 1.2s ease-in-out infinite;
         }
 
-        .vision-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 8px 12px;
-            background: #111;
-            border-bottom: 1px solid #333;
-        }
-
-        .vision-title {
-            font-family: 'Share Tech Mono', monospace;
-            font-size: 0.65rem;
-            color: var(--yellow);
-            letter-spacing: 0.15em;
-            text-transform: uppercase;
-        }
-
-        .vision-status-dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background: #444;
-            transition: background 0.3s;
-        }
-
-        .vision-status-dot.active {
-            background: #2ecc71;
-            box-shadow: 0 0 6px #2ecc71;
-            animation: pulse 1s ease-in-out infinite;
-        }
-
-        .vision-status-dot.error {
-            background: var(--danger);
-        }
-
-        .vision-feed-wrap {
-            position: relative;
-            height: 160px;
-            min-height: 160px;
-            background: #000;
-            overflow: hidden;
-            display: block;
-        }
-
-        .vision-feed-wrap canvas {
-            width: 100% !important;
-            height: 100% !important;
-            object-fit: cover;
-            display: block;
-        }
-
-        .vision-feed-wrap video {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            display: block;
-        }
-
-        /* Scan line overlay */
-        .vision-scanline {
-            position: absolute;
-            inset: 0;
-            background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0, 0, 0, 0.03) 2px, rgba(0, 0, 0, 0.03) 4px);
-            pointer-events: none;
-            z-index: 2;
-        }
-
-        .vision-corner {
-            position: absolute;
-            width: 16px;
-            height: 16px;
-            z-index: 3;
-            pointer-events: none;
-        }
-
-        .vision-corner.tl {
-            top: 6px;
-            left: 6px;
-            border-top: 2px solid var(--yellow);
-            border-left: 2px solid var(--yellow);
-        }
-
-        .vision-corner.tr {
-            top: 6px;
-            right: 6px;
-            border-top: 2px solid var(--yellow);
-            border-right: 2px solid var(--yellow);
-        }
-
-        .vision-corner.bl {
-            bottom: 6px;
-            left: 6px;
-            border-bottom: 2px solid var(--yellow);
-            border-left: 2px solid var(--yellow);
-        }
-
-        .vision-corner.br {
-            bottom: 6px;
-            right: 6px;
-            border-bottom: 2px solid var(--yellow);
-            border-right: 2px solid var(--yellow);
-        }
-
-        /* Classification readout */
-        .vision-readout {
-            padding: 8px 12px;
-            background: #111;
-            display: flex;
-            flex-direction: column;
-            gap: 5px;
-        }
-
-        .vision-class-row {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .vision-class-label {
-            font-family: 'Share Tech Mono', monospace;
-            font-size: 0.62rem;
-            color: #888;
-            min-width: 70px;
-            text-transform: uppercase;
-        }
-
-        .vision-bar-wrap {
-            flex: 1;
-            height: 5px;
-            background: #333;
-            border-radius: 3px;
-            overflow: hidden;
-        }
-
-        .vision-bar-fill {
-            height: 100%;
-            border-radius: 3px;
-            background: #444;
-            transition: width 0.3s ease;
-        }
-
-        .vision-bar-fill.highest {
-            background: var(--yellow);
-        }
-
-        .vision-pct {
-            font-family: 'Share Tech Mono', monospace;
-            font-size: 0.6rem;
-            color: #666;
-            min-width: 34px;
-            text-align: right;
-        }
-
-        .vision-pct.highest {
-            color: var(--yellow);
-            font-weight: 700;
-        }
-
-        .vision-active-label {
-            position: absolute;
-            bottom: 8px;
-            left: 10px;
-            font-family: 'Share Tech Mono', monospace;
-            font-size: 0.68rem;
-            background: rgba(0, 0, 0, 0.75);
-            color: var(--yellow);
-            padding: 3px 9px;
-            border-radius: 5px;
-            border: 1px solid var(--yellow);
-            z-index: 4;
-            letter-spacing: 0.08em;
-        }
-
-        .vision-start-btn {
-            position: absolute;
-            inset: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            background: #111;
-            border: 2px dashed #555;
-            z-index: 10;
-            cursor: pointer;
-            transition: background 0.2s;
-        }
-
-        .vision-start-btn:hover {
-            background: #1a1a1a;
-            border-color: var(--yellow);
-        }
-
-        .vision-start-icon {
-            font-size: 2.5rem;
-            display: block;
-        }
-
-        .vision-start-text {
-            font-family: 'Share Tech Mono', monospace;
-            font-size: 0.72rem;
-            color: var(--yellow);
-            letter-spacing: 0.12em;
-            font-weight: bold;
-        }
-
-        /* ── OBS/TEST PANELS ── */
         .obs-panel,
         .test-panel,
         .result-panel {
@@ -747,7 +737,141 @@
             background: #fde8e6;
         }
 
-        /* ── SAFETY PANEL ── */
+        .obs-controls {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-top: 4px;
+        }
+
+        .step-badge-large {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.78rem;
+            background: var(--black);
+            color: var(--yellow);
+            padding: 6px 14px;
+            border-radius: 8px;
+            letter-spacing: 0.08em;
+        }
+
+        .timer-mini {
+            flex: 1;
+            height: 5px;
+            background: var(--beige-dark);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .timer-fill {
+            height: 100%;
+            background: var(--yellow);
+            border-radius: 3px;
+            transition: width 0.1s linear;
+        }
+
+        .test-input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .test-label {
+            font-family: 'Orbitron', monospace;
+            font-size: 0.7rem;
+            font-weight: 700;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            color: var(--muted);
+        }
+
+        .test-input {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 1rem;
+            background: var(--beige);
+            border: 2px solid var(--beige-dark);
+            border-radius: 10px;
+            color: var(--black);
+            padding: 12px 14px;
+            outline: none;
+            transition: border-color 0.2s;
+            letter-spacing: 0.12em;
+            width: 100%;
+        }
+
+        .test-input:focus {
+            border-color: var(--yellow-dark);
+        }
+
+        .test-input::placeholder {
+            color: #c0b8a8;
+        }
+
+        .go-btn {
+            background: var(--yellow);
+            border: none;
+            border-radius: 40px;
+            font-family: 'Orbitron', monospace;
+            font-weight: 900;
+            font-size: 1.2rem;
+            padding: 16px 48px;
+            cursor: pointer;
+            color: var(--black);
+            letter-spacing: 0.1em;
+            transition: all 0.15s;
+            box-shadow: 0 4px 20px rgba(245, 200, 0, 0.4);
+            align-self: flex-start;
+        }
+
+        .go-btn:hover {
+            background: var(--yellow-dark);
+            transform: translateY(-2px);
+        }
+
+        .hint-small {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.68rem;
+            color: var(--muted);
+            line-height: 1.5;
+        }
+
+        .path-log-mini {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+            margin-top: 6px;
+        }
+
+        .log-chip {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.62rem;
+            padding: 2px 8px;
+            border-radius: 12px;
+            border: 1px solid var(--beige-dark);
+            color: var(--muted);
+            transition: all 0.2s;
+        }
+
+        .log-chip.done {
+            background: var(--beige);
+            color: var(--black);
+            border-color: #ccc5b0;
+        }
+
+        .log-chip.current {
+            background: var(--yellow);
+            color: var(--black);
+            border-color: var(--yellow-dark);
+            font-weight: 700;
+        }
+
+        .err {
+            color: #c0392b;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.75rem;
+            display: none;
+        }
+
+        /* SAFETY STATUS PANEL */
         .safety-panel {
             background: var(--beige);
             border: 2px solid var(--beige-dark);
@@ -807,7 +931,7 @@
             animation: pulse 0.7s ease-in-out infinite;
         }
 
-        /* ── TRACTION ── */
+        /* TRACTION CONFIG */
         .traction-select {
             font-family: 'Share Tech Mono', monospace;
             font-size: 0.8rem;
@@ -842,16 +966,7 @@
             color: var(--danger);
         }
 
-        .test-label {
-            font-family: 'Orbitron', monospace;
-            font-size: 0.7rem;
-            font-weight: 700;
-            letter-spacing: 0.14em;
-            text-transform: uppercase;
-            color: var(--muted);
-        }
-
-        /* ── CMD AREA ── */
+        /* COMMAND INPUT AREA */
         .cmd-area {
             border: 2px solid var(--beige-dark);
             border-radius: 10px;
@@ -920,64 +1035,7 @@
             animation: pulse 0.8s ease-in-out infinite;
         }
 
-        .hint-small {
-            font-family: 'Share Tech Mono', monospace;
-            font-size: 0.68rem;
-            color: var(--muted);
-            line-height: 1.5;
-        }
-
-        .test-input {
-            font-family: 'Share Tech Mono', monospace;
-            font-size: 1rem;
-            background: var(--beige);
-            border: 2px solid var(--beige-dark);
-            border-radius: 10px;
-            color: var(--black);
-            padding: 12px 14px;
-            outline: none;
-            transition: border-color 0.2s;
-            letter-spacing: 0.12em;
-            width: 100%;
-        }
-
-        .test-input:focus {
-            border-color: var(--yellow-dark);
-        }
-
-        .test-input::placeholder {
-            color: #c0b8a8;
-        }
-
-        .go-btn {
-            background: var(--yellow);
-            border: none;
-            border-radius: 40px;
-            font-family: 'Orbitron', monospace;
-            font-weight: 900;
-            font-size: 1.2rem;
-            padding: 16px 48px;
-            cursor: pointer;
-            color: var(--black);
-            letter-spacing: 0.1em;
-            transition: all 0.15s;
-            box-shadow: 0 4px 20px rgba(245, 200, 0, 0.4);
-            align-self: flex-start;
-        }
-
-        .go-btn:hover {
-            background: var(--yellow-dark);
-            transform: translateY(-2px);
-        }
-
-        .err {
-            color: #c0392b;
-            font-family: 'Share Tech Mono', monospace;
-            font-size: 0.75rem;
-            display: none;
-        }
-
-        /* ── WALL ALERT ── */
+        /* WALL ALERT */
         .wall-alert {
             display: inline-flex;
             align-items: center;
@@ -1005,103 +1063,93 @@
             min-height: 22px;
         }
 
-        /* ── OBS CONTROLS ── */
-        .obs-controls {
+        /* FLOATING MIC BUTTON */
+        #mic-fab {
+            position: fixed;
+            bottom: 28px;
+            left: 28px;
+            z-index: 999;
+            width: 52px;
+            height: 52px;
+            border-radius: 50%;
+            background: var(--black);
+            border: 3px solid var(--yellow);
+            color: var(--yellow);
+            font-size: 1.3rem;
+            cursor: pointer;
             display: flex;
             align-items: center;
-            gap: 12px;
-            margin-top: 4px;
+            justify-content: center;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+            transition: all 0.2s;
         }
 
-        .step-badge-large {
+        #mic-fab:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 28px rgba(245, 200, 0, 0.4);
+        }
+
+        #mic-fab.listening {
+            background: #c0392b;
+            border-color: #e74c3c;
+            color: #fff;
+            animation: pulse 0.8s ease-in-out infinite;
+        }
+
+        #mic-status {
+            position: fixed;
+            bottom: 90px;
+            left: 20px;
+            z-index: 999;
             font-family: 'Share Tech Mono', monospace;
-            font-size: 0.78rem;
+            font-size: 0.65rem;
             background: var(--black);
             color: var(--yellow);
-            padding: 6px 14px;
-            border-radius: 8px;
-            letter-spacing: 0.08em;
-        }
-
-        .timer-mini {
-            flex: 1;
-            height: 5px;
-            background: var(--beige-dark);
-            border-radius: 3px;
-            overflow: hidden;
-        }
-
-        .timer-fill {
-            height: 100%;
-            background: var(--yellow);
-            border-radius: 3px;
-            transition: width 0.1s linear;
-        }
-
-        /* ── VOICE PILL ── */
-        .voice-pill {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            font-family: 'Share Tech Mono', monospace;
-            font-size: 0.68rem;
-            padding: 4px 11px;
-            border-radius: 20px;
-            border: 1px solid var(--beige-dark);
-            color: var(--muted);
-            background: var(--beige);
-            transition: all 0.2s;
-        }
-
-        .voice-pill.active {
-            border-color: #f5c800;
-            color: #8a6800;
-            background: #fdf6cc;
-        }
-
-        .voice-dot {
-            width: 7px;
-            height: 7px;
-            border-radius: 50%;
-            background: currentColor;
-        }
-
-        .voice-pill.active .voice-dot {
-            animation: pulse 0.9s ease-in-out infinite;
-        }
-
-        /* ── PATH LOG ── */
-        .path-log-mini {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 4px;
-            margin-top: 6px;
-        }
-
-        .log-chip {
-            font-family: 'Share Tech Mono', monospace;
-            font-size: 0.62rem;
-            padding: 2px 8px;
+            padding: 4px 10px;
             border-radius: 12px;
-            border: 1px solid var(--beige-dark);
-            color: var(--muted);
-            transition: all 0.2s;
+            letter-spacing: 0.1em;
+            opacity: 0;
+            transition: opacity 0.3s;
+            pointer-events: none;
         }
 
-        .log-chip.done {
-            background: var(--beige);
-            color: var(--black);
-            border-color: #ccc5b0;
+        #mic-status.show {
+            opacity: 1;
         }
 
-        .log-chip.current {
-            background: var(--yellow);
-            color: var(--black);
-            border-color: var(--yellow-dark);
-            font-weight: 700;
+        /* EMERGENCY STOP BUTTON */
+        #estop-btn {
+            position: fixed;
+            bottom: 28px;
+            right: 28px;
+            z-index: 999;
+            padding: 12px 22px;
+            border-radius: 12px;
+            background: var(--danger);
+            border: 3px solid #8a1c12;
+            color: #fff;
+            font-family: 'Orbitron', monospace;
+            font-weight: 900;
+            font-size: 0.78rem;
+            letter-spacing: 0.1em;
+            cursor: pointer;
+            box-shadow: 0 4px 20px rgba(192, 57, 43, 0.45);
+            transition: all 0.15s;
+            display: none;
         }
 
-        /* ── AQ COLORS ── */
+        #estop-btn:hover {
+            background: #a93226;
+            transform: scale(1.04);
+        }
+
+        #estop-btn.active {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* AQI COLORS */
         .aq-good {
             color: var(--green);
             font-weight: 700;
@@ -1117,7 +1165,7 @@
             font-weight: 700;
         }
 
-        /* ── CHAT ── */
+        /* CHAT */
         #screen-chat .card {
             width: 780px;
             padding: 32px;
@@ -1269,273 +1317,38 @@
             flex-direction: column;
         }
 
-        .snowflake-toggle-row {
+        /* ACTIAN TOGGLE */
+        .actian-toggle-row {
             display: flex;
             align-items: center;
             gap: 8px;
             margin-top: 8px;
             font-family: 'Share Tech Mono', monospace;
             font-size: 0.7rem;
-            color: var(--snowflake-blue);
-            background: #e3f2fd;
+            color: var(--actian-blue);
+            background: #f0f5ff;
             padding: 6px 12px;
             border-radius: 8px;
-            border: 1px solid #bbdefb;
+            border: 1px solid #cce0ff;
         }
 
-        .snowflake-toggle-row input {
+        .actian-toggle-row input {
             cursor: pointer;
-            accent-color: var(--snowflake-blue);
-        }
-
-        /* ── FAB BUTTONS ── */
-        #mic-fab {
-            position: fixed;
-            bottom: 28px;
-            left: 28px;
-            z-index: 999;
-            width: 52px;
-            height: 52px;
-            border-radius: 50%;
-            background: var(--black);
-            border: 3px solid var(--yellow);
-            color: var(--yellow);
-            font-size: 1.3rem;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
-            transition: all 0.2s;
-        }
-
-        #mic-fab:hover {
-            transform: scale(1.1);
-            box-shadow: 0 6px 28px rgba(245, 200, 0, 0.4);
-        }
-
-        #mic-fab.listening {
-            background: #c0392b;
-            border-color: #e74c3c;
-            color: #fff;
-            animation: pulse 0.8s ease-in-out infinite;
-        }
-
-        #mic-status {
-            position: fixed;
-            bottom: 90px;
-            left: 20px;
-            z-index: 999;
-            font-family: 'Share Tech Mono', monospace;
-            font-size: 0.65rem;
-            background: var(--black);
-            color: var(--yellow);
-            padding: 4px 10px;
-            border-radius: 12px;
-            letter-spacing: 0.1em;
-            opacity: 0;
-            transition: opacity 0.3s;
-            pointer-events: none;
-        }
-
-        #mic-status.show {
-            opacity: 1;
-        }
-
-        #estop-btn {
-            position: fixed;
-            bottom: 28px;
-            right: 28px;
-            z-index: 999;
-            padding: 12px 22px;
-            border-radius: 12px;
-            background: var(--danger);
-            border: 3px solid #8a1c12;
-            color: #fff;
-            font-family: 'Orbitron', monospace;
-            font-weight: 900;
-            font-size: 0.78rem;
-            letter-spacing: 0.1em;
-            cursor: pointer;
-            box-shadow: 0 4px 20px rgba(192, 57, 43, 0.45);
-            transition: all 0.15s;
-            display: none;
-        }
-
-        #estop-btn:hover {
-            background: #a93226;
-            transform: scale(1.04);
-        }
-
-        #estop-btn.active {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        @keyframes pulse {
-
-            0%,
-            100% {
-                opacity: 1
-            }
-
-            50% {
-                opacity: 0.4
-            }
-        }
-
-        /* ── RESPONSIVE ── */
-        @media(max-width:700px) {
-            body {
-                overflow-y: auto;
-                align-items: flex-start;
-            }
-
-            .screen {
-                position: relative;
-                inset: auto;
-                min-height: 100vh;
-                align-items: flex-start;
-                padding: 12px 0 80px;
-            }
-
-            .card {
-                padding: 20px 16px;
-                border-radius: 12px;
-                width: 100% !important;
-            }
-
-            .observe-layout,
-            .test-layout,
-            .result-layout {
-                grid-template-columns: 1fr !important;
-                gap: 18px;
-            }
-
-            .mini-grid-wrap {
-                display: flex;
-                justify-content: center;
-                width: 100%;
-            }
-
-            .mode-btns {
-                flex-direction: column;
-                align-items: center;
-            }
-
-            .mode-btn {
-                width: 100%;
-                max-width: 260px;
-            }
-
-            #mic-fab {
-                bottom: 12px;
-                left: 12px;
-                width: 44px;
-                height: 44px;
-                font-size: 1.1rem;
-            }
-        }
-
-        @media(max-width:480px) {
-            .mini-grid {
-                transform: scale(0.85);
-                transform-origin: top center;
-                margin-bottom: -24px;
-            }
-        }
-
-        /* ── VISION SNAPSHOT (still-photo fallback) ── */
-        .vision-snap-controls {
-            display: flex;
-            gap: 6px;
-            padding: 6px 10px;
-            background: #1a1a1a;
-            align-items: center;
-        }
-
-        .snap-btn {
-            font-family: 'Share Tech Mono', monospace;
-            font-size: 0.62rem;
-            background: #333;
-            border: 1px solid var(--yellow);
-            color: var(--yellow);
-            padding: 4px 10px;
-            border-radius: 5px;
-            cursor: pointer;
-            letter-spacing: 0.08em;
-            transition: all 0.15s;
-        }
-
-        .snap-btn:hover {
-            background: #444;
-        }
-
-        .snap-btn.active {
-            background: var(--danger);
-            border-color: var(--danger);
-            color: #fff;
-        }
-
-        .vision-mode-toggle {
-            font-family: 'Share Tech Mono', monospace;
-            font-size: 0.6rem;
-            color: #888;
-            margin-left: auto;
-            cursor: pointer;
-            text-decoration: underline;
-        }
-
-        /* ── MODEL URL INPUT ── */
-        .model-url-box {
-            background: var(--beige);
-            border: 2px dashed var(--beige-dark);
-            border-radius: 10px;
-            padding: 10px 12px;
-            margin-bottom: 10px;
-        }
-
-        .model-url-box label {
-            font-family: 'Share Tech Mono', monospace;
-            font-size: 0.62rem;
-            color: var(--muted);
-            display: block;
-            margin-bottom: 5px;
-            letter-spacing: 0.1em;
-        }
-
-        .model-url-input {
-            width: 100%;
-            font-family: 'Share Tech Mono', monospace;
-            font-size: 0.75rem;
-            background: #fff;
-            border: 1.5px solid var(--beige-dark);
-            border-radius: 6px;
-            color: var(--black);
-            padding: 6px 10px;
-            outline: none;
-            transition: border-color 0.2s;
-        }
-
-        .model-url-input:focus {
-            border-color: var(--yellow-dark);
+            accent-color: var(--actian-blue);
         }
     </style>
 </head>
 
 <body>
 
-    <!-- ══════════════════════════════════
-     SPLASH SCREEN
-══════════════════════════════════ -->
     <div class="screen active" id="screen-splash">
         <div class="card">
             <button class="info-btn" title="Info">i</button>
             <div class="splash-pre">John Deere × Arduino</div>
             <div class="splash-title">The <span class="accent">Sandozer</span></div>
             <div class="splash-sub">Mission Control</div>
-            <div class="snowflake-badge">❄️ POWERED BY SNOWFLAKE</div>
+            <div class="actian-badge" style="color: #1976d2; border-color: #1976d2; background: #e3f2fd;">❄️ POWERED BY
+                SNOWFLAKE</div>
             <div class="splash-divider"></div>
             <div class="splash-about-grid">
                 <div class="about-box">
@@ -1551,7 +1364,6 @@
                         <li>Arduino Elegoo Owlbot Tank Kit</li>
                         <li>5×5 grid navigation</li>
                         <li>Real-time terrain sensing</li>
-                        <li>Teachable Machine CV vision</li>
                     </ul>
                 </div>
             </div>
@@ -1562,9 +1374,6 @@
         </div>
     </div>
 
-    <!-- ══════════════════════════════════
-     MODE SELECT
-══════════════════════════════════ -->
     <div class="screen" id="screen-mode">
         <div class="card">
             <button class="info-btn" onclick="goTo('screen-splash')">←</button>
@@ -1585,9 +1394,6 @@
         </div>
     </div>
 
-    <!-- ══════════════════════════════════
-     OBSERVE SCREEN
-══════════════════════════════════ -->
     <div class="screen" id="screen-observe">
         <div class="card">
             <div class="card-tag">OBSERVATION</div>
@@ -1610,58 +1416,6 @@
                 </div>
 
                 <div class="obs-panel">
-
-                    <!-- CV VISION -->
-                    <div class="vision-section" id="obs-vision-section">
-                        <div class="vision-header">
-                            <span class="vision-title">📷 TERRAIN VISION — CV</span>
-                            <div id="obs-vision-dot" class="vision-status-dot"></div>
-                        </div>
-                        <div class="vision-feed-wrap" id="obs-feed-wrap">
-                            <div class="vision-start-btn" id="obs-start-overlay" onclick="initVision('obs')">
-                                <div class="vision-start-icon">📷</div>
-                                <div class="vision-start-text">▶ TAP TO START WEBCAM</div>
-                                <div
-                                    style="font-family:'Share Tech Mono',monospace;font-size:0.55rem;color:#666;margin-top:2px;">
-                                    TERRAIN CV CLASSIFICATION</div>
-                            </div>
-                            <div id="obs-webcam-container"></div>
-                            <div class="vision-scanline"></div>
-                            <div class="vision-corner tl"></div>
-                            <div class="vision-corner tr"></div>
-                            <div class="vision-corner bl"></div>
-                            <div class="vision-corner br"></div>
-                            <div class="vision-active-label" id="obs-active-label" style="display:none">SCANNING…</div>
-                        </div>
-                        <div class="vision-snap-controls">
-                            <button class="snap-btn" id="obs-snap-btn" onclick="toggleVisionMode('obs')"
-                                style="display:none">📸 SNAPSHOT</button>
-                            <button class="snap-btn" onclick="stopVision('obs')" id="obs-stop-btn"
-                                style="display:none">⏹ STOP</button>
-                            <span class="vision-mode-toggle" id="obs-mode-toggle" onclick="switchToSnap('obs')"
-                                style="display:none">use photo instead</span>
-                        </div>
-                        <div class="vision-readout" id="obs-vision-readout" style="display:none"></div>
-                        <!-- Snapshot fallback -->
-                        <div id="obs-snap-area" style="display:none; padding:10px; background:#111;">
-                            <input type="file" id="obs-file-input" accept="image/*" capture="environment"
-                                style="display:none" onchange="handleFileCapture('obs', this)">
-                            <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px;">
-                                <button class="snap-btn" onclick="document.getElementById('obs-file-input').click()">📸
-                                    TAKE / UPLOAD PHOTO</button>
-                                <span style="font-family:'Share Tech Mono',monospace;font-size:0.6rem;color:#888;">or
-                                    upload terrain image</span>
-                            </div>
-                            <canvas id="obs-snap-canvas"
-                                style="width:100%;border-radius:6px;display:none;max-height:140px;object-fit:cover;"></canvas>
-                        </div>
-                        <!-- Model URL -->
-                        <div class="model-url-box" id="obs-model-url-box">
-                            <label>TEACHABLE MACHINE MODEL URL (paste your exported model URL)</label>
-                            <input class="model-url-input" id="obs-model-url" placeholder="≈≈"
-                                value="https://teachablemachine.withgoogle.com/models/DY2JHXYYe/">
-                        </div>
-                    </div>
 
                     <div class="safety-panel">
                         <div class="safety-panel-title">🛡 Safety Status</div>
@@ -1704,21 +1458,31 @@
                             🎤 Listening for directions…</div>
                     </div>
 
-                    <div class="obs-row"><span class="obs-label">Position:</span><span class="obs-val">(<span
-                                id="obs-y">0</span>,<span id="obs-x">0</span>)</span></div>
-                    <div class="obs-row"><span class="obs-label">Altitude:</span><span class="obs-val" id="obs-alt">0.00
-                            m</span></div>
-                    <div class="obs-row"><span class="obs-label">Vertical tilt:</span><span class="obs-val highlight"
-                            id="obs-tilt">0.000°</span></div>
-                    <div class="obs-row"><span class="obs-label">Nearest boundary:</span><span class="obs-val"
-                            id="obs-wall">—</span></div>
-                    <div class="obs-row"><span class="obs-label">Air Quality (AQI):</span><span class="obs-val"
-                            id="obs-aq">—</span></div>
+                    <div class="obs-row">
+                        <span class="obs-label">Position:</span>
+                        <span class="obs-val">(<span id="obs-y">0</span>,<span id="obs-x">0</span>)</span>
+                    </div>
+                    <div class="obs-row">
+                        <span class="obs-label">Altitude:</span>
+                        <span class="obs-val" id="obs-alt">0.00 m</span>
+                    </div>
+                    <div class="obs-row">
+                        <span class="obs-label">Vertical tilt:</span>
+                        <span class="obs-val highlight" id="obs-tilt">0.000°</span>
+                    </div>
+                    <div class="obs-row">
+                        <span class="obs-label">Nearest boundary:</span>
+                        <span class="obs-val" id="obs-wall">—</span>
+                    </div>
+                    <div class="obs-row">
+                        <span class="obs-label">Air Quality (AQI):</span>
+                        <span class="obs-val" id="obs-aq">—</span>
+                    </div>
 
                     <div class="wall-alert-wrap" id="obs-wall-alert-wrap"></div>
 
                     <div class="obs-row" style="border:none;flex-direction:column;gap:6px;">
-                        <span class="obs-label">Terrain (CV + IMU):</span>
+                        <span class="obs-label">Terrain:</span>
                         <div class="terrain-row">
                             <span class="terrain-opt flat" id="t-flat">FLAT</span>
                             <span class="terrain-opt smooth" id="t-smooth">SOMEWHAT SMOOTH</span>
@@ -1738,8 +1502,10 @@
                     </div>
 
                     <div style="display:flex;align-items:center;gap:8px;margin-top:2px;">
-                        <span class="voice-pill" id="obs-voice-pill"><span class="voice-dot"></span><span
-                                id="obs-voice-label">VOICE IDLE</span></span>
+                        <span class="voice-pill" id="obs-voice-pill">
+                            <span class="voice-dot"></span>
+                            <span id="obs-voice-label">VOICE IDLE</span>
+                        </span>
                     </div>
 
                     <div class="path-log-mini" id="obs-log"></div>
@@ -1753,9 +1519,6 @@
         </div>
     </div>
 
-    <!-- ══════════════════════════════════
-     TEST SCREEN
-══════════════════════════════════ -->
     <div class="screen" id="screen-test">
         <div class="card">
             <div class="card-tag">TEST</div>
@@ -1779,54 +1542,6 @@
 
                 <div class="test-panel">
 
-                    <!-- CV VISION -->
-                    <div class="vision-section" id="test-vision-section">
-                        <div class="vision-header">
-                            <span class="vision-title">📷 TERRAIN VISION — CV</span>
-                            <div id="test-vision-dot" class="vision-status-dot"></div>
-                        </div>
-                        <div class="vision-feed-wrap" id="test-feed-wrap">
-                            <div class="vision-start-btn" id="test-start-overlay" onclick="initVision('test')">
-                                <div class="vision-start-icon">📷</div>
-                                <div class="vision-start-text">▶ TAP TO START WEBCAM</div>
-                                <div
-                                    style="font-family:'Share Tech Mono',monospace;font-size:0.55rem;color:#666;margin-top:2px;">
-                                    TERRAIN CV CLASSIFICATION</div>
-                            </div>
-                            <div id="test-webcam-container"></div>
-                            <div class="vision-scanline"></div>
-                            <div class="vision-corner tl"></div>
-                            <div class="vision-corner tr"></div>
-                            <div class="vision-corner bl"></div>
-                            <div class="vision-corner br"></div>
-                            <div class="vision-active-label" id="test-active-label" style="display:none">SCANNING…</div>
-                        </div>
-                        <div class="vision-snap-controls">
-                            <button class="snap-btn" onclick="stopVision('test')" id="test-stop-btn"
-                                style="display:none">⏹ STOP</button>
-                            <span class="vision-mode-toggle" id="test-mode-toggle" onclick="switchToSnap('test')"
-                                style="display:none">use photo instead</span>
-                        </div>
-                        <div class="vision-readout" id="test-vision-readout" style="display:none"></div>
-                        <!-- Snapshot fallback -->
-                        <div id="test-snap-area" style="display:none; padding:10px; background:#111;">
-                            <input type="file" id="test-file-input" accept="image/*" capture="environment"
-                                style="display:none" onchange="handleFileCapture('test', this)">
-                            <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px;">
-                                <button class="snap-btn" onclick="document.getElementById('test-file-input').click()">📸
-                                    TAKE / UPLOAD PHOTO</button>
-                            </div>
-                            <canvas id="test-snap-canvas"
-                                style="width:100%;border-radius:6px;display:none;max-height:140px;object-fit:cover;"></canvas>
-                        </div>
-                        <div class="model-url-box" id="test-model-url-box">
-                            <label>TEACHABLE MACHINE MODEL URL</label>
-                            <input class="model-url-input" id="test-model-url"
-                                placeholder="https://teachablemachine.withgoogle.com/models/DY2JHXYYe/"
-                                value="https://teachablemachine.withgoogle.com/models/DY2JHXYYe/">
-                        </div>
-                    </div>
-
                     <div class="safety-panel">
                         <div class="safety-panel-title">🛡 Safety Status</div>
                         <div class="safety-indicators">
@@ -1837,7 +1552,7 @@
                         </div>
                     </div>
 
-                    <div class="test-input-group" style="display:flex;flex-direction:column;gap:8px;">
+                    <div class="test-input-group">
                         <label class="test-label" style="color:var(--danger);">⚠ SAFETY: TRACTION CONFIG</label>
                         <select class="traction-select" id="test-traction" onchange="updateTractionInfo('test')">
                             <option value="dry packed/compact sand">🟤 Dry Packed / Compact Sand</option>
@@ -1854,18 +1569,20 @@
                             style="color:var(--black)">(0,0)</strong> and reports terrain at the destination.
                     </div>
 
-                    <div style="display:flex;flex-direction:column;gap:8px;">
+                    <div class="test-input-group">
                         <label class="test-label">Navigate to: (row, col)</label>
                         <input class="test-input" id="test-target" placeholder="e.g. 3,4 — or speak two numbers" />
                         <div class="hint-small">Values 0–4. Robot starts at (0,0) and takes shortest path.<br>🎤 Say two
-                            digit numbers (e.g. <em>"two three"</em>)</div>
+                            digit numbers (e.g. <em>"two three"</em>) — mic auto-activates after greeting.</div>
                         <div class="err" id="test-err">Invalid coordinates. Use row,col (0–4).</div>
                     </div>
 
                     <div style="display:flex;align-items:center;gap:16px;">
                         <button class="go-btn" onclick="runTest()">GO!</button>
-                        <span class="voice-pill" id="test-voice-pill"><span class="voice-dot"></span><span
-                                id="test-voice-label">VOICE IDLE</span></span>
+                        <span class="voice-pill" id="test-voice-pill">
+                            <span class="voice-dot"></span>
+                            <span id="test-voice-label">VOICE IDLE</span>
+                        </span>
                     </div>
                     <div style="margin-top:4px;">
                         <button class="btn-pill outline" style="padding:8px 20px;font-size:0.72rem;"
@@ -1876,9 +1593,6 @@
         </div>
     </div>
 
-    <!-- ══════════════════════════════════
-     RESULT SCREEN
-══════════════════════════════════ -->
     <div class="screen" id="screen-result">
         <div class="card">
             <div class="card-tag">TEST</div>
@@ -1911,10 +1625,8 @@
                             class="result-val tilt" id="res-tilt">—</span></div>
                     <div class="result-row"><span class="result-label">Air Quality:</span><span class="result-val"
                             id="res-aq">—</span></div>
-                    <div class="result-row"><span class="result-label">CV Terrain:</span><span class="result-val"
-                            id="res-cv-terrain" style="color:var(--yellow-dark);font-weight:700;">—</span></div>
                     <div class="result-row" style="border:none;flex-direction:column;gap:8px;">
-                        <span class="result-label">Terrain (IMU):</span>
+                        <span class="result-label">Terrain:</span>
                         <div class="result-terrain">
                             <span class="terrain-opt flat" id="rt-flat">FLAT</span>
                             <span class="terrain-opt smooth" id="rt-smooth">SOMEWHAT SMOOTH</span>
@@ -1930,7 +1642,8 @@
                             onclick="goTo('screen-mode')">← BACK</button>
                         <button class="btn-pill" style="padding:10px 24px;font-size:0.78rem;"
                             onclick="goTo('screen-test')">TRY AGAIN</button>
-                        <button class="btn-pill snowflake" id="snowflake-save-btn"
+
+                        <button class="btn-pill actian" id="snowflake-save-btn"
                             style="padding:10px 24px;font-size:0.78rem;" onclick="saveMissionToBothDBs()">❄️ SAVE TO
                             SNOWFLAKE</button>
                     </div>
@@ -1939,9 +1652,6 @@
         </div>
     </div>
 
-    <!-- ══════════════════════════════════
-     CHAT SCREEN
-══════════════════════════════════ -->
     <div class="screen" id="screen-chat">
         <div class="card">
             <div class="chat-header">
@@ -1972,263 +1682,25 @@
                 <button class="chat-mic-btn" id="chat-mic-btn" onclick="toggleChatMic()" title="Voice input">🎤</button>
             </div>
 
-            <div class="snowflake-toggle-row">
+            <div class="actian-toggle-row">
                 <input type="checkbox" id="use-rag-toggle" checked />
                 <label for="use-rag-toggle">❄️ Use Snowflake Database (Mission Audit History)</label>
             </div>
         </div>
     </div>
 
-    <!-- FABs -->
     <button id="mic-fab" onclick="toggleGlobalMic()" title="Voice control">🎤</button>
     <div id="mic-status">LISTENING…</div>
     <button id="estop-btn" onclick="emergencyStop()" title="Emergency Stop">🛑 E-STOP</button>
 
     <script>
         // ════════════════════════════════════════════════════
-        // COMPUTER VISION — TEACHABLE MACHINE
-        // ════════════════════════════════════════════════════
-
-        // Vision state per panel
-        const visionState = {
-            obs: { model: null, webcam: null, running: false, classes: [], lastClass: null, lastConf: 0, snapMode: false },
-            test: { model: null, webcam: null, running: false, classes: [], lastClass: null, lastConf: 0, snapMode: false }
-        };
-
-        // Maps TM class names to terrain IDs used in the existing UI
-        function tmClassToTerrain(className) {
-            const lc = className.toLowerCase();
-            if (lc.includes('flat') || lc.includes('desert') || lc.includes('plains') || lc.includes('sand')) return 'flat';
-            if (lc.includes('forest') || lc.includes('smooth') || lc.includes('moderate')) return 'smooth';
-            if (lc.includes('mountain') || lc.includes('bump') || lc.includes('rough') || lc.includes('rocky')) return 'bump';
-            return 'flat'; // default fallback
-        }
-
-        function getModelUrl(prefix) {
-            const urlEl = document.getElementById(prefix + '-model-url');
-            let url = urlEl ? urlEl.value.trim() : '';
-            if (!url.endsWith('/')) url += '/';
-            return url;
-        }
-
-        async function initVision(prefix) {
-            const vs = visionState[prefix];
-            if (vs.running) return;
-
-            const overlay = document.getElementById(prefix + '-start-overlay');
-            if (overlay) overlay.style.display = 'none';
-
-            const dot = document.getElementById(prefix + '-vision-dot');
-            const activeLabel = document.getElementById(prefix + '-active-label');
-            const urlBox = document.getElementById(prefix + '-model-url-box');
-
-            // Hide URL box once started
-            if (urlBox) urlBox.style.display = 'none';
-
-            if (activeLabel) { activeLabel.style.display = 'block'; activeLabel.textContent = 'LOADING MODEL…'; }
-            if (dot) dot.className = 'vision-status-dot';
-
-            const modelUrl = getModelUrl(prefix);
-
-            try {
-                const modelURL = modelUrl + 'model.json';
-                const metadataURL = modelUrl + 'metadata.json';
-
-                vs.model = await tmImage.load(modelURL, metadataURL);
-                vs.classes = [];
-                for (let i = 0; i < vs.model.getTotalClasses(); i++) {
-                    vs.classes.push(vs.model.getClassLabels()[i]);
-                }
-
-                // Setup webcam
-                vs.webcam = new tmImage.Webcam(300, 160, true);
-                await vs.webcam.setup();
-                await vs.webcam.play();
-
-                const container = document.getElementById(prefix + '-webcam-container');
-                container.innerHTML = '';
-                container.appendChild(vs.webcam.canvas);
-
-                vs.running = true;
-                if (dot) dot.className = 'vision-status-dot active';
-                if (activeLabel) activeLabel.textContent = 'SCANNING…';
-
-                // Show controls
-                const stopBtn = document.getElementById(prefix + '-stop-btn');
-                const modeToggle = document.getElementById(prefix + '-mode-toggle');
-                if (stopBtn) stopBtn.style.display = 'inline-block';
-                if (modeToggle) modeToggle.style.display = 'inline-block';
-
-                // Build readout rows
-                buildVisionReadout(prefix);
-
-                // Start loop
-                visionLoop(prefix);
-
-            } catch (err) {
-                console.warn('[Vision]', err);
-                if (dot) dot.className = 'vision-status-dot error';
-                if (activeLabel) { activeLabel.style.display = 'block'; activeLabel.textContent = 'CAM BLOCKED / LOAD ERR'; }
-                if (overlay) { overlay.style.display = 'flex'; overlay.querySelector('.vision-start-text').textContent = 'RETRY — CAM BLOCKED'; }
-                if (urlBox) urlBox.style.display = 'block';
-                // Auto-switch to snapshot mode on error
-                switchToSnap(prefix);
-            }
-        }
-
-        function buildVisionReadout(prefix) {
-            const vs = visionState[prefix];
-            const readout = document.getElementById(prefix + '-vision-readout');
-            if (!readout) return;
-            readout.style.display = 'block';
-            readout.innerHTML = '';
-            vs.classes.forEach((cls, i) => {
-                const row = document.createElement('div');
-                row.className = 'vision-class-row';
-                row.innerHTML = `
-      <span class="vision-class-label">${cls}</span>
-      <div class="vision-bar-wrap"><div class="vision-bar-fill" id="${prefix}-bar-${i}" style="width:0%"></div></div>
-      <span class="vision-pct" id="${prefix}-pct-${i}">0%</span>
-    `;
-                readout.appendChild(row);
-            });
-        }
-
-        async function visionLoop(prefix) {
-            const vs = visionState[prefix];
-            if (!vs.running || !vs.webcam || !vs.model) return;
-            vs.webcam.update();
-            await predictFromCanvas(prefix, vs.webcam.canvas);
-            requestAnimationFrame(() => visionLoop(prefix));
-        }
-
-        async function predictFromCanvas(prefix, canvas) {
-            const vs = visionState[prefix];
-            if (!vs.model) return;
-
-            try {
-                const predictions = await vs.model.predict(canvas);
-                let highest = { className: '', probability: 0 };
-                predictions.forEach((p, i) => {
-                    if (p.probability > highest.probability) highest = p;
-                    const bar = document.getElementById(prefix + '-bar-' + i);
-                    const pct = document.getElementById(prefix + '-pct-' + i);
-                    const pctVal = (p.probability * 100).toFixed(0);
-                    if (bar) { bar.style.width = pctVal + '%'; bar.className = 'vision-bar-fill'; }
-                    if (pct) { pct.textContent = pctVal + '%'; pct.className = 'vision-pct'; }
-                });
-
-                // Highlight highest
-                predictions.forEach((p, i) => {
-                    const bar = document.getElementById(prefix + '-bar-' + i);
-                    const pct = document.getElementById(prefix + '-pct-' + i);
-                    if (p.className === highest.className) {
-                        if (bar) bar.className = 'vision-bar-fill highest';
-                        if (pct) pct.className = 'vision-pct highest';
-                    }
-                });
-
-                vs.lastClass = highest.className;
-                vs.lastConf = highest.probability;
-
-                const activeLabel = document.getElementById(prefix + '-active-label');
-                if (activeLabel) activeLabel.textContent = `${highest.className.toUpperCase()} ${(highest.probability * 100).toFixed(0)}%`;
-
-                // Auto-update terrain UI if high confidence
-                if (highest.probability > 0.75) {
-                    const terrainId = tmClassToTerrain(highest.className);
-                    if (prefix === 'obs') setTerrainHighlight('t-', terrainId);
-                }
-
-            } catch (e) {
-                console.warn('[Predict]', e);
-            }
-        }
-
-        function stopVision(prefix) {
-            const vs = visionState[prefix];
-            vs.running = false;
-            if (vs.webcam) { try { vs.webcam.stop(); } catch (e) { } vs.webcam = null; }
-            const container = document.getElementById(prefix + '-webcam-container');
-            if (container) container.innerHTML = '';
-            const dot = document.getElementById(prefix + '-vision-dot');
-            if (dot) dot.className = 'vision-status-dot';
-            const activeLabel = document.getElementById(prefix + '-active-label');
-            if (activeLabel) { activeLabel.textContent = 'IDLE'; }
-            const overlay = document.getElementById(prefix + '-start-overlay');
-            if (overlay) { overlay.style.display = 'flex'; overlay.querySelector('.vision-start-text').textContent = 'TAP TO START VISION'; }
-            const stopBtn = document.getElementById(prefix + '-stop-btn');
-            if (stopBtn) stopBtn.style.display = 'none';
-            const modeToggle = document.getElementById(prefix + '-mode-toggle');
-            if (modeToggle) modeToggle.style.display = 'none';
-            const urlBox = document.getElementById(prefix + '-model-url-box');
-            if (urlBox) urlBox.style.display = 'block';
-            const readout = document.getElementById(prefix + '-vision-readout');
-            if (readout) readout.style.display = 'none';
-        }
-
-        function switchToSnap(prefix) {
-            stopVision(prefix);
-            const snapArea = document.getElementById(prefix + '-snap-area');
-            if (snapArea) snapArea.style.display = 'block';
-            const feedWrap = document.getElementById(prefix + '-feed-wrap');
-            if (feedWrap) feedWrap.style.display = 'none';
-            const snapControls = document.querySelector('#' + prefix + '-vision-section .vision-snap-controls');
-            if (snapControls) snapControls.style.display = 'none';
-        }
-
-        function handleFileCapture(prefix, input) {
-            const file = input.files[0];
-            if (!file) return;
-            const vs = visionState[prefix];
-            const canvas = document.getElementById(prefix + '-snap-canvas');
-            const reader = new FileReader();
-            reader.onload = async (e) => {
-                const img = new Image();
-                img.onload = async () => {
-                    canvas.style.display = 'block';
-                    canvas.width = img.width;
-                    canvas.height = img.height;
-                    const ctx = canvas.getContext('2d');
-                    ctx.drawImage(img, 0, 0);
-
-                    if (!vs.model) {
-                        // Try loading model first
-                        try {
-                            const modelUrl = getModelUrl(prefix);
-                            vs.model = await tmImage.load(modelUrl + 'model.json', modelUrl + 'metadata.json');
-                            vs.classes = vs.model.getClassLabels ? vs.model.getClassLabels() : [];
-                            buildVisionReadout(prefix);
-                            document.getElementById(prefix + '-vision-readout').style.display = 'block';
-                        } catch (err) {
-                            console.warn('Model not loaded, cannot classify image');
-                            return;
-                        }
-                    }
-
-                    await predictFromCanvas(prefix, canvas);
-                };
-                img.src = e.target.result;
-            };
-            reader.readAsDataURL(file);
-        }
-
-        function getLastVisionClass(prefix) {
-            const vs = visionState[prefix];
-            if (!vs.lastClass) return null;
-            return { className: vs.lastClass, confidence: vs.lastConf };
-        }
-
-        // ════════════════════════════════════════════════════
         // CONFIG
         // ════════════════════════════════════════════════════
         let ELEVEN_VOICE = 'Aa6nEBJJMKJwJkCx8VU2'; // Bella
-        let latestMissionData = null;
-        let currentScreen = 'screen-splash';
+        let latestMissionData = null; // Store data temporarily to send to DB
 
-        // ════════════════════════════════════════════════════
-        // SNOWFLAKE + KV SAVE
-        // ════════════════════════════════════════════════════
+        // SNOWFLAKE
         async function saveMissionToBothDBs() {
             const btn = document.getElementById('snowflake-save-btn');
             if (!latestMissionData) return;
@@ -2241,27 +1713,73 @@
             btn.style.pointerEvents = 'none';
 
             try {
+                // 1. Send to Snowflake (Relational Analytics)
                 const snowflakePromise = fetch('/api/snowflake-archive', {
-                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(payload)
                 });
+
+                // 2. Send to Cloudflare KV (Chatbot Memory/RAG)
                 const kvPromise = fetch('/api/vector-save', {
-                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(payload)
                 });
+
+                // Wait for both to finish
                 const [snowRes, kvRes] = await Promise.all([snowflakePromise, kvPromise]);
+
                 if (!snowRes.ok || !kvRes.ok) throw new Error('One or more saves failed');
+
                 btn.textContent = '✅ SAVED TO SNOWFLAKE & KV';
-                btn.style.background = '#d4f5db';
+                btn.style.background = '#d4f5db'; // Success Green
                 btn.style.color = '#1e7e34';
+
             } catch (err) {
                 console.error('[Database Error]', err);
                 btn.textContent = '⚠️ ERROR SAVING';
                 setTimeout(() => {
-                    btn.textContent = '❄️ SAVE TO SNOWFLAKE';
-                    btn.style.background = '';
-                    btn.style.color = '';
+                    btn.textContent = '❄️ SAVE TO BOTH';
                     btn.style.pointerEvents = 'auto';
+                }, 3000);
+            }
+        }
+        // ════════════════════════════════════════════════════
+        // ACTIAN VECTOR DB INTEGRATION
+        // ════════════════════════════════════════════════════
+
+        async function saveMissionToVectorDB() {
+            const btn = document.getElementById('actian-save-btn');
+            if (!latestMissionData) return;
+
+            btn.textContent = '⏳ SAVING...';
+            btn.style.pointerEvents = 'none';
+
+            try {
+                // Here we send the mission stats to the backend to be vectorized and stored
+                const res = await fetch('/api/vector-save', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(latestMissionData)
+                });
+
+                if (!res.ok) throw new Error('DB Error');
+
+                btn.textContent = '✅ SAVED TO ACTIAN DB';
+                btn.style.background = '#d4f5db';
+                btn.style.borderColor = '#1e7e34';
+                btn.style.color = '#1e7e34';
+
+            } catch (err) {
+                console.error('[Actian DB]', err);
+                btn.textContent = '⚠ ERROR SAVING';
+                setTimeout(() => {
+                    btn.textContent = '💾 SAVE TO ACTIAN VECTOR DB';
+                    btn.style.background = '';
+                    btn.style.borderColor = '';
+                    btn.style.color = '';
+                    btn.style.pointerEvents = 'auto'; // reset styles
                 }, 3000);
             }
         }
@@ -2270,9 +1788,24 @@
         // TRACTION SETTINGS
         // ════════════════════════════════════════════════════
         const TRACTION_INFO = {
-            'dry packed/compact sand': { info: 'Stable surface. Normal speed and turning radius apply.', cls: '', safeLabel: '🔧 Traction: SET' },
-            'dry loose sand': { info: '⚠ Loose surface. Reduce speed 30%. Increased wheel slip risk — wide turns recommended.', cls: 'warn-text', safeLabel: '🔧 Traction: CAUTION' },
-            'wet moist sand': { info: '⛔ Wet surface. Reduce speed 50%. High skid risk — avoid sharp turns and slopes.', cls: 'danger-text', safeLabel: '🔧 Traction: HAZARD' }
+            'dry packed/compact sand': {
+                info: 'Stable surface. Normal speed and turning radius apply.',
+                cls: '',
+                speedMult: 1.0,
+                safeLabel: '🔧 Traction: SET'
+            },
+            'dry loose sand': {
+                info: '⚠ Loose surface. Reduce speed 30%. Increased wheel slip risk — wide turns recommended.',
+                cls: 'warn-text',
+                speedMult: 0.7,
+                safeLabel: '🔧 Traction: CAUTION'
+            },
+            'wet moist sand': {
+                info: '⛔ Wet surface. Reduce speed 50%. High skid risk — avoid sharp turns and slopes.',
+                cls: 'danger-text',
+                speedMult: 0.5,
+                safeLabel: '🔧 Traction: HAZARD'
+            }
         };
 
         function updateTractionInfo(prefix) {
@@ -2282,6 +1815,7 @@
             const t = TRACTION_INFO[sel.value];
             info.textContent = t.info;
             info.className = 'traction-info' + (t.cls ? ' ' + t.cls : '');
+
             const siEl = document.getElementById(prefix === 'obs' ? 'si-traction' : 'tsi-traction');
             if (siEl) {
                 siEl.textContent = t.safeLabel;
@@ -2292,7 +1826,9 @@
         // ════════════════════════════════════════════════════
         // ELEVENLABS TTS
         // ════════════════════════════════════════════════════
-        let audioQueue = [], isSpeaking = false, currentAudio = null;
+        let audioQueue = [];
+        let isSpeaking = false;
+        let currentAudio = null;
 
         function terrainLabel(t) { return t === 'flat' ? 'flat' : t === 'smooth' ? 'somewhat smooth' : 'bumpy'; }
 
@@ -2313,40 +1849,68 @@
             isSpeaking = true;
             const { text, pillId, labelId, onComplete } = audioQueue.shift();
             setVoicePill(pillId, labelId, true);
+
             try {
-                const res = await fetch('/api/tts', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ text, voiceId: ELEVEN_VOICE }) });
+                const res = await fetch('/api/tts', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ text, voiceId: ELEVEN_VOICE })
+                });
                 if (!res.ok) throw new Error('TTS error ' + res.status);
                 const blob = await res.blob();
                 const url = URL.createObjectURL(blob);
                 currentAudio = new Audio(url);
-                currentAudio.onended = () => { URL.revokeObjectURL(url); setVoicePill(pillId, labelId, false); currentAudio = null; drainQueue(); if (!audioQueue.length && onComplete) setTimeout(onComplete, 150); };
-                currentAudio.onerror = () => { setVoicePill(pillId, labelId, false); currentAudio = null; drainQueue(); };
+                currentAudio.onended = () => {
+                    URL.revokeObjectURL(url);
+                    setVoicePill(pillId, labelId, false);
+                    currentAudio = null;
+                    drainQueue();
+                    if (!audioQueue.length && onComplete) setTimeout(onComplete, 150);
+                };
+                currentAudio.onerror = () => {
+                    setVoicePill(pillId, labelId, false);
+                    currentAudio = null;
+                    drainQueue();
+                };
                 await currentAudio.play();
             } catch (e) {
                 console.warn('[TTS]', e.message);
-                setVoicePill(pillId, labelId, false); currentAudio = null; drainQueue();
+                setVoicePill(pillId, labelId, false);
+                currentAudio = null;
+                drainQueue();
                 if (onComplete) setTimeout(onComplete, 150);
             }
         }
 
         function setVoicePill(pillId, labelId, active) {
-            const pill = document.getElementById(pillId), label = document.getElementById(labelId);
-            if (pill) pill.classList.toggle('active', active);
-            if (label) label.textContent = active ? 'SPEAKING…' : 'VOICE IDLE';
+            const pill = document.getElementById(pillId);
+            const label = document.getElementById(labelId);
+            if (!pill || !label) return;
+            pill.classList.toggle('active', active);
+            label.textContent = active ? 'SPEAKING…' : 'VOICE IDLE';
         }
 
         function stopAllAudio() {
-            audioQueue = []; isSpeaking = false;
+            audioQueue = [];
+            isSpeaking = false;
             if (currentAudio) { currentAudio.pause(); currentAudio.src = ''; currentAudio = null; }
-            ['obs-voice-pill', 'test-voice-pill', 'res-voice-pill', 'chat-voice-pill'].forEach(id => { const el = document.getElementById(id); if (el) el.classList.remove('active'); });
-            ['obs-voice-label', 'test-voice-label', 'res-voice-label', 'chat-voice-label'].forEach(id => { const el = document.getElementById(id); if (el) el.textContent = 'VOICE IDLE'; });
+            ['obs-voice-pill', 'test-voice-pill', 'res-voice-pill', 'chat-voice-pill'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.classList.remove('active');
+            });
+            ['obs-voice-label', 'test-voice-label', 'res-voice-label', 'chat-voice-label'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.textContent = 'VOICE IDLE';
+            });
         }
 
         // ════════════════════════════════════════════════════
         // EMERGENCY STOP
         // ════════════════════════════════════════════════════
         function emergencyStop() {
-            clearInterval(obsTimer); obsPaused = true; stopAllAudio();
+            clearInterval(obsTimer);
+            obsPaused = true;
+            stopAllAudio();
             const pauseBtn = document.getElementById('obs-pause-btn');
             if (pauseBtn) pauseBtn.textContent = '▶';
             const pillId = currentScreen === 'screen-test' ? 'test-voice-pill' : 'obs-voice-pill';
@@ -2354,22 +1918,35 @@
             speak('Emergency stop activated. Robot halted. All movement suspended.', pillId, labelId);
         }
 
-        function showEStop(show) { document.getElementById('estop-btn').className = show ? 'active' : ''; }
+        function showEStop(show) {
+            const btn = document.getElementById('estop-btn');
+            btn.className = show ? 'active' : '';
+        }
 
         // ════════════════════════════════════════════════════
         // WALL PROXIMITY SAFETY
         // ════════════════════════════════════════════════════
+        const CELL_SIZE_M = 0.20;
         let lastWallZone = -1;
+
         function checkWallProximity(row, col, stepIdx) {
             const wallDist = Math.min(row, col, 4 - row, 4 - col);
             const wrap = document.getElementById('obs-wall-alert-wrap');
             const screenPfx = (currentScreen === 'screen-observe') ? 'si' : 'tsi';
             const siEl = document.getElementById(screenPfx + '-boundary');
-            if (stepIdx === 0) { lastWallZone = wallDist; if (wrap) wrap.innerHTML = ''; if (siEl) { siEl.textContent = '📍 Boundary: SAFE'; siEl.className = 'safety-ind ok'; } return; }
-            const pillId = currentScreen === 'screen-observe' ? 'obs-voice-pill' : 'test-voice-pill';
-            const labelId = currentScreen === 'screen-observe' ? 'obs-voice-label' : 'test-voice-label';
+
+            if (stepIdx === 0) {
+                lastWallZone = wallDist;
+                if (wrap) wrap.innerHTML = '';
+                if (siEl) { siEl.textContent = '📍 Boundary: SAFE'; siEl.className = 'safety-ind ok'; }
+                return;
+            }
+
+            const pillId = (currentScreen === 'screen-observe') ? 'obs-voice-pill' : 'test-voice-pill';
+            const labelId = (currentScreen === 'screen-observe') ? 'obs-voice-label' : 'test-voice-label';
             const zoneChanged = wallDist !== lastWallZone;
             lastWallZone = wallDist;
+
             if (wallDist === 0) {
                 if (wrap) wrap.innerHTML = `<span class="wall-alert">⛔ AT BOUNDARY</span>`;
                 if (siEl) { siEl.textContent = '📍 Boundary: AT WALL'; siEl.className = 'safety-ind danger'; }
@@ -2391,21 +1968,33 @@
             const siEl = document.getElementById(prefix + '-aq');
             if (!siEl) return;
             if (aq > 150) {
-                siEl.textContent = '💨 Air: DANGEROUS'; siEl.className = 'safety-ind danger';
-                if (stepIdx !== undefined && stepIdx % 3 === 0) speak(`Air quality alert. AQI is ${aq}. Conditions are hazardous.`, pillId, labelId);
+                siEl.textContent = '💨 Air: DANGEROUS';
+                siEl.className = 'safety-ind danger';
+                if (stepIdx !== undefined && stepIdx % 3 === 0) {
+                    speak(`Air quality alert. AQI is ${aq}. Conditions are hazardous. Recommend halting operations.`, pillId, labelId);
+                }
             } else if (aq > 100) {
-                siEl.textContent = '💨 Air: MODERATE'; siEl.className = 'safety-ind warn';
+                siEl.textContent = '💨 Air: MODERATE';
+                siEl.className = 'safety-ind warn';
             } else {
-                siEl.textContent = '💨 Air: GOOD'; siEl.className = 'safety-ind ok';
+                siEl.textContent = '💨 Air: GOOD';
+                siEl.className = 'safety-ind ok';
             }
         }
 
         function checkTiltSafety(tilt, terrain, prefix) {
             const siEl = document.getElementById(prefix + '-tilt');
             if (!siEl) return;
-            if (terrain === 'bump') { siEl.textContent = '↗ Tilt: HIGH RISK'; siEl.className = 'safety-ind danger'; }
-            else if (terrain === 'smooth') { siEl.textContent = '↗ Tilt: ELEVATED'; siEl.className = 'safety-ind warn'; }
-            else { siEl.textContent = '↗ Tilt: NORMAL'; siEl.className = 'safety-ind ok'; }
+            if (terrain === 'bump') {
+                siEl.textContent = '↗ Tilt: HIGH RISK';
+                siEl.className = 'safety-ind danger';
+            } else if (terrain === 'smooth') {
+                siEl.textContent = '↗ Tilt: ELEVATED';
+                siEl.className = 'safety-ind warn';
+            } else {
+                siEl.textContent = '↗ Tilt: NORMAL';
+                siEl.className = 'safety-ind ok';
+            }
         }
 
         // ════════════════════════════════════════════════════
@@ -2415,17 +2004,20 @@
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
             document.getElementById(screenId).classList.add('active');
             currentScreen = screenId;
+
             showEStop(screenId === 'screen-observe' || screenId === 'screen-test');
+
             if (screenId !== 'screen-observe') stopAllAudio();
             if (screenId === 'screen-observe') initObserve();
+
             if (screenId === 'screen-test') {
-                initTestGrid(); updateTractionInfo('test');
-                speak('Hello! What position would you like to navigate to? Say two numbers for row and column, each between 0 and 4.', 'test-voice-pill', 'test-voice-label',
-                    () => { if (currentScreen === 'screen-test') { continuousListen = true; startGlobalMic(); } });
-            }
-            // Stop vision when leaving active screens
-            if (screenId !== 'screen-observe' && screenId !== 'screen-test') {
-                stopVision('obs'); stopVision('test');
+                initTestGrid();
+                updateTractionInfo('test');
+                speak(
+                    'Hello! What position would you like to navigate to? Say two numbers for row and column, each between 0 and 4.',
+                    'test-voice-pill', 'test-voice-label',
+                    () => { if (currentScreen === 'screen-test') { continuousListen = true; startGlobalMic(); } }
+                );
             }
             if (screenId === 'screen-chat') initChat();
             updateMicContext(screenId);
@@ -2452,16 +2044,19 @@
         const CELL = 44, GAP = 3;
         function buildMiniGrid(tableEl) {
             tableEl.innerHTML = '';
+            const cells = [];
             for (let r = 0; r < 5; r++) {
+                cells[r] = [];
                 const tr = document.createElement('tr');
                 for (let c = 0; c < 5; c++) {
                     const td = document.createElement('td');
                     td.className = 'mini-cell';
                     td.innerHTML = `<span class="mc-label">${r},${c}</span>`;
-                    tr.appendChild(td);
+                    tr.appendChild(td); cells[r][c] = td;
                 }
                 tableEl.appendChild(tr);
             }
+            return cells;
         }
 
         function cellCenter(row, col) { return { x: 3 + 6 + col * (CELL + 3) + CELL / 2, y: 3 + 6 + row * (CELL + 3) + CELL / 2 }; }
@@ -2491,21 +2086,35 @@
         }
 
         // ════════════════════════════════════════════════════
-        // SENSOR DATA (Simulated)
+        // SENSOR DATA
         // ════════════════════════════════════════════════════
         const TILT_MAP = (() => {
             const m = [];
-            for (let r = 0; r < 5; r++) { m[r] = []; for (let c = 0; c < 5; c++)m[r][c] = Math.round(Math.random() * 300) / 1000; }
+            for (let r = 0; r < 5; r++) { m[r] = []; for (let c = 0; c < 5; c++) m[r][c] = Math.round(Math.random() * 300) / 1000; }
             m[0][0] = Math.round(Math.random() * 49) / 1000;
             return m;
         })();
-        const ALTITUDE_MAP = (() => { const m = []; for (let r = 0; r < 5; r++) { m[r] = []; for (let c = 0; c < 5; c++)m[r][c] = Math.round(Math.random() * 150) / 1000; } return m; })();
-        const AIR_QUALITY_MAP = (() => { const m = []; for (let r = 0; r < 5; r++) { m[r] = []; for (let c = 0; c < 5; c++)m[r][c] = Math.round((40 + Math.random() * 160) / 5) * 5; } return m; })();
+
+        const ALTITUDE_MAP = (() => {
+            const m = [];
+            for (let r = 0; r < 5; r++) { m[r] = []; for (let c = 0; c < 5; c++) m[r][c] = Math.round(Math.random() * 150) / 1000; }
+            return m;
+        })();
+
+        const AIR_QUALITY_MAP = (() => {
+            const m = [];
+            for (let r = 0; r < 5; r++) { m[r] = []; for (let c = 0; c < 5; c++) m[r][c] = Math.round((40 + Math.random() * 160) / 5) * 5; }
+            return m;
+        })();
 
         function tiltToTerrain(t) { return t < 0.05 ? 'flat' : t <= 0.15 ? 'smooth' : 'bump'; }
+
         function getSensorData(row, col) {
-            const tilt = TILT_MAP[row][col], terrain = tiltToTerrain(tilt);
-            const alt = ALTITUDE_MAP[row][col], wallDist = Math.min(row, col, 4 - row, 4 - col), airQuality = AIR_QUALITY_MAP[row][col];
+            const tilt = TILT_MAP[row][col];
+            const terrain = tiltToTerrain(tilt);
+            const alt = ALTITUDE_MAP[row][col];
+            const wallDist = Math.min(row, col, 4 - row, 4 - col);
+            const airQuality = AIR_QUALITY_MAP[row][col];
             return { tilt, terrain, alt, wallDist, airQuality };
         }
 
@@ -2524,7 +2133,9 @@
             const ptStr = pts.map(p => `${p.x},${p.y}`).join(' ');
             svgEl.appendChild(makePoly(ptStr, '#b0a890', 11));
             svgEl.appendChild(makePoly(ptStr, '#1a1a1a', 7));
-            const dash = makePoly(ptStr, '#f5c800', 2); dash.setAttribute('stroke-dasharray', '6 8'); svgEl.appendChild(dash);
+            const dash = makePoly(ptStr, '#f5c800', 2);
+            dash.setAttribute('stroke-dasharray', '6 8');
+            svgEl.appendChild(dash);
             const seen = new Set();
             for (let i = 0; i <= upTo; i++) {
                 const { row, col } = steps[i], key = `${row},${col}`;
@@ -2554,7 +2165,9 @@
         }
 
         function setTerrainHighlight(prefix, terrain) {
-            ['flat', 'smooth', 'bump'].forEach(t => document.getElementById(prefix + t)?.classList.toggle('active', terrain === t));
+            ['flat', 'smooth', 'bump'].forEach(t =>
+                document.getElementById(prefix + t).classList.toggle('active', terrain === t)
+            );
         }
 
         // ════════════════════════════════════════════════════
@@ -2564,67 +2177,88 @@
         const OBS_INTERVAL = 10000;
 
         function initObserve() {
-            clearInterval(obsTimer); stopAllAudio(); lastWallZone = -1; obsStep = 0; obsPaused = false;
+            clearInterval(obsTimer);
+            stopAllAudio();
+            lastWallZone = -1;
+            obsStep = 0;
+            obsPaused = false;
+
             buildMiniGrid(document.getElementById('obs-grid'));
-            const sz = gridTotalSize(); const svg = document.getElementById('obs-svg');
-            svg.setAttribute('width', sz); svg.setAttribute('height', sz); svg.innerHTML = '';
+            const sz = gridTotalSize();
+            const svg = document.getElementById('obs-svg');
+            svg.setAttribute('width', sz); svg.setAttribute('height', sz);
+            svg.innerHTML = '';
             document.getElementById('obs-robot').style.display = 'none';
             document.getElementById('obs-log').innerHTML = '';
             document.getElementById('obs-wall-alert-wrap').innerHTML = '';
+
             updateTractionInfo('obs');
-            speak('Observation mode ready. Please set traction, enter path commands, and press Start.', 'obs-voice-pill', 'obs-voice-label',
-                () => { if (currentScreen === 'screen-observe') { continuousListen = true; startGlobalMic(); } });
+
+            speak('Observation mode ready. Please select a traction setting, enter path commands, and press Start.', 'obs-voice-pill', 'obs-voice-label', () => {
+                if (currentScreen === 'screen-observe') { continuousListen = true; startGlobalMic(); }
+            });
         }
 
         function startObserveSequence() {
             let cmds = document.getElementById('obs-commands').value.trim().replace('🎤 ', '');
             if (!cmds) cmds = 'f f f r f f';
+
             obsSteps = parseCommands(cmds) || [{ row: 0, col: 0, dir: 'E', cmd: 'START' }];
-            obsStep = 0; obsPaused = false; lastWallZone = -1;
+            obsStep = 0;
+            obsPaused = false;
+            lastWallZone = -1;
+
             buildMiniGrid(document.getElementById('obs-grid'));
             buildObsLog();
+
             const traction = document.getElementById('obs-traction').value;
-            let safetyMsg = `Commencing patrol. Safety traction optimized for ${traction}.`;
-            if (traction === 'wet moist sand') safetyMsg += ' High slip risk active.';
-            else if (traction === 'dry loose sand') safetyMsg += ' Caution: loose terrain.';
+            const tractionT = TRACTION_INFO[traction];
+            let safetyMsg = `Commencing patrol. Safety traction mechanism optimized for ${traction}.`;
+            if (traction === 'wet moist sand') safetyMsg += ' High slip risk active. Reduced speed applied.';
+            else if (traction === 'dry loose sand') safetyMsg += ' Caution: loose terrain. Reduced speed applied.';
+
             speak(safetyMsg, 'obs-voice-pill', 'obs-voice-label');
-            renderObsStep(0); startObsTimer();
+            renderObsStep(0);
+            startObsTimer();
         }
 
         function buildObsLog() {
-            const log = document.getElementById('obs-log'); log.innerHTML = '';
+            const log = document.getElementById('obs-log');
+            log.innerHTML = '';
             obsSteps.forEach((s, i) => {
                 const chip = document.createElement('span');
                 chip.className = 'log-chip' + (i === 0 ? ' current' : '');
-                chip.textContent = `(${s.row},${s.col})`; log.appendChild(chip);
+                chip.textContent = `(${s.row},${s.col})`;
+                log.appendChild(chip);
             });
         }
 
         function renderObsStep(idx) {
-            const s = obsSteps[idx]; if (!s) return;
+            const s = obsSteps[idx];
+            if (!s) return;
             const sensor = getSensorData(s.row, s.col);
+
             moveRobot(document.getElementById('obs-robot'), s.row, s.col);
             drawPath(document.getElementById('obs-svg'), obsSteps, idx);
+
             document.getElementById('obs-x').textContent = s.col;
             document.getElementById('obs-y').textContent = s.row;
             document.getElementById('obs-alt').textContent = sensor.alt.toFixed(2) + ' m';
+
             const tiltEl = document.getElementById('obs-tilt');
             tiltEl.textContent = sensor.tilt.toFixed(3) + '°';
             tiltEl.style.color = sensor.terrain === 'flat' ? 'var(--green)' : sensor.terrain === 'smooth' ? '#b87900' : '#c0392b';
+
             document.getElementById('obs-wall').textContent = sensor.wallDist + ' cell' + (sensor.wallDist !== 1 ? 's' : '');
             document.getElementById('obs-step-badge').textContent = `STEP ${idx}/${obsSteps.length - 1}`;
-            const aqEl = document.getElementById('obs-aq'), aq = sensor.airQuality;
+
+            const aqEl = document.getElementById('obs-aq');
+            const aq = sensor.airQuality;
             aqEl.textContent = aq + ' AQI — ' + (aq <= 100 ? 'Good' : aq <= 150 ? 'Moderate' : 'Poor');
             aqEl.className = 'obs-val ' + (aq <= 100 ? 'aq-good' : aq <= 150 ? 'aq-moderate' : 'aq-poor');
 
-            // Merge CV terrain if available
-            const cvResult = getLastVisionClass('obs');
-            let finalTerrain = sensor.terrain;
-            if (cvResult && cvResult.confidence > 0.75) {
-                finalTerrain = tmClassToTerrain(cvResult.className);
-            }
-            setTerrainHighlight('t-', finalTerrain);
-            checkTiltSafety(sensor.tilt, finalTerrain, 'si');
+            setTerrainHighlight('t-', sensor.terrain);
+            checkTiltSafety(sensor.tilt, sensor.terrain, 'si');
             checkAQSafety(aq, 'si', 'obs-voice-pill', 'obs-voice-label', idx);
 
             document.querySelectorAll('#obs-log .log-chip').forEach((el, i) => {
@@ -2632,17 +2266,24 @@
             });
             const cur = document.querySelector('#obs-log .current');
             if (cur) cur.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
             checkWallProximity(s.row, s.col, idx);
             const text = buildNarration(s, sensor, idx, obsSteps.length);
             speak(text, 'obs-voice-pill', 'obs-voice-label');
-            if (idx === obsSteps.length - 1) setTimeout(() => showResult(obsSteps, s.row, s.col), 900);
+
+            // Auto trigger result screen when done
+            if (idx === obsSteps.length - 1) {
+                setTimeout(() => showResult(obsSteps, s.row, s.col), 900);
+            }
         }
 
         function startObsTimer() {
-            clearInterval(obsTimer); obsElapsed = 0; updateObsTimerUI();
+            clearInterval(obsTimer);
+            obsElapsed = 0; updateObsTimerUI();
             obsTimer = setInterval(() => {
                 if (obsPaused) return;
-                obsElapsed += 100; updateObsTimerUI();
+                obsElapsed += 100;
+                updateObsTimerUI();
                 if (obsElapsed >= OBS_INTERVAL) {
                     obsElapsed = 0;
                     if (obsStep < obsSteps.length - 1) { obsStep++; renderObsStep(obsStep); }
@@ -2695,8 +2336,10 @@
         // ════════════════════════════════════════════════════
         function initTestGrid() {
             buildMiniGrid(document.getElementById('test-grid'));
-            const sz = gridTotalSize(), svg = document.getElementById('test-svg');
-            svg.setAttribute('width', sz); svg.setAttribute('height', sz); svg.innerHTML = '';
+            const sz = gridTotalSize();
+            const svg = document.getElementById('test-svg');
+            svg.setAttribute('width', sz); svg.setAttribute('height', sz);
+            svg.innerHTML = '';
             document.getElementById('test-robot').style.display = 'none';
             moveRobot(document.getElementById('test-robot'), 0, 0);
         }
@@ -2706,8 +2349,10 @@
             const err = document.getElementById('test-err');
             const m = targetText.match(/(\d)\s*,\s*(\d)/);
             if (!m || +m[1] > 4 || +m[2] > 4) {
-                err.style.display = 'block'; err.textContent = 'Invalid target. Use row,col with values 0–4.';
-                setTimeout(() => err.style.display = 'none', 3000); return;
+                err.style.display = 'block';
+                err.textContent = 'Invalid target. Use row,col with values 0–4.';
+                setTimeout(() => err.style.display = 'none', 3000);
+                return;
             }
             const targetRow = +m[1], targetCol = +m[2];
             const traction = document.getElementById('test-traction').value;
@@ -2717,12 +2362,17 @@
 
         function animateTest(steps, targetRow, targetCol) {
             buildMiniGrid(document.getElementById('test-grid'));
-            const sz = gridTotalSize(), svg = document.getElementById('test-svg');
-            svg.setAttribute('width', sz); svg.setAttribute('height', sz); svg.innerHTML = '';
+            const sz = gridTotalSize();
+            const svg = document.getElementById('test-svg');
+            svg.setAttribute('width', sz); svg.setAttribute('height', sz);
+            svg.innerHTML = '';
             const robot = document.getElementById('test-robot');
-            let i = 0; lastWallZone = -1;
+            let i = 0;
+            lastWallZone = -1;
+
             function next() {
-                drawPath(svg, steps, i); moveRobot(robot, steps[i].row, steps[i].col);
+                drawPath(svg, steps, i);
+                moveRobot(robot, steps[i].row, steps[i].col);
                 const sensor = getSensorData(steps[i].row, steps[i].col);
                 checkWallProximity(steps[i].row, steps[i].col, i);
                 checkTiltSafety(sensor.tilt, sensor.terrain, 'tsi');
@@ -2734,33 +2384,38 @@
         }
 
         // ════════════════════════════════════════════════════
-        // RESULT SCREEN
+        // RESULT
         // ════════════════════════════════════════════════════
         function showResult(steps, targetRow, targetCol) {
             const last = steps[steps.length - 1];
             const sensor = getSensorData(last.row, last.col);
 
-            // Merge CV vision for result
-            const cvResult = getLastVisionClass('test') || getLastVisionClass('obs');
-            const cvTerrainDisplay = cvResult ? `${cvResult.className.toUpperCase()} (${(cvResult.confidence * 100).toFixed(0)}%)` : '—';
-
+            // SAVE STATE FOR DB
             latestMissionData = {
-                mission_type: targetRow !== undefined ? 'Test Navigation' : 'Observation Patrol',
+                mission_type: targetRow ? 'Test Navigation' : 'Observation Patrol',
                 end_position: [last.row, last.col],
                 terrain_classification: sensor.terrain,
-                cv_terrain: cvResult ? cvResult.className : null,
                 tilt_degrees: sensor.tilt,
                 air_quality_aqi: sensor.airQuality,
                 path_taken: steps.map(s => `[${s.row},${s.col}]`).join(' -> '),
                 timestamp: new Date().toISOString()
             };
 
-            const btn = document.getElementById('snowflake-save-btn');
-            if (btn) { btn.textContent = '❄️ SAVE TO SNOWFLAKE'; btn.style.background = ''; btn.style.color = ''; btn.style.pointerEvents = 'auto'; }
+            // Reset DB button state
+            const btn = document.getElementById('actian-save-btn');
+            if (btn) {
+                btn.textContent = '💾 SAVE TO ACTIAN VECTOR DB';
+                btn.style.background = '';
+                btn.style.borderColor = '';
+                btn.style.color = ''; // reset color
+                btn.style.pointerEvents = 'auto';
+            }
 
             goTo('screen-result');
+
             buildMiniGrid(document.getElementById('res-grid'));
-            const sz = gridTotalSize(), resSvg = document.getElementById('res-svg');
+            const sz = gridTotalSize();
+            const resSvg = document.getElementById('res-svg');
             resSvg.setAttribute('width', sz); resSvg.setAttribute('height', sz);
             drawPath(resSvg, steps, steps.length - 1);
             moveRobot(document.getElementById('res-robot'), last.row, last.col);
@@ -2770,127 +2425,220 @@
 
             const reached = last.row === targetRow && last.col === targetCol;
             const reachEl = document.getElementById('res-reached');
-            if (targetRow === undefined) { reachEl.textContent = '✓ Patrol Finished'; reachEl.style.color = 'var(--green)'; }
-            else { reachEl.textContent = reached ? '✓ YES — destination reached!' : `✗ NO — ended at (${last.row},${last.col})`; reachEl.style.color = reached ? 'var(--green)' : 'var(--danger)'; }
+
+            if (targetRow === undefined) {
+                reachEl.textContent = '✓ Patrol Finished';
+                reachEl.style.color = 'var(--green)';
+            } else {
+                reachEl.textContent = reached ? '✓ YES — destination reached!' : `✗ NO — ended at (${last.row},${last.col})`;
+                reachEl.style.color = reached ? 'var(--green)' : 'var(--danger)';
+            }
 
             const tiltEl = document.getElementById('res-tilt');
             tiltEl.textContent = sensor.tilt.toFixed(3) + '°';
             tiltEl.style.color = sensor.terrain === 'flat' ? 'var(--green)' : sensor.terrain === 'smooth' ? '#b87900' : 'var(--danger)';
 
-            const resAqEl = document.getElementById('res-aq'), aq = sensor.airQuality;
-            resAqEl.textContent = aq + ' AQI — ' + (aq <= 100 ? 'Safe' : aq <= 150 ? 'Medium' : 'Dangerous');
+            const resAqEl = document.getElementById('res-aq');
+            const aq = sensor.airQuality;
+            const aqStatus = aq <= 100 ? 'Safe' : aq <= 150 ? 'Medium' : 'Dangerous';
+            resAqEl.textContent = aq + ' AQI — ' + aqStatus;
             resAqEl.className = 'result-val ' + (aq <= 100 ? 'aq-good' : aq <= 150 ? 'aq-moderate' : 'aq-poor');
 
-            document.getElementById('res-cv-terrain').textContent = cvTerrainDisplay;
             setTerrainHighlight('rt-', sensor.terrain);
 
-            const resLog = document.getElementById('res-log'); resLog.innerHTML = '';
+            const resLog = document.getElementById('res-log');
+            resLog.innerHTML = '';
             steps.forEach((s, i) => {
-                const chip = document.createElement('span'); chip.className = 'log-chip done';
-                chip.textContent = i === 0 ? `START(${s.row},${s.col})` : `→(${s.row},${s.col})`; resLog.appendChild(chip);
+                const chip = document.createElement('span');
+                chip.className = 'log-chip done';
+                chip.textContent = i === 0 ? `START(${s.row},${s.col})` : `→(${s.row},${s.col})`;
+                resLog.appendChild(chip);
             });
 
             const terrain = terrainLabel(sensor.terrain);
             const terrainDetail = sensor.terrain === 'flat' ? 'No leveling required.' : sensor.terrain === 'smooth' ? 'Moderate leveling recommended.' : 'High priority for leveling.';
             const narration = (reached || targetRow === undefined)
-                ? `Mission complete. Destination reached at row ${last.row}, column ${last.col}. Terrain is ${terrain}. ${terrainDetail} Air quality index is ${aq}.`
-                : `Mission ended at row ${last.row}, column ${last.col}. Target was not reached. Terrain is ${terrain}.`;
+                ? `Mission complete. Destination reached at row ${last.row}, column ${last.col}. Vertical tilt is ${sensor.tilt.toFixed(3)} degrees. Terrain is ${terrain}. ${terrainDetail} Air quality index is ${sensor.airQuality}.`
+                : `Mission ended at row ${last.row}, column ${last.col}. Target was not reached. Terrain is ${terrain}. Air quality index is ${sensor.airQuality}.`;
             speak(narration, 'res-voice-pill', 'res-voice-label');
         }
 
         // ════════════════════════════════════════════════════
-        // GEMINI CHATBOT + SNOWFLAKE RAG
+        // GEMINI CHATBOT + ACTIAN RAG
         // ════════════════════════════════════════════════════
-        const SANDOZER_SYSTEM = `You are the Sandozer AI assistant — an expert on the Sandozer robot built in partnership with John Deere.
-Key facts:
-- Hardware: Arduino Elegoo Owlbot Tank Kit with bulldozer-style flat blade
-- Navigation: 5×5 grid, BFS shortest-path
-- Sensors: MPU-6050 IMU (tilt), HC-SR04 ultrasonic (wall), air quality, altitude
-- Vision: Google Teachable Machine CNN for terrain classification (desert/forest/mountain/plains)
+        const SANDOZER_SYSTEM = `You are the Sandozer AI assistant — an expert on the Sandozer robot built for the UIUC Hackathon in partnership with John Deere.
+
+Here are key facts about the Sandozer robot:
+- Hardware: Arduino Elegoo Owlbot Tank Kit with a bulldozer-style flat blade attachment
+- Purpose: Autonomous sandbox terrain leveling
+- Navigation: 5×5 grid, BFS shortest-path navigation
+- Sensors: MPU-6050 IMU (tilt), HC-SR04 ultrasonic (wall detection), air quality sensor, altitude sensor
 - Terrain: Flat (<0.05°), Somewhat Smooth (0.05–0.15°), Bumpy (>0.15°)
-- Safety: Boundary alerts ≤2 cells from wall
-- Traction Config: Dry Packed (normal), Dry Loose (−30% speed), Wet Moist (−50% speed)
-- Database: Snowflake for mission logs + KV vector store for RAG
-Answer in 2–4 sentences.`;
+- Safety: Boundary alerts ≤2 grid cells from any wall.
+- Traction Config: Dry Packed (normal), Dry Loose (−30% speed, slip risk), Wet Moist (−50% speed, skid risk)
+- Database: Uses Snowflake to store mission logs and telemetry.
+
+Answer questions concisely in 2–4 sentences.`;
 
         let chatHistory = [];
         function initChat() { chatHistory = []; }
 
         async function sendChat() {
             const input = document.getElementById('chat-input');
-            const msg = input.value.trim(); if (!msg) return; input.value = '';
+            const msg = input.value.trim();
+            if (!msg) return;
+            input.value = '';
+
             appendChatBubble(msg, 'user');
             chatHistory.push({ role: 'user', parts: [{ text: msg }] });
+
             const useRag = document.getElementById('use-rag-toggle').checked;
-            const typingEl = appendChatBubble(useRag ? '🔍 Querying Snowflake...' : 'Thinking…', 'typing');
+            let typingMsg = useRag ? '🔍 Querying Actian Vector DB...' : 'Thinking…';
+            const typingEl = appendChatBubble(typingMsg, 'typing');
+
             try {
-                let contextAddendum = '';
+                let contextAddendum = "";
+
+                // 1. If RAG is enabled, hit the VectorDB proxy first!
                 if (useRag) {
                     try {
-                        const ragRes = await fetch('/api/vector-search', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ query: msg }) });
-                        if (ragRes.ok) { const ragData = await ragRes.json(); if (ragData.context) contextAddendum = `\n\n[SNOWFLAKE CONTEXT]: ${ragData.context}`; }
-                    } catch (e) { console.warn('Vector search not connected', e); }
+                        const ragRes = await fetch('/api/vector-search', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ query: msg })
+                        });
+
+                        if (ragRes.ok) {
+                            const ragData = await ragRes.json();
+                            if (ragData.context) {
+                                contextAddendum = `\n\n[ACTIAN VECTOR DB CONTEXT RETRIEVED]: ${ragData.context}`;
+                            }
+                        }
+                    } catch (e) {
+                        console.warn('Actian Vector DB not yet connected on backend.', e);
+                    }
                 }
+
+                // 2. Add context to prompt and send to Gemini
                 const systemPrompt = SANDOZER_SYSTEM + contextAddendum;
-                const requestBody = { systemInstruction: { parts: [{ text: systemPrompt }] }, contents: chatHistory, generationConfig: { maxOutputTokens: 300, temperature: 0.7 } };
-                typingEl.textContent = '🧠 Analyzing…';
+
+                const requestBody = {
+                    systemInstruction: { parts: [{ text: systemPrompt }] },
+                    contents: chatHistory,
+                    generationConfig: { maxOutputTokens: 300, temperature: 0.7 }
+                };
+
+                typingEl.textContent = '🧠 Analyzing context...';
+
                 const res = await fetch('/api/gemini', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(requestBody) });
                 const data = await res.json();
+
                 if (!res.ok || data.error) throw new Error(data.error?.message || 'API Error');
-                const reply = data.candidates?.[0]?.content?.parts?.[0]?.text || 'No response.';
+
+                const reply = data.candidates?.[0]?.content?.parts?.[0]?.text || 'No response received.';
+
                 chatHistory.push({ role: 'model', parts: [{ text: reply }] });
-                typingEl.className = 'chat-bubble bot'; typingEl.textContent = reply;
+                typingEl.className = 'chat-bubble bot';
+                typingEl.textContent = reply;
+
                 document.getElementById('chat-messages').scrollTop = 99999;
                 speak(reply, 'chat-voice-pill', 'chat-voice-label');
+
             } catch (e) {
-                typingEl.className = 'chat-bubble bot'; typingEl.textContent = '⚠ ' + e.message;
+                typingEl.className = 'chat-bubble bot';
+                typingEl.textContent = '⚠ ' + e.message;
             }
         }
 
         function appendChatBubble(text, type) {
             const msgs = document.getElementById('chat-messages');
-            const wrap = document.createElement('div'); wrap.className = 'chat-bubble-wrap';
-            if (type === 'bot' || type === 'typing') { const name = document.createElement('div'); name.className = 'bot-name'; name.textContent = 'SANDOZER AI'; wrap.appendChild(name); }
-            const bubble = document.createElement('div'); bubble.className = `chat-bubble ${type}`; bubble.textContent = text;
-            wrap.appendChild(bubble); msgs.appendChild(wrap); msgs.scrollTop = msgs.scrollHeight;
+            const wrap = document.createElement('div');
+            wrap.className = 'chat-bubble-wrap';
+            if (type === 'bot' || type === 'typing') {
+                const name = document.createElement('div');
+                name.className = 'bot-name'; name.textContent = 'SANDOZER AI'; wrap.appendChild(name);
+            }
+            const bubble = document.createElement('div');
+            bubble.className = `chat-bubble ${type}`; bubble.textContent = text;
+            wrap.appendChild(bubble); msgs.appendChild(wrap);
+            msgs.scrollTop = msgs.scrollHeight;
             return bubble;
         }
 
         // ════════════════════════════════════════════════════
-        // COMMAND MIC
+        // COMMAND MIC (Observe directions only)
         // ════════════════════════════════════════════════════
-        let cmdMicActive = false, cmdMicRecognition = null;
-        function toggleCmdMic() { if (cmdMicActive) stopCmdMic(); else startCmdMic(); }
+        let cmdMicActive = false;
+        let cmdMicRecognition = null;
+
+        function toggleCmdMic() {
+            if (cmdMicActive) stopCmdMic();
+            else startCmdMic();
+        }
+
         function startCmdMic() {
             const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
             if (!SR) { alert('Web Speech not supported. Use Chrome.'); return; }
-            cmdMicRecognition = new SR(); cmdMicRecognition.lang = 'en-US'; cmdMicRecognition.interimResults = false;
-            cmdMicRecognition.onstart = () => { cmdMicActive = true; document.getElementById('obs-cmd-mic').classList.add('listening'); document.getElementById('obs-cmd-mic-status').style.display = 'block'; };
+            cmdMicRecognition = new SR();
+            cmdMicRecognition.lang = 'en-US';
+            cmdMicRecognition.interimResults = false;
+            cmdMicRecognition.onstart = () => {
+                cmdMicActive = true;
+                document.getElementById('obs-cmd-mic').classList.add('listening');
+                document.getElementById('obs-cmd-mic-status').style.display = 'block';
+            };
             cmdMicRecognition.onresult = (e) => {
                 const raw = e.results[0][0].transcript.toLowerCase().trim();
                 const normalized = normalizeDirections(raw);
-                if (normalized.length > 0) { document.getElementById('obs-commands').value = normalized; setTimeout(startObserveSequence, 400); }
+                if (normalized.length > 0) {
+                    document.getElementById('obs-commands').value = normalized;
+                    setTimeout(startObserveSequence, 400);
+                }
             };
-            cmdMicRecognition.onend = () => { cmdMicActive = false; document.getElementById('obs-cmd-mic').classList.remove('listening'); document.getElementById('obs-cmd-mic-status').style.display = 'none'; };
-            cmdMicRecognition.onerror = () => { cmdMicActive = false; document.getElementById('obs-cmd-mic').classList.remove('listening'); document.getElementById('obs-cmd-mic-status').style.display = 'none'; };
+            cmdMicRecognition.onend = () => {
+                cmdMicActive = false;
+                document.getElementById('obs-cmd-mic').classList.remove('listening');
+                document.getElementById('obs-cmd-mic-status').style.display = 'none';
+            };
+            cmdMicRecognition.onerror = () => {
+                cmdMicActive = false;
+                document.getElementById('obs-cmd-mic').classList.remove('listening');
+                document.getElementById('obs-cmd-mic-status').style.display = 'none';
+            };
             cmdMicRecognition.start();
         }
+
         function stopCmdMic() {
             if (cmdMicRecognition) { try { cmdMicRecognition.stop(); } catch (e) { } }
-            cmdMicActive = false; document.getElementById('obs-cmd-mic').classList.remove('listening'); document.getElementById('obs-cmd-mic-status').style.display = 'none';
+            cmdMicActive = false;
+            document.getElementById('obs-cmd-mic').classList.remove('listening');
+            document.getElementById('obs-cmd-mic-status').style.display = 'none';
         }
 
         // ════════════════════════════════════════════════════
-        // GLOBAL SPEECH RECOGNITION
+        // WEB SPEECH — GLOBAL MIC
         // ════════════════════════════════════════════════════
-        let globalRecognition = null, chatRecognition = null, globalMicActive = false, chatMicActive = false, continuousListen = false;
+        let globalRecognition = null;
+        let chatRecognition = null;
+        let globalMicActive = false;
+        let chatMicActive = false;
+        let currentScreen = 'screen-splash';
+        let continuousListen = false;
 
         function normalizeNumbers(t) {
             return t.replace(/\bzero\b/g, '0').replace(/\bone\b/g, '1').replace(/\b(two|too)\b/g, '2').replace(/\bthree\b/g, '3').replace(/\b(four)\b/g, '4').replace(/\boh\b/g, '0');
         }
+
         function normalizeDirections(t) {
-            return t.toLowerCase().replace(/\b(forward|straight)\b/g, 'f ').replace(/\bback(ward)?\b/g, 'b ').replace(/\bleft\b/g, 'l ').replace(/\bright\b/g, 'r ').replace(/[^fblr\s]/g, '').replace(/\s+/g, ' ').trim();
+            return t.toLowerCase()
+                .replace(/\b(forward|straight)\b/g, 'f ')
+                .replace(/\bback(ward)?\b/g, 'b ')
+                .replace(/\bleft\b/g, 'l ')
+                .replace(/\bright\b/g, 'r ')
+                .replace(/[^fblr\s]/g, '')
+                .replace(/\s+/g, ' ').trim();
         }
+
         function parseTestCoords(transcript) {
             const t = normalizeNumbers(transcript.toLowerCase());
             let m = t.match(/row\s*(\d).*?col(?:umn)?\s*(\d)/); if (m) return m;
@@ -2900,22 +2648,33 @@ Answer in 2–4 sentences.`;
             if (digits.length >= 2) return [null, digits[0][1], digits[1][1]];
             return null;
         }
+
         function updateMicContext(screenId) {
             currentScreen = screenId;
             if (screenId !== 'screen-test' && screenId !== 'screen-observe') { continuousListen = false; stopGlobalMic(); }
         }
+
         function buildSpeechRecognition() {
             const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
             if (!SR) return null;
-            const rec = new SR(); rec.lang = 'en-US'; rec.interimResults = false; rec.maxAlternatives = 3; return rec;
+            const rec = new SR(); rec.lang = 'en-US'; rec.interimResults = false; rec.maxAlternatives = 3;
+            return rec;
         }
-        function toggleGlobalMic() { if (globalMicActive) { continuousListen = false; stopGlobalMic(); } else startGlobalMic(); }
+
+        function toggleGlobalMic() {
+            if (globalMicActive) { continuousListen = false; stopGlobalMic(); } else startGlobalMic();
+        }
+
         function startGlobalMic() {
             if (globalMicActive) return;
             const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-            if (!SR) { alert('Web Speech API not supported. Use Chrome.'); return; }
+            if (!SR) { alert('Web Speech API not supported. Please use Chrome.'); return; }
             globalRecognition = buildSpeechRecognition();
-            globalRecognition.onstart = () => { globalMicActive = true; document.getElementById('mic-fab').classList.add('listening'); document.getElementById('mic-status').classList.add('show'); };
+            globalRecognition.onstart = () => {
+                globalMicActive = true;
+                document.getElementById('mic-fab').classList.add('listening');
+                document.getElementById('mic-status').classList.add('show');
+            };
             globalRecognition.onresult = (e) => {
                 const transcripts = Array.from(e.results[0]).map(alt => alt.transcript.toLowerCase().trim());
                 if (currentScreen === 'screen-test') document.getElementById('test-target').value = '🎤 ' + transcripts[0];
@@ -2924,16 +2683,25 @@ Answer in 2–4 sentences.`;
             };
             globalRecognition.onend = () => {
                 globalMicActive = false;
-                if (continuousListen && (currentScreen === 'screen-test' || currentScreen === 'screen-observe') && !isSpeaking) { setTimeout(() => { if (continuousListen) startGlobalMic(); }, 350); }
-                else { document.getElementById('mic-fab').classList.remove('listening'); document.getElementById('mic-status').classList.remove('show'); }
+                if (continuousListen && (currentScreen === 'screen-test' || currentScreen === 'screen-observe') && !isSpeaking) {
+                    setTimeout(() => { if (continuousListen) startGlobalMic(); }, 350);
+                } else {
+                    document.getElementById('mic-fab').classList.remove('listening');
+                    document.getElementById('mic-status').classList.remove('show');
+                }
             };
             globalRecognition.onerror = (e) => {
                 globalMicActive = false;
-                if (continuousListen && e.error !== 'not-allowed' && e.error !== 'service-unavailable') { setTimeout(() => { if (continuousListen) startGlobalMic(); }, 500); }
-                else { document.getElementById('mic-fab').classList.remove('listening'); document.getElementById('mic-status').classList.remove('show'); }
+                if (continuousListen && e.error !== 'not-allowed' && e.error !== 'service-unavailable') {
+                    setTimeout(() => { if (continuousListen) startGlobalMic(); }, 500);
+                } else {
+                    document.getElementById('mic-fab').classList.remove('listening');
+                    document.getElementById('mic-status').classList.remove('show');
+                }
             };
             globalRecognition.start();
         }
+
         function stopGlobalMic() {
             continuousListen = false;
             if (globalRecognition) { try { globalRecognition.stop(); } catch (e) { } }
@@ -2941,47 +2709,90 @@ Answer in 2–4 sentences.`;
             document.getElementById('mic-fab').classList.remove('listening');
             document.getElementById('mic-status').classList.remove('show');
         }
+
         function handleVoiceCommand(transcript) {
             const screen = currentScreen;
-            if (/\b(emergency stop|stop now|halt|e.?stop)\b/.test(transcript) && (screen === 'screen-observe' || screen === 'screen-test')) { emergencyStop(); return true; }
-            if (/\b(back|go back|menu|home)\b/.test(transcript) && screen !== 'screen-splash' && screen !== 'screen-mode') { goTo('screen-mode'); return true; }
-            if (screen === 'screen-splash') { if (/\b(start|begin|launch|go|continue)\b/.test(transcript)) { goTo('screen-mode'); return true; } }
-            else if (screen === 'screen-mode') {
+
+            if (/\b(emergency stop|stop now|halt|e.?stop)\b/.test(transcript) && (screen === 'screen-observe' || screen === 'screen-test')) {
+                emergencyStop(); return true;
+            }
+
+            if (/\b(back|go back|menu|home)\b/.test(transcript) && screen !== 'screen-splash' && screen !== 'screen-mode') {
+                goTo('screen-mode'); return true;
+            }
+
+            if (screen === 'screen-splash') {
+                if (/\b(start|begin|launch|go|continue)\b/.test(transcript)) { goTo('screen-mode'); return true; }
+
+            } else if (screen === 'screen-mode') {
                 if (/\bobserv/.test(transcript)) { selectMode('observe'); continueMode(); return true; }
                 if (/\btest\b/.test(transcript)) { selectMode('test'); continueMode(); return true; }
                 if (/\bchat\b/.test(transcript)) { selectMode('chat'); continueMode(); return true; }
                 if (/\b(continue|proceed|go|confirm|next|enter)\b/.test(transcript)) { continueMode(); return true; }
-            }
-            else if (screen === 'screen-test') {
+
+            } else if (screen === 'screen-test') {
                 if (/\b(cancel)\b/.test(transcript)) { continuousListen = false; goTo('screen-mode'); return true; }
                 const m = parseTestCoords(transcript);
-                if (m) { const r = +m[1], c = +m[2]; if (r <= 4 && c <= 4) { continuousListen = false; stopGlobalMic(); document.getElementById('test-target').value = `${r},${c}`; setTimeout(() => runTest(), 400); return true; } }
+                if (m) {
+                    const r = +m[1], c = +m[2];
+                    if (r <= 4 && c <= 4) {
+                        continuousListen = false; stopGlobalMic();
+                        document.getElementById('test-target').value = `${r},${c}`;
+                        setTimeout(() => runTest(), 400);
+                        return true;
+                    }
+                }
                 return false;
-            }
-            else if (screen === 'screen-observe') {
+
+            } else if (screen === 'screen-observe') {
                 if (/\b(pause|stop|freeze)\b/.test(transcript)) { toggleObsPause(); return true; }
                 if (/\b(resume|play|continue|unpause)\b/.test(transcript)) { if (obsPaused) toggleObsPause(); return true; }
-                if (/\b(next|skip)\b/.test(transcript)) { if (obsStep < obsSteps.length - 1) { obsStep++; obsElapsed = 0; renderObsStep(obsStep); } return true; }
+                if (/\b(next|skip)\b/.test(transcript)) {
+                    if (obsStep < obsSteps.length - 1) { obsStep++; obsElapsed = 0; renderObsStep(obsStep); }
+                    return true;
+                }
                 if (/\b(start|begin|go|patrol)\b/.test(transcript)) { startObserveSequence(); return true; }
                 const parsedDirs = normalizeDirections(transcript);
-                if (parsedDirs.length > 0) { document.getElementById('obs-commands').value = parsedDirs; continuousListen = false; stopGlobalMic(); setTimeout(startObserveSequence, 500); return true; }
+                if (parsedDirs.length > 0) {
+                    document.getElementById('obs-commands').value = parsedDirs;
+                    continuousListen = false; stopGlobalMic();
+                    setTimeout(startObserveSequence, 500);
+                    return true;
+                }
+
+            } else if (screen === 'screen-result') {
+                if (/\b(again|retry|repeat|redo)\b/.test(transcript)) { goTo('screen-test'); return true; }
+
+            } else if (screen === 'screen-chat') {
+                if (!/\b(back|menu|home)\b/.test(transcript)) {
+                    document.getElementById('chat-input').value = transcript;
+                    sendChat(); return true;
+                }
             }
-            else if (screen === 'screen-result') { if (/\b(again|retry|repeat|redo)\b/.test(transcript)) { goTo('screen-test'); return true; } }
-            else if (screen === 'screen-chat') { if (!/\b(back|menu|home)\b/.test(transcript)) { document.getElementById('chat-input').value = transcript; sendChat(); return true; } }
             return false;
         }
 
         function toggleChatMic() { if (chatMicActive) stopChatMic(); else startChatMic(); }
+
         function startChatMic() {
-            const SR = window.SpeechRecognition || window.webkitSpeechRecognition; if (!SR) return;
+            const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if (!SR) return;
             chatRecognition = buildSpeechRecognition();
             chatRecognition.onstart = () => { chatMicActive = true; document.getElementById('chat-mic-btn').classList.add('listening'); };
-            chatRecognition.onresult = (e) => { document.getElementById('chat-input').value = e.results[0][0].transcript.trim(); sendChat(); };
+            chatRecognition.onresult = (e) => {
+                document.getElementById('chat-input').value = e.results[0][0].transcript.trim();
+                sendChat();
+            };
             chatRecognition.onend = () => { chatMicActive = false; document.getElementById('chat-mic-btn').classList.remove('listening'); };
             chatRecognition.onerror = () => { chatMicActive = false; document.getElementById('chat-mic-btn').classList.remove('listening'); };
             chatRecognition.start();
         }
-        function stopChatMic() { if (chatRecognition) { try { chatRecognition.stop(); } catch (e) { } } chatMicActive = false; document.getElementById('chat-mic-btn').classList.remove('listening'); }
+
+        function stopChatMic() {
+            if (chatRecognition) { try { chatRecognition.stop(); } catch (e) { } }
+            chatMicActive = false;
+            document.getElementById('chat-mic-btn').classList.remove('listening');
+        }
 
         // ════════════════════════════════════════════════════
         // INIT
