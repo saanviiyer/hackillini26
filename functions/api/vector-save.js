@@ -24,6 +24,3 @@ export async function onRequestPost(context) {
         return new Response(JSON.stringify({ error: err.message }), { status: 500 });
     }
 }
-
-
-
