@@ -1602,7 +1602,7 @@
                             onclick="goTo('screen-test')">TRY AGAIN</button>
 
                         <button class="btn-pill actian" id="snowflake-save-btn"
-                            style="padding:10px 24px;font-size:0.78rem;" onclick="saveMissionToSnowflake()">❄️ SAVE TO
+                            style="padding:10px 24px;font-size:0.78rem;" onclick="saveMissionToBothDBs()">❄️ SAVE TO
                             SNOWFLAKE</button>
                     </div>
                 </div>
@@ -1659,45 +1659,46 @@
         let latestMissionData = null; // Store data temporarily to send to DB
 
         // SNOWFLAKE
-        async function saveMissionToSnowflake() {
+        async function saveMissionToBothDBs() {
             const btn = document.getElementById('snowflake-save-btn');
             if (!latestMissionData) return;
 
-            // Grab the current traction setting based on which screen we are on
             const tractionEl = document.getElementById(currentScreen === 'screen-observe' ? 'obs-traction' : 'test-traction');
             const traction = tractionEl ? tractionEl.value : 'standard';
-
-            // Merge the traction setting into our payload using the spread operator
             const payload = { ...latestMissionData, traction_setting: traction };
 
-            btn.textContent = '⏳ ARCHIVING...';
+            btn.textContent = '⏳ SAVING TO BOTH...';
             btn.style.pointerEvents = 'none';
 
             try {
-                const res = await fetch('/api/snowflake-archive', {
+                // 1. Send to Snowflake (Relational Analytics)
+                const snowflakePromise = fetch('/api/snowflake-archive', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(payload)
                 });
 
-                if (!res.ok) {
-                    const errData = await res.json();
-                    throw new Error(errData.error || 'Database Error');
-                }
+                // 2. Send to Cloudflare KV (Chatbot Memory/RAG)
+                const kvPromise = fetch('/api/vector-save', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
 
-                btn.textContent = '✅ SAVED TO SNOWFLAKE';
-                btn.style.background = '#e3f2fd';
-                btn.style.borderColor = '#1976d2';
-                btn.style.color = '#1976d2';
+                // Wait for both to finish
+                const [snowRes, kvRes] = await Promise.all([snowflakePromise, kvPromise]);
+
+                if (!snowRes.ok || !kvRes.ok) throw new Error('One or more saves failed');
+
+                btn.textContent = '✅ SAVED TO SNOWFLAKE & KV';
+                btn.style.background = '#d4f5db'; // Success Green
+                btn.style.color = '#1e7e34';
 
             } catch (err) {
-                console.error('[Snowflake]', err);
+                console.error('[Database Error]', err);
                 btn.textContent = '⚠️ ERROR SAVING';
                 setTimeout(() => {
-                    btn.textContent = '❄️ SAVE TO SNOWFLAKE';
-                    btn.style.background = '';
-                    btn.style.borderColor = '';
-                    btn.style.color = '';
+                    btn.textContent = '❄️ SAVE TO BOTH';
                     btn.style.pointerEvents = 'auto';
                 }, 3000);
             }
@@ -2433,7 +2434,7 @@ Here are key facts about the Sandozer robot:
 - Terrain: Flat (<0.05°), Somewhat Smooth (0.05–0.15°), Bumpy (>0.15°)
 - Safety: Boundary alerts ≤2 grid cells from any wall.
 - Traction Config: Dry Packed (normal), Dry Loose (−30% speed, slip risk), Wet Moist (−50% speed, skid risk)
-- Database: Uses Actian VectorAI DB to store past mission logs and perform semantic RAG search to recall past terrain data.
+- Database: Uses Snowflake to store mission logs and telemetry.
 
 Answer questions concisely in 2–4 sentences.`;
 
