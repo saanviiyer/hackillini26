@@ -3,7 +3,6 @@
 
 <head>
     <meta charset="UTF-8">
-
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>The Sandozer — Mission Control</title>
     <link
@@ -28,7 +27,8 @@
             --danger-bg: #fde8e6;
             --warn: #e67e22;
             --warn-bg: #fdf0e0;
-            --actian-blue: #0052cc;
+            --cloudflare-orange: #f38020;
+            /* Updated Brand Color */
         }
 
         * {
@@ -71,6 +71,56 @@
             width: 680px;
             max-width: calc(100vw - 32px);
             position: relative;
+        }
+
+        .btn-pill.cloudflare {
+            /* Renamed from .actian */
+            background: #fff;
+            border: 2px solid var(--cloudflare-orange);
+            color: var(--cloudflare-orange);
+            box-shadow: 0 2px 10px rgba(243, 128, 32, 0.15);
+        }
+
+        .btn-pill.cloudflare:hover {
+            background: #fff9f5;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(243, 128, 32, 0.25);
+        }
+
+        .cloudflare-badge {
+            /* Renamed from .actian-badge */
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.65rem;
+            color: var(--cloudflare-orange);
+            border: 1px solid var(--cloudflare-orange);
+            background: #fff9f5;
+            padding: 4px 10px;
+            border-radius: 20px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            letter-spacing: 0.05em;
+            margin-top: 16px;
+        }
+
+        .cloudflare-toggle-row {
+            /* Renamed from .actian-toggle-row */
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 8px;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.7rem;
+            color: var(--cloudflare-orange);
+            background: #fff9f5;
+            padding: 6px 12px;
+            border-radius: 8px;
+            border: 1px solid #ffe8d9;
+        }
+
+        .cloudflare-toggle-row input {
+            cursor: pointer;
+            accent-color: var(--cloudflare-orange);
         }
 
         .card-tag {
@@ -1550,9 +1600,9 @@
                         <button class="btn-pill" style="padding:10px 24px;font-size:0.78rem;"
                             onclick="goTo('screen-test')">TRY AGAIN</button>
 
-                        <button class="btn-pill actian" id="actian-save-btn"
-                            style="padding:10px 24px;font-size:0.78rem;" onclick="saveMissionToVectorDB()">💾 SAVE TO
-                            ACTIAN VECTOR DB</button>
+                        <button class="btn-pill actian" id="snowflake-save-btn"
+                            style="padding:10px 24px;font-size:0.78rem;" onclick="saveMissionToSnowflake()">❄️ SAVE TO
+                            SNOWFLAKE</button>
                     </div>
                 </div>
             </div>
@@ -1607,6 +1657,50 @@
         let ELEVEN_VOICE = 'Aa6nEBJJMKJwJkCx8VU2'; // Bella
         let latestMissionData = null; // Store data temporarily to send to DB
 
+        // SNOWFLAKE
+        async function saveMissionToSnowflake() {
+            const btn = document.getElementById('snowflake-save-btn');
+            if (!latestMissionData) return;
+
+            // Grab the current traction setting based on which screen we are on
+            const tractionEl = document.getElementById(currentScreen === 'screen-observe' ? 'obs-traction' : 'test-traction');
+            const traction = tractionEl ? tractionEl.value : 'standard';
+
+            // Merge the traction setting into our payload using the spread operator
+            const payload = { ...latestMissionData, traction_setting: traction };
+
+            btn.textContent = '⏳ ARCHIVING...';
+            btn.style.pointerEvents = 'none';
+
+            try {
+                const res = await fetch('/api/snowflake-archive', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!res.ok) {
+                    const errData = await res.json();
+                    throw new Error(errData.error || 'Database Error');
+                }
+
+                btn.textContent = '✅ SAVED TO SNOWFLAKE';
+                btn.style.background = '#e3f2fd';
+                btn.style.borderColor = '#1976d2';
+                btn.style.color = '#1976d2';
+
+            } catch (err) {
+                console.error('[Snowflake]', err);
+                btn.textContent = '⚠️ ERROR SAVING';
+                setTimeout(() => {
+                    btn.textContent = '❄️ SAVE TO SNOWFLAKE';
+                    btn.style.background = '';
+                    btn.style.borderColor = '';
+                    btn.style.color = '';
+                    btn.style.pointerEvents = 'auto';
+                }, 3000);
+            }
+        }
         // ════════════════════════════════════════════════════
         // ACTIAN VECTOR DB INTEGRATION
         // ════════════════════════════════════════════════════
