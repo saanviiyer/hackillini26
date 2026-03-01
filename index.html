@@ -1850,30 +1850,36 @@
                 <strong style="color:var(--black);">DESERT · FOREST · MOUNTAIN · PLAINS</strong>
             </p>
 
-            <!-- Model URL -->
-            <div class="model-url-box" id="vision-model-url-box" style="margin-bottom:14px;">
-                <label>TEACHABLE MACHINE MODEL URL</label>
-                <div style="display:flex;gap:8px;align-items:center;margin-top:5px;">
-                    <!-- FIX: placeholder shows example URL but value is blank so user must enter their own -->
+            <!-- ── MODEL URL — always visible above tabs ── -->
+            <div
+                style="background:var(--beige);border:2px solid var(--beige-dark);border-radius:12px;padding:14px 16px;margin-bottom:14px;">
+                <div
+                    style="font-family:'Orbitron',monospace;font-size:0.65rem;font-weight:700;letter-spacing:0.12em;color:var(--muted);text-transform:uppercase;margin-bottom:8px;">
+                    🧠 Teachable Machine Model URL
+                </div>
+                <div style="display:flex;gap:8px;align-items:center;">
                     <input class="model-url-input" id="vision-model-url" style="flex:1;"
-                        placeholder="https://teachablemachine.withgoogle.com/models/DY2JHXYYe/" value="">
+                        placeholder="https://teachablemachine.withgoogle.com/models/YOUR_MODEL_ID/" value="">
                     <button onclick="loadVisionModel('vision')"
                         style="white-space:nowrap;font-family:'Orbitron',monospace;font-size:0.65rem;font-weight:700;
-                 background:var(--yellow);border:none;border-radius:8px;padding:9px 14px;cursor:pointer;letter-spacing:0.06em;">
-                        ▶ LOAD
+                               background:var(--yellow);border:none;border-radius:8px;padding:9px 14px;cursor:pointer;letter-spacing:0.06em;flex-shrink:0;">
+                        ▶ LOAD MODEL
                     </button>
                 </div>
+                <div id="vision-model-status"
+                    style="margin-top:7px;font-family:'Share Tech Mono',monospace;font-size:0.62rem;color:var(--muted);line-height:1.6;">
+                    Paste your Teachable Machine URL above and click <strong>LOAD MODEL</strong> — works for both webcam
+                    and image upload.
+                </div>
                 <div
-                    style="margin-top:7px;font-family:'Share Tech Mono',monospace;font-size:0.6rem;color:var(--muted);line-height:1.7;">
-                    ⚠ <strong>Camera needs localhost or HTTPS</strong> — if you opened index.html directly, run:<br>
+                    style="margin-top:6px;font-family:'Share Tech Mono',monospace;font-size:0.58rem;color:#aaa;line-height:1.6;border-top:1px solid var(--beige-dark);padding-top:6px;">
+                    📷 <strong>Webcam requires localhost/HTTPS.</strong> Run <code
+                        style="background:var(--beige-dark);padding:1px 5px;border-radius:3px;">npx serve</code> or
                     <code
-                        style="background:var(--beige-dark);padding:1px 6px;border-radius:3px;font-size:0.58rem;">npx serve</code>
-                    &nbsp;or&nbsp;
-                    <code
-                        style="background:var(--beige-dark);padding:1px 6px;border-radius:3px;font-size:0.58rem;">python -m http.server 8000</code>
-                    &nbsp;→ open <code
-                        style="background:var(--beige-dark);padding:1px 6px;border-radius:3px;font-size:0.58rem;">http://localhost:8000</code><br>
-                    Upload Image tab works without a server.
+                        style="background:var(--beige-dark);padding:1px 5px;border-radius:3px;">python -m http.server 8000</code>
+                    in this folder, then open <code
+                        style="background:var(--beige-dark);padding:1px 5px;border-radius:3px;">http://localhost:8000</code>
+                    — <em>or just use the Upload tab below, no server needed.</em>
                 </div>
             </div>
 
@@ -1915,9 +1921,11 @@
                         <div class="vision-corner br"></div>
                         <div class="vision-active-label" id="vision-active-label" style="display:none">SCANNING…</div>
                     </div>
-                    <div class="vision-snap-controls" style="padding:6px 10px;">
+                    <div class="vision-snap-controls" style="padding:6px 10px;display:flex;align-items:center;gap:8px;">
                         <button class="snap-btn" onclick="stopVision('vision')" id="vision-stop-btn"
                             style="display:none">⏹ STOP WEBCAM</button>
+                        <span id="vision-webcam-model-note"
+                            style="display:none;font-family:'Share Tech Mono',monospace;font-size:0.58rem;color:#888;"></span>
                     </div>
                 </div>
             </div>
@@ -2062,13 +2070,11 @@
 
         async function initVision(prefix) {
             const vs = visionState[prefix];
-            // FIX: prevent double-init if already running
             if (vs.running) return;
 
             const overlay = document.getElementById(prefix + '-start-overlay');
             const dot = document.getElementById(prefix + '-vision-dot');
             const activeLabel = document.getElementById(prefix + '-active-label');
-            const urlBox = document.getElementById(prefix + '-model-url-box');
             const stopBtn = document.getElementById(prefix + '-stop-btn');
 
             if (overlay) overlay.style.display = 'none';
@@ -2083,14 +2089,9 @@
                 const container = document.getElementById(prefix + '-webcam-container');
                 if (container) { container.innerHTML = ''; container.appendChild(vs.webcam.canvas); }
 
-                // FIX: Mark running=true immediately so stopVision guards work
                 vs.running = true;
                 if (dot) dot.className = 'vision-status-dot active';
                 if (stopBtn) stopBtn.style.display = 'inline-block';
-                // FIX: Keep the model URL box visible so user can paste & load their model
-                // Only hide it if a model URL is already present
-                const modelUrl = getModelUrl(prefix);
-                if (modelUrl && urlBox) urlBox.style.display = 'none';
 
             } catch (camErr) {
                 console.warn('[Vision] Camera failed:', camErr);
@@ -2101,31 +2102,17 @@
                     const txt = overlay.querySelector('.vision-start-text');
                     if (txt) txt.textContent = '⚠ CAMERA BLOCKED — USE UPLOAD TAB';
                 }
+                setModelStatus('⚠ Camera blocked. Serve via localhost (npx serve) or use the Upload Image tab instead.', 'var(--danger)');
                 return;
             }
 
-            // ── Step 2: Load model if URL provided ──
-            const modelUrl = getModelUrl(prefix);
-            if (!modelUrl) {
-                // No model URL — webcam live, waiting for user to paste URL and hit Load
-                if (activeLabel) activeLabel.textContent = 'LIVE — paste model URL above & click LOAD';
-                if (urlBox) { urlBox.style.display = 'block'; urlBox.style.border = '2px solid var(--warn)'; urlBox.style.borderRadius = '8px'; }
-                visionLoopNoModel(prefix);
-                return;
-            }
-
-            if (activeLabel) activeLabel.textContent = 'LOADING MODEL…';
-
-            try {
-                vs.model = await tmImage.load(modelUrl + 'model.json', modelUrl + 'metadata.json');
-                vs.classes = vs.model.getClassLabels ? Array.from({ length: vs.model.getTotalClasses() }, (_, i) => vs.model.getClassLabels()[i]) : [];
-                buildVisionReadout(prefix);
+            // ── Step 2: Run model if already loaded, otherwise show instructions ──
+            if (vs.model) {
                 if (activeLabel) activeLabel.textContent = 'SCANNING…';
                 visionLoop(prefix);
-            } catch (modelErr) {
-                console.warn('[Vision] Model load failed:', modelErr);
-                if (activeLabel) activeLabel.textContent = 'MODEL ERROR — check URL above';
-                if (urlBox) { urlBox.style.display = 'block'; urlBox.style.border = '2px solid var(--danger)'; urlBox.style.borderRadius = '8px'; }
+            } else {
+                if (activeLabel) activeLabel.textContent = 'LIVE — load model above to classify';
+                setModelStatus('📷 Webcam live! Paste your model URL above and click LOAD MODEL to start classifying.', '#8a6800');
                 visionLoopNoModel(prefix);
             }
         }
@@ -2138,21 +2125,24 @@
             requestAnimationFrame(() => visionLoopNoModel(prefix));
         }
 
+        // setModelStatus — updates the shared status line above the tabs
+        function setModelStatus(msg, color) {
+            const el = document.getElementById('vision-model-status');
+            if (el) { el.textContent = msg; el.style.color = color || 'var(--muted)'; }
+        }
+
         async function loadVisionModel(prefix) {
             const vs = visionState[prefix];
             const modelUrl = getModelUrl(prefix);
-            const activeLabel = document.getElementById(prefix + '-active-label');
-            const urlBox = document.getElementById(prefix + '-model-url-box');
             const dot = document.getElementById(prefix + '-vision-dot');
+            const activeLabel = document.getElementById(prefix + '-active-label');
 
             if (!modelUrl) {
-                if (urlBox) { urlBox.style.border = '2px solid var(--danger)'; urlBox.style.borderRadius = '8px'; }
-                if (activeLabel) activeLabel.textContent = 'ENTER A VALID MODEL URL FIRST';
+                setModelStatus('⚠ Please paste a valid Teachable Machine URL first.', 'var(--danger)');
                 return;
             }
 
-            if (urlBox) { urlBox.style.border = ''; }
-            if (activeLabel) { activeLabel.style.display = 'block'; activeLabel.textContent = 'LOADING MODEL…'; }
+            setModelStatus('⏳ Loading model…', '#888');
             if (dot) dot.className = 'vision-status-dot';
 
             try {
@@ -2162,21 +2152,27 @@
                     : [];
                 buildVisionReadout(prefix);
                 if (dot) dot.className = 'vision-status-dot active';
-                if (activeLabel) activeLabel.textContent = 'MODEL LOADED — SCANNING…';
-                if (urlBox) urlBox.style.display = 'none';
 
-                // FIX: start webcam loop if not already running; otherwise switch to classify loop
+                const classNames = vs.classes.join(', ');
+                setModelStatus(`✅ Model loaded! Classes: ${classNames}`, 'var(--green)');
+
+                // Update the webcam bottom note
+                const note = document.getElementById('vision-webcam-model-note');
+                if (note) { note.textContent = `model loaded ✓ (${vs.classes.length} classes)`; note.style.display = 'inline'; }
+
+                if (activeLabel) { activeLabel.style.display = 'block'; activeLabel.textContent = 'MODEL READY'; }
+
+                // If webcam is already running, kick off the classify loop
                 if (vs.running && vs.webcam) {
                     visionLoop(prefix);
-                } else {
-                    // Webcam not started yet — start it
-                    initVision(prefix);
                 }
+                // Don't auto-start webcam — user clicks the webcam overlay to start it
+                // For upload tab: model is now loaded, user can upload an image
+
             } catch (err) {
                 console.warn('[loadVisionModel]', err);
                 if (dot) dot.className = 'vision-status-dot error';
-                if (activeLabel) { activeLabel.style.display = 'block'; activeLabel.textContent = 'MODEL LOAD FAILED — check URL'; }
-                if (urlBox) { urlBox.style.display = 'block'; urlBox.style.border = '2px solid var(--danger)'; urlBox.style.borderRadius = '8px'; }
+                setModelStatus(`❌ Model load failed — check the URL is correct and the model is public. (${err.message})`, 'var(--danger)');
             }
         }
 
@@ -2257,10 +2253,9 @@
             }
         }
 
-        // FIX: stopVision now guards against stopping a webcam that was never started
         function stopVision(prefix) {
             const vs = visionState[prefix];
-            if (!vs.running && !vs.webcam) return; // nothing to stop
+            if (!vs.running && !vs.webcam) return;
             vs.running = false;
             if (vs.webcam) { try { vs.webcam.stop(); } catch (e) { } vs.webcam = null; }
             const container = document.getElementById(prefix + '-webcam-container');
@@ -2277,8 +2272,8 @@
             }
             const stopBtn = document.getElementById(prefix + '-stop-btn');
             if (stopBtn) stopBtn.style.display = 'none';
-            const urlBox = document.getElementById(prefix + '-model-url-box');
-            if (urlBox) { urlBox.style.display = 'block'; urlBox.style.border = ''; }
+            const note = document.getElementById(prefix + '-webcam-model-note');
+            if (note) note.style.display = 'none';
             const readout = document.getElementById(prefix + '-vision-readout');
             if (readout) readout.style.display = 'none';
         }
@@ -2348,39 +2343,38 @@
                     ctx.drawImage(img, 0, 0);
 
                     const dz = document.getElementById('vision-dropzone');
-                    if (dz && prefix === 'vision') {
-                        dz.innerHTML = '<div style="font-size:1.5rem;margin-bottom:4px;">✅</div><div style="font-family:Share Tech Mono,monospace;font-size:0.65rem;color:var(--green);">IMAGE LOADED — classifying…</div>';
-                    }
 
-                    // FIX: Check for model URL first and prompt clearly if missing
+                    // If no model yet, try to load it now
                     if (!vs.model) {
                         const modelUrl = getModelUrl(prefix);
                         if (!modelUrl) {
-                            if (bigLabel) { bigLabel.textContent = 'PASTE MODEL URL'; bigLabel.style.color = 'var(--warn)'; }
-                            if (bigConf) { bigConf.textContent = '↑ above'; bigConf.style.color = 'var(--warn)'; }
-                            const urlBox = document.getElementById(prefix + '-model-url-box');
-                            if (urlBox) { urlBox.style.display = 'block'; urlBox.style.border = '2px solid var(--warn)'; urlBox.style.borderRadius = '8px'; }
-                            if (dz) dz.innerHTML = '<div style="font-size:1.5rem;margin-bottom:4px;">⚠️</div><div style="font-family:Share Tech Mono,monospace;font-size:0.65rem;color:var(--warn);">PASTE MODEL URL ABOVE FIRST</div>';
+                            if (bigLabel) { bigLabel.textContent = 'LOAD MODEL FIRST'; bigLabel.style.color = 'var(--warn)'; }
+                            if (bigConf) { bigConf.textContent = '↑'; bigConf.style.color = 'var(--warn)'; }
+                            setModelStatus('⚠ Paste your model URL above and click LOAD MODEL, then upload an image.', 'var(--warn)');
+                            if (dz) dz.innerHTML = '<div style="font-size:1.5rem;margin-bottom:4px;">⚠️</div><div style="font-family:Share Tech Mono,monospace;font-size:0.65rem;color:var(--warn);">LOAD MODEL ABOVE FIRST, THEN UPLOAD</div>';
                             return;
                         }
                         try {
                             const dot = document.getElementById(prefix + '-vision-dot');
                             if (dot) dot.className = 'vision-status-dot';
                             if (bigLabel) { bigLabel.textContent = 'LOADING MODEL…'; bigLabel.style.color = '#888'; }
+                            setModelStatus('⏳ Loading model…', '#888');
                             vs.model = await tmImage.load(modelUrl + 'model.json', modelUrl + 'metadata.json');
-                            const total = vs.model.getTotalClasses();
-                            vs.classes = Array.from({ length: total }, (_, i) =>
+                            vs.classes = Array.from({ length: vs.model.getTotalClasses() }, (_, i) =>
                                 vs.model.getClassLabels ? vs.model.getClassLabels()[i] : `Class ${i}`
                             );
                             if (dot) dot.className = 'vision-status-dot active';
+                            setModelStatus(`✅ Model loaded! Classifying image…`, 'var(--green)');
+                            if (dz) dz.innerHTML = '<div style="font-size:1.5rem;margin-bottom:4px;">✅</div><div style="font-family:Share Tech Mono,monospace;font-size:0.65rem;color:var(--green);">IMAGE LOADED — classifying…</div>';
                         } catch (err) {
                             console.warn('[handleFileCapture] Model load failed:', err);
                             if (bigLabel) { bigLabel.textContent = 'MODEL LOAD FAILED'; bigLabel.style.color = 'var(--danger)'; }
                             if (bigConf) bigConf.textContent = 'check URL ↑';
-                            const urlBox = document.getElementById(prefix + '-model-url-box');
-                            if (urlBox) { urlBox.style.display = 'block'; urlBox.style.border = '2px solid var(--danger)'; urlBox.style.borderRadius = '8px'; }
+                            setModelStatus(`❌ Model load failed — check the URL is correct and the model is public. (${err.message})`, 'var(--danger)');
                             return;
                         }
+                    } else {
+                        if (dz) dz.innerHTML = '<div style="font-size:1.5rem;margin-bottom:4px;">✅</div><div style="font-family:Share Tech Mono,monospace;font-size:0.65rem;color:var(--green);">IMAGE LOADED — classifying…</div>';
                     }
 
                     buildVisionReadout(prefix);
