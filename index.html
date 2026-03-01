@@ -1576,6 +1576,7 @@
             <div class="mode-btns">
                 <button class="mode-btn" id="btn-observe" onclick="selectMode('observe')">OBSERVE</button>
                 <button class="mode-btn" id="btn-test" onclick="selectMode('test')">TEST</button>
+                <button class="mode-btn" id="btn-vision" onclick="selectMode('vision')">VISION 📷</button>
                 <button class="mode-btn" id="btn-chat" onclick="selectMode('chat')">CHAT 🤖</button>
             </div>
             <div style="text-align:center;">
@@ -1610,59 +1611,6 @@
                 </div>
 
                 <div class="obs-panel">
-
-                    <!-- CV VISION -->
-                    <div class="vision-section" id="obs-vision-section">
-                        <div class="vision-header">
-                            <span class="vision-title">📷 TERRAIN VISION — CV</span>
-                            <div id="obs-vision-dot" class="vision-status-dot"></div>
-                        </div>
-                        <div class="vision-feed-wrap" id="obs-feed-wrap">
-                            <div class="vision-start-btn" id="obs-start-overlay" onclick="initVision('obs')">
-                                <div class="vision-start-icon">📷</div>
-                                <div class="vision-start-text">▶ TAP TO START WEBCAM</div>
-                                <div
-                                    style="font-family:'Share Tech Mono',monospace;font-size:0.55rem;color:#666;margin-top:2px;">
-                                    TERRAIN CV CLASSIFICATION</div>
-                            </div>
-                            <div id="obs-webcam-container"></div>
-                            <div class="vision-scanline"></div>
-                            <div class="vision-corner tl"></div>
-                            <div class="vision-corner tr"></div>
-                            <div class="vision-corner bl"></div>
-                            <div class="vision-corner br"></div>
-                            <div class="vision-active-label" id="obs-active-label" style="display:none">SCANNING…</div>
-                        </div>
-                        <div class="vision-snap-controls">
-                            <button class="snap-btn" id="obs-snap-btn" onclick="toggleVisionMode('obs')"
-                                style="display:none">📸 SNAPSHOT</button>
-                            <button class="snap-btn" onclick="stopVision('obs')" id="obs-stop-btn"
-                                style="display:none">⏹ STOP</button>
-                            <span class="vision-mode-toggle" id="obs-mode-toggle" onclick="switchToSnap('obs')"
-                                style="display:none">use photo instead</span>
-                        </div>
-                        <div class="vision-readout" id="obs-vision-readout" style="display:none"></div>
-                        <!-- Snapshot fallback -->
-                        <div id="obs-snap-area" style="display:none; padding:10px; background:#111;">
-                            <input type="file" id="obs-file-input" accept="image/*" capture="environment"
-                                style="display:none" onchange="handleFileCapture('obs', this)">
-                            <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px;">
-                                <button class="snap-btn" onclick="document.getElementById('obs-file-input').click()">📸
-                                    TAKE / UPLOAD PHOTO</button>
-                                <span style="font-family:'Share Tech Mono',monospace;font-size:0.6rem;color:#888;">or
-                                    upload terrain image</span>
-                            </div>
-                            <canvas id="obs-snap-canvas"
-                                style="width:100%;border-radius:6px;display:none;max-height:140px;object-fit:cover;"></canvas>
-                        </div>
-                        <!-- Model URL -->
-                        <div class="model-url-box" id="obs-model-url-box">
-                            <label>TEACHABLE MACHINE MODEL URL (paste your exported model URL)</label>
-                            <input class="model-url-input" id="obs-model-url"
-                                placeholder="https://teachablemachine.withgoogle.com/models/DY2JHXYYe/"
-                                value="https://teachablemachine.withgoogle.com/models/DY2JHXYYe/">
-                        </div>
-                    </div>
 
                     <div class="safety-panel">
                         <div class="safety-panel-title">🛡 Safety Status</div>
@@ -1780,54 +1728,6 @@
 
                 <div class="test-panel">
 
-                    <!-- CV VISION -->
-                    <div class="vision-section" id="test-vision-section">
-                        <div class="vision-header">
-                            <span class="vision-title">📷 TERRAIN VISION — CV</span>
-                            <div id="test-vision-dot" class="vision-status-dot"></div>
-                        </div>
-                        <div class="vision-feed-wrap" id="test-feed-wrap">
-                            <div class="vision-start-btn" id="test-start-overlay" onclick="initVision('test')">
-                                <div class="vision-start-icon">📷</div>
-                                <div class="vision-start-text">▶ TAP TO START WEBCAM</div>
-                                <div
-                                    style="font-family:'Share Tech Mono',monospace;font-size:0.55rem;color:#666;margin-top:2px;">
-                                    TERRAIN CV CLASSIFICATION</div>
-                            </div>
-                            <div id="test-webcam-container"></div>
-                            <div class="vision-scanline"></div>
-                            <div class="vision-corner tl"></div>
-                            <div class="vision-corner tr"></div>
-                            <div class="vision-corner bl"></div>
-                            <div class="vision-corner br"></div>
-                            <div class="vision-active-label" id="test-active-label" style="display:none">SCANNING…</div>
-                        </div>
-                        <div class="vision-snap-controls">
-                            <button class="snap-btn" onclick="stopVision('test')" id="test-stop-btn"
-                                style="display:none">⏹ STOP</button>
-                            <span class="vision-mode-toggle" id="test-mode-toggle" onclick="switchToSnap('test')"
-                                style="display:none">use photo instead</span>
-                        </div>
-                        <div class="vision-readout" id="test-vision-readout" style="display:none"></div>
-                        <!-- Snapshot fallback -->
-                        <div id="test-snap-area" style="display:none; padding:10px; background:#111;">
-                            <input type="file" id="test-file-input" accept="image/*" capture="environment"
-                                style="display:none" onchange="handleFileCapture('test', this)">
-                            <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px;">
-                                <button class="snap-btn" onclick="document.getElementById('test-file-input').click()">📸
-                                    TAKE / UPLOAD PHOTO</button>
-                            </div>
-                            <canvas id="test-snap-canvas"
-                                style="width:100%;border-radius:6px;display:none;max-height:140px;object-fit:cover;"></canvas>
-                        </div>
-                        <div class="model-url-box" id="test-model-url-box">
-                            <label>TEACHABLE MACHINE MODEL URL</label>
-                            <input class="model-url-input" id="test-model-url"
-                                placeholder="https://teachablemachine.withgoogle.com/models/DY2JHXYYe/"
-                                value="https://teachablemachine.withgoogle.com/models/DY2JHXYYe/">
-                        </div>
-                    </div>
-
                     <div class="safety-panel">
                         <div class="safety-panel-title">🛡 Safety Status</div>
                         <div class="safety-indicators">
@@ -1912,8 +1812,6 @@
                             class="result-val tilt" id="res-tilt">—</span></div>
                     <div class="result-row"><span class="result-label">Air Quality:</span><span class="result-val"
                             id="res-aq">—</span></div>
-                    <div class="result-row"><span class="result-label">CV Terrain:</span><span class="result-val"
-                            id="res-cv-terrain" style="color:var(--yellow-dark);font-weight:700;">—</span></div>
                     <div class="result-row" style="border:none;flex-direction:column;gap:8px;">
                         <span class="result-label">Terrain (IMU):</span>
                         <div class="result-terrain">
@@ -1937,6 +1835,99 @@
                     </div>
                 </div>
             </div>
+        </div>
+    </div>
+
+    <!-- ══════════════════════════════════
+     VISION SCREEN
+══════════════════════════════════ -->
+    <div class="screen" id="screen-vision">
+        <div class="card" style="width:720px;">
+            <div class="card-tag">VISION</div>
+            <div class="screen-title">Terrain Vision — CV Classifier</div>
+            <p style="font-family:'Share Tech Mono',monospace;font-size:0.72rem;color:var(--muted);margin-bottom:16px;">
+                Real-time terrain classification using your Teachable Machine model.<br>
+                Classes: <strong style="color:var(--black);">DESERT · FOREST · MOUNTAIN · PLAINS</strong>
+            </p>
+
+            <!-- Model URL -->
+            <div class="model-url-box" id="vision-model-url-box" style="margin-bottom:12px;">
+                <label>TEACHABLE MACHINE MODEL URL</label>
+                <input class="model-url-input" id="vision-model-url"
+                    placeholder="https://teachablemachine.withgoogle.com/models/YOUR_MODEL_ID/"
+                    value="https://teachablemachine.withgoogle.com/models/YOUR_MODEL_ID/">
+            </div>
+
+            <!-- Camera feed -->
+            <div class="vision-section" id="vision-section" style="margin-bottom:12px;">
+                <div class="vision-header">
+                    <span class="vision-title">📷 LIVE WEBCAM FEED</span>
+                    <div id="vision-vision-dot" class="vision-status-dot"></div>
+                </div>
+                <div class="vision-feed-wrap" id="vision-feed-wrap" style="height:260px;">
+                    <div class="vision-start-btn" id="vision-start-overlay" onclick="initVision('vision')">
+                        <div class="vision-start-icon">📷</div>
+                        <div class="vision-start-text">▶ TAP TO START WEBCAM</div>
+                        <div
+                            style="font-family:'Share Tech Mono',monospace;font-size:0.55rem;color:#666;margin-top:4px;">
+                            TERRAIN CV CLASSIFICATION</div>
+                    </div>
+                    <div id="vision-webcam-container"></div>
+                    <div class="vision-scanline"></div>
+                    <div class="vision-corner tl"></div>
+                    <div class="vision-corner tr"></div>
+                    <div class="vision-corner bl"></div>
+                    <div class="vision-corner br"></div>
+                    <div class="vision-active-label" id="vision-active-label" style="display:none">SCANNING…</div>
+                </div>
+                <div class="vision-snap-controls">
+                    <button class="snap-btn" onclick="stopVision('vision')" id="vision-stop-btn" style="display:none">⏹
+                        STOP</button>
+                    <span class="vision-mode-toggle" id="vision-mode-toggle" onclick="switchToSnap('vision')"
+                        style="display:none">use photo instead</span>
+                </div>
+                <!-- Snapshot fallback -->
+                <div id="vision-snap-area" style="display:none; padding:10px; background:#111;">
+                    <input type="file" id="vision-file-input" accept="image/*" capture="environment"
+                        style="display:none" onchange="handleFileCapture('vision', this)">
+                    <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px;">
+                        <button class="snap-btn" onclick="document.getElementById('vision-file-input').click()">📸 TAKE
+                            / UPLOAD PHOTO</button>
+                        <span style="font-family:'Share Tech Mono',monospace;font-size:0.6rem;color:#888;">or upload
+                            terrain image</span>
+                    </div>
+                    <canvas id="vision-snap-canvas"
+                        style="width:100%;border-radius:6px;display:none;max-height:200px;object-fit:cover;"></canvas>
+                </div>
+            </div>
+
+            <!-- Classification bars -->
+            <div id="vision-vision-readout"
+                style="display:none; background:#111; border-radius:0 0 10px 10px; padding:10px 14px; margin-top:-12px; margin-bottom:12px;">
+            </div>
+
+            <!-- Current detection big display -->
+            <div
+                style="background:var(--black);border-radius:12px;padding:20px 24px;display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+                <div>
+                    <div
+                        style="font-family:'Share Tech Mono',monospace;font-size:0.65rem;color:#666;letter-spacing:0.15em;margin-bottom:6px;">
+                        DETECTED TERRAIN TYPE</div>
+                    <div id="vision-big-label"
+                        style="font-family:'Orbitron',monospace;font-size:2rem;font-weight:900;color:var(--yellow);">—
+                    </div>
+                </div>
+                <div style="text-align:right;">
+                    <div
+                        style="font-family:'Share Tech Mono',monospace;font-size:0.65rem;color:#666;letter-spacing:0.15em;margin-bottom:6px;">
+                        CONFIDENCE</div>
+                    <div id="vision-big-conf"
+                        style="font-family:'Orbitron',monospace;font-size:2rem;font-weight:900;color:#fff;">—</div>
+                </div>
+            </div>
+
+            <button class="btn-pill outline" style="padding:8px 20px;font-size:0.72rem;" onclick="goTo('screen-mode')">←
+                BACK</button>
         </div>
     </div>
 
@@ -1993,16 +1984,18 @@
         // Vision state per panel
         const visionState = {
             obs: { model: null, webcam: null, running: false, classes: [], lastClass: null, lastConf: 0, snapMode: false },
-            test: { model: null, webcam: null, running: false, classes: [], lastClass: null, lastConf: 0, snapMode: false }
+            test: { model: null, webcam: null, running: false, classes: [], lastClass: null, lastConf: 0, snapMode: false },
+            vision: { model: null, webcam: null, running: false, classes: [], lastClass: null, lastConf: 0, snapMode: false }
         };
 
-        // Maps TM class names to terrain IDs used in the existing UI
-        function tmClassToTerrain(className) {
+        // CV terrain labels (desert/forest/mountain/plains) — standalone, no robot terrain influence
+        function cvTerrainColor(className) {
             const lc = className.toLowerCase();
-            if (lc.includes('flat') || lc.includes('desert') || lc.includes('plains') || lc.includes('sand')) return 'flat';
-            if (lc.includes('forest') || lc.includes('smooth') || lc.includes('moderate')) return 'smooth';
-            if (lc.includes('mountain') || lc.includes('bump') || lc.includes('rough') || lc.includes('rocky')) return 'bump';
-            return 'flat'; // default fallback
+            if (lc.includes('desert')) return '#e8a000';
+            if (lc.includes('forest')) return '#2d7a3a';
+            if (lc.includes('mountain')) return '#7a6050';
+            if (lc.includes('plains')) return '#5a8a30';
+            return '#f5c800';
         }
 
         function getModelUrl(prefix) {
@@ -2135,11 +2128,14 @@
                 const activeLabel = document.getElementById(prefix + '-active-label');
                 if (activeLabel) activeLabel.textContent = `${highest.className.toUpperCase()} ${(highest.probability * 100).toFixed(0)}%`;
 
-                // Auto-update terrain UI if high confidence
-                if (highest.probability > 0.75) {
-                    const terrainId = tmClassToTerrain(highest.className);
-                    if (prefix === 'obs') setTerrainHighlight('t-', terrainId);
+                // Update big label on dedicated vision screen (only)
+                if (prefix === 'vision') {
+                    const bigLabel = document.getElementById('vision-big-label');
+                    const bigConf = document.getElementById('vision-big-conf');
+                    if (bigLabel) { bigLabel.textContent = highest.className.toUpperCase(); bigLabel.style.color = cvTerrainColor(highest.className); }
+                    if (bigConf) bigConf.textContent = (highest.probability * 100).toFixed(0) + '%';
                 }
+                // NOTE: CV terrain never updates robot terrain indicators (flat/smooth/bump)
 
             } catch (e) {
                 console.warn('[Predict]', e);
@@ -2424,10 +2420,10 @@
                 speak('Hello! What position would you like to navigate to? Say two numbers for row and column, each between 0 and 4.', 'test-voice-pill', 'test-voice-label',
                     () => { if (currentScreen === 'screen-test') { continuousListen = true; startGlobalMic(); } });
             }
-            // Stop vision when leaving active screens
-            if (screenId !== 'screen-observe' && screenId !== 'screen-test') {
-                stopVision('obs'); stopVision('test');
-            }
+            // Stop all vision when leaving respective screens
+            if (screenId !== 'screen-observe') stopVision('obs');
+            if (screenId !== 'screen-test') stopVision('test');
+            if (screenId !== 'screen-vision') stopVision('vision');
             if (screenId === 'screen-chat') initChat();
             updateMicContext(screenId);
         }
@@ -2437,13 +2433,14 @@
             selectedMode = mode;
             document.getElementById('btn-observe').classList.toggle('selected', mode === 'observe');
             document.getElementById('btn-test').classList.toggle('selected', mode === 'test');
+            document.getElementById('btn-vision').classList.toggle('selected', mode === 'vision');
             document.getElementById('btn-chat').classList.toggle('selected', mode === 'chat');
             const cont = document.getElementById('mode-continue');
             cont.style.opacity = '1'; cont.style.pointerEvents = 'auto';
         }
         function continueMode() {
             if (!selectedMode) return;
-            const dest = selectedMode === 'observe' ? 'screen-observe' : selectedMode === 'test' ? 'screen-test' : 'screen-chat';
+            const dest = selectedMode === 'observe' ? 'screen-observe' : selectedMode === 'test' ? 'screen-test' : selectedMode === 'vision' ? 'screen-vision' : 'screen-chat';
             goTo(dest);
         }
 
@@ -2618,14 +2615,9 @@
             aqEl.textContent = aq + ' AQI — ' + (aq <= 100 ? 'Good' : aq <= 150 ? 'Moderate' : 'Poor');
             aqEl.className = 'obs-val ' + (aq <= 100 ? 'aq-good' : aq <= 150 ? 'aq-moderate' : 'aq-poor');
 
-            // Merge CV terrain if available
-            const cvResult = getLastVisionClass('obs');
-            let finalTerrain = sensor.terrain;
-            if (cvResult && cvResult.confidence > 0.75) {
-                finalTerrain = tmClassToTerrain(cvResult.className);
-            }
-            setTerrainHighlight('t-', finalTerrain);
-            checkTiltSafety(sensor.tilt, finalTerrain, 'si');
+            // Robot terrain only — CV terrain on Vision screen is separate
+            setTerrainHighlight('t-', sensor.terrain);
+            checkTiltSafety(sensor.tilt, sensor.terrain, 'si');
             checkAQSafety(aq, 'si', 'obs-voice-pill', 'obs-voice-label', idx);
 
             document.querySelectorAll('#obs-log .log-chip').forEach((el, i) => {
@@ -2741,15 +2733,11 @@
             const last = steps[steps.length - 1];
             const sensor = getSensorData(last.row, last.col);
 
-            // Merge CV vision for result
-            const cvResult = getLastVisionClass('test') || getLastVisionClass('obs');
-            const cvTerrainDisplay = cvResult ? `${cvResult.className.toUpperCase()} (${(cvResult.confidence * 100).toFixed(0)}%)` : '—';
-
             latestMissionData = {
                 mission_type: targetRow !== undefined ? 'Test Navigation' : 'Observation Patrol',
                 end_position: [last.row, last.col],
                 terrain_classification: sensor.terrain,
-                cv_terrain: cvResult ? cvResult.className : null,
+
                 tilt_degrees: sensor.tilt,
                 air_quality_aqi: sensor.airQuality,
                 path_taken: steps.map(s => `[${s.row},${s.col}]`).join(' -> '),
@@ -2782,7 +2770,6 @@
             resAqEl.textContent = aq + ' AQI — ' + (aq <= 100 ? 'Safe' : aq <= 150 ? 'Medium' : 'Dangerous');
             resAqEl.className = 'result-val ' + (aq <= 100 ? 'aq-good' : aq <= 150 ? 'aq-moderate' : 'aq-poor');
 
-            document.getElementById('res-cv-terrain').textContent = cvTerrainDisplay;
             setTerrainHighlight('rt-', sensor.terrain);
 
             const resLog = document.getElementById('res-log'); resLog.innerHTML = '';
@@ -2967,6 +2954,7 @@ Answer in 2–4 sentences.`;
                 const parsedDirs = normalizeDirections(transcript);
                 if (parsedDirs.length > 0) { document.getElementById('obs-commands').value = parsedDirs; continuousListen = false; stopGlobalMic(); setTimeout(startObserveSequence, 500); return true; }
             }
+            else if (screen === 'screen-vision') { return false; }
             else if (screen === 'screen-result') { if (/\b(again|retry|repeat|redo)\b/.test(transcript)) { goTo('screen-test'); return true; } }
             else if (screen === 'screen-chat') { if (!/\b(back|menu|home)\b/.test(transcript)) { document.getElementById('chat-input').value = transcript; sendChat(); return true; } }
             return false;
