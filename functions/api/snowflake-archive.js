@@ -31,7 +31,8 @@ export async function onRequestPost(context) {
                 "Authorization": `Bearer ${token}`,
                 "Content-Type": "application/json",
                 "Accept": "application/json",
-                "X-Snowflake-Authorization-Token-Type": "bearer"
+                "X-Snowflake-Authorization-Token-Type": "bearer",
+                "User-Agent": "SandozerApp/1.0" // <-- ADD THIS EXACT LINE
             },
             body: JSON.stringify({
                 statement: sqlQuery,
