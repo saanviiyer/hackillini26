@@ -42,7 +42,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            overflow: hidden;
+            overflow: auto;
         }
 
         .screen {
@@ -1748,24 +1748,6 @@
             if (!isSpeaking) drainQueue();
         }
 
-        // Speak for traversal steps — flushes any queued (not yet playing) narrations
-        // so the audio always reflects the CURRENT robot position, not a stale one.
-        function speakStep(text, pillId, labelId) {
-            // Drop all pending narrations that haven't started playing yet
-            audioQueue = [];
-            // Stop current audio immediately so we jump to the new step's narration
-            if (currentAudio) {
-                currentAudio.onended = null;
-                currentAudio.onerror = null;
-                currentAudio.pause();
-                currentAudio = null;
-                isSpeaking = false;
-                setVoicePill(pillId, labelId, false);
-            }
-            audioQueue.push({ text, pillId, labelId, onComplete: null });
-            if (!isSpeaking) drainQueue();
-        }
-
         async function drainQueue() {
             if (!audioQueue.length) { isSpeaking = false; return; }
             isSpeaking = true;
@@ -1833,8 +1815,11 @@
             clearInterval(obsTimer);
             obsPaused = true;
             stopAllAudio();
-            document.getElementById('obs-pause-btn').textContent = '▶';
-            speak('Emergency stop activated. Robot halted. All movement suspended. Please assess the situation before resuming.', 'obs-voice-pill', 'obs-voice-label');
+            const pauseBtn = document.getElementById('obs-pause-btn');
+            if (pauseBtn) pauseBtn.textContent = '▶';
+            const pillId = currentScreen === 'screen-test' ? 'test-voice-pill' : 'obs-voice-pill';
+            const labelId = currentScreen === 'screen-test' ? 'test-voice-label' : 'obs-voice-label';
+            speak('Emergency stop activated. Robot halted. All movement suspended.', pillId, labelId);
         }
 
         function showEStop(show) {
@@ -1843,10 +1828,11 @@
         }
 
         // ════════════════════════════════════════════════════
-        // WALL PROXIMITY SAFETY — visual only, no voice narration
-        // Step 0 is always on the border so we never alert there.
+        // WALL PROXIMITY SAFETY — visual always, voice only on zone entry
+        // Step 0 suppressed (robot always starts on the border).
         // ════════════════════════════════════════════════════
         const CELL_SIZE_M = 0.20;
+        let lastWallZone = -1; // -1=none, 0=at wall, 1=1cell, 2=2cells
 
         function checkWallProximity(row, col, stepIdx) {
             const wallDist = Math.min(row, col, 4 - row, 4 - col);
@@ -1854,23 +1840,31 @@
             const screenPfx = (currentScreen === 'screen-observe') ? 'si' : 'tsi';
             const siEl = document.getElementById(screenPfx + '-boundary');
 
-            // Always clear on step 0 (starting position is always on the boundary)
+            // Suppress on step 0 — starting position is always on the border
             if (stepIdx === 0) {
+                lastWallZone = wallDist; // seed so first real move doesn't re-fire
                 if (wrap) wrap.innerHTML = '';
                 if (siEl) { siEl.textContent = '📍 Boundary: SAFE'; siEl.className = 'safety-ind ok'; }
                 return;
             }
 
+            const pillId = (currentScreen === 'screen-observe') ? 'obs-voice-pill' : 'test-voice-pill';
+            const labelId = (currentScreen === 'screen-observe') ? 'obs-voice-label' : 'test-voice-label';
+            const zoneChanged = wallDist !== lastWallZone;
+            lastWallZone = wallDist;
+
             if (wallDist === 0) {
-                const m = (0 * CELL_SIZE_M).toFixed(2);
                 if (wrap) wrap.innerHTML = `<span class="wall-alert">⛔ AT BOUNDARY</span>`;
                 if (siEl) { siEl.textContent = '📍 Boundary: AT WALL'; siEl.className = 'safety-ind danger'; }
+                if (zoneChanged) speak('Warning. Robot is at the boundary.', pillId, labelId);
             } else if (wallDist === 1) {
                 if (wrap) wrap.innerHTML = `<span class="wall-alert">⚠ APPROACHING BOUNDARY</span>`;
                 if (siEl) { siEl.textContent = '📍 Boundary: WARNING'; siEl.className = 'safety-ind danger'; }
+                if (zoneChanged) speak('Approaching boundary.', pillId, labelId);
             } else if (wallDist === 2) {
                 if (wrap) wrap.innerHTML = `<span class="wall-alert warn-yellow">⚠ NEAR BOUNDARY</span>`;
                 if (siEl) { siEl.textContent = '📍 Boundary: CAUTION'; siEl.className = 'safety-ind warn'; }
+                // No voice for 2-cell distance — visual only
             } else {
                 if (wrap) wrap.innerHTML = '';
                 if (siEl) { siEl.textContent = '📍 Boundary: SAFE'; siEl.className = 'safety-ind ok'; }
@@ -2113,6 +2107,7 @@
         function initObserve() {
             clearInterval(obsTimer);
             stopAllAudio();
+            lastWallZone = -1;
             obsStep = 0;
             obsPaused = false;
 
@@ -2139,6 +2134,7 @@
             obsSteps = parseCommands(cmds) || [{ row: 0, col: 0, dir: 'E', cmd: 'START' }];
             obsStep = 0;
             obsPaused = false;
+            lastWallZone = -1;
 
             buildMiniGrid(document.getElementById('obs-grid'));
             buildObsLog();
@@ -2202,7 +2198,7 @@
             // Boundary check: visual only (no voice) — see checkWallProximity
             checkWallProximity(s.row, s.col, idx);
             const text = buildNarration(s, sensor, idx, obsSteps.length);
-            speakStep(text, 'obs-voice-pill', 'obs-voice-label');
+            speak(text, 'obs-voice-pill', 'obs-voice-label');
         }
 
         function startObsTimer() {
@@ -2297,6 +2293,7 @@
             svg.innerHTML = '';
             const robot = document.getElementById('test-robot');
             let i = 0;
+            lastWallZone = -1;
 
             function next() {
                 drawPath(svg, steps, i);
