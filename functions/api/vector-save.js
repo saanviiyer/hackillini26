@@ -1,26 +1,32 @@
 export async function onRequestPost(context) {
     try {
         const { request, env } = context;
+
+        // 1. Get the mission data from the robot
         const missionData = await request.json();
 
-        const vectorDBUrl = env.ACTIAN_DB_URL;
-        const geminiKey = env.GEMINI_KEY || env.GEMINI_API_KEY;
+        // 2. Create a unique ID for this mission using a timestamp
+        const missionId = `mission_${Date.now()}`;
 
-        if (!geminiKey) throw new Error("Missing Gemini Key in Cloudflare!");
+        // 3. Save directly to Cloudflare KV
+        // Note: Ensure you named your binding "MISSION_KV" in Cloudflare Settings
+        if (!env.MISSION_KV) {
+            throw new Error("KV Binding 'MISSION_KV' not found. Check Cloudflare Settings > Functions.");
+        }
 
-        const response = await fetch(`${vectorDBUrl}`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-Gemini-Key': geminiKey,
-                'ngrok-skip-browser-warning': 'true' // 👈 ADD THIS LINE
-            },
-            body: JSON.stringify(missionData)
+        await env.MISSION_KV.put(missionId, JSON.stringify(missionData));
+
+        // 4. Return success to the UI
+        return new Response(JSON.stringify({
+            success: true,
+            id: missionId,
+            message: "Successfully saved to Cloudflare KV!"
+        }), {
+            headers: { "Content-Type": "application/json" }
         });
 
-        if (!response.ok) throw new Error("Failed to save to Vector DB");
-        return new Response(JSON.stringify({ success: true }), { headers: { "Content-Type": "application/json" } });
     } catch (err) {
+        // This will show up in your Cloudflare "Real-time Logs"
         return new Response(JSON.stringify({ error: err.message }), { status: 500 });
     }
-}   
+}
