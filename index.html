@@ -23,6 +23,10 @@
             --beige-dark: #e0d5be;
             --muted: #7a7060;
             --cell: 44px;
+            --danger: #c0392b;
+            --danger-bg: #fde8e6;
+            --warn: #e67e22;
+            --warn-bg: #fdf0e0;
         }
 
         * {
@@ -38,7 +42,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            overflow: hidden;
+            overflow: auto;
         }
 
         .screen {
@@ -139,6 +143,17 @@
 
         .btn-pill.outline:hover {
             background: var(--yellow-pale);
+        }
+
+        .btn-pill.danger {
+            background: var(--danger);
+            color: #fff;
+            box-shadow: 0 2px 12px rgba(192, 57, 43, 0.3);
+        }
+
+        .btn-pill.danger:hover {
+            background: #a93226;
+            box-shadow: 0 6px 20px rgba(192, 57, 43, 0.4);
         }
 
         body::before {
@@ -293,6 +308,18 @@
             }
         }
 
+        @keyframes flashRed {
+
+            0%,
+            100% {
+                background: #fff
+            }
+
+            50% {
+                background: #fde8e6
+            }
+        }
+
         .voice-pill.active .voice-dot {
             animation: pulse 0.9s ease-in-out infinite;
         }
@@ -343,14 +370,14 @@
 
         /* OBSERVE */
         #screen-observe .card {
-            width: 900px;
-            padding: 32px;
+            width: 960px;
+            padding: 28px;
         }
 
         .observe-layout {
             display: grid;
             grid-template-columns: auto 1fr;
-            gap: 32px;
+            gap: 28px;
             align-items: start;
         }
 
@@ -359,8 +386,123 @@
             font-size: 1.3rem;
             font-weight: 900;
             color: var(--black);
-            margin-bottom: 20px;
+            margin-bottom: 16px;
             letter-spacing: 0.02em;
+        }
+
+        /* ── RESPONSIVE / MOBILE ── */
+        @media (max-width: 700px) {
+            body {
+                overflow-y: auto;
+                align-items: flex-start;
+            }
+
+            .screen {
+                position: relative;
+                inset: auto;
+                min-height: 100vh;
+                align-items: flex-start;
+                padding: 12px 0 80px;
+            }
+
+            .card {
+                padding: 20px 16px;
+                border-radius: 12px;
+            }
+
+            #screen-splash .card,
+            #screen-mode .card {
+                width: 100%;
+            }
+
+            #screen-observe .card,
+            #screen-test .card,
+            #screen-result .card {
+                width: 100%;
+                padding: 16px 14px;
+            }
+
+            .observe-layout,
+            .test-layout,
+            .result-layout {
+                grid-template-columns: 1fr !important;
+                gap: 18px;
+            }
+
+            .mini-grid-wrap {
+                display: flex;
+                justify-content: center;
+                width: 100%;
+            }
+
+            .mini-grid {
+                transform-origin: top center;
+            }
+
+            .screen-title {
+                font-size: 1rem;
+                margin-bottom: 10px;
+            }
+
+            .splash-title {
+                font-size: 2rem;
+            }
+
+            .splash-about-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .mode-btns {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .mode-btn {
+                width: 100%;
+                max-width: 260px;
+            }
+
+            #estop-btn {
+                bottom: 12px;
+                right: 12px;
+                padding: 10px 14px;
+                font-size: 0.7rem;
+            }
+
+            #mic-fab {
+                bottom: 12px;
+                left: 12px;
+                width: 44px;
+                height: 44px;
+                font-size: 1.1rem;
+            }
+
+            #mic-status {
+                bottom: 68px;
+                left: 12px;
+            }
+
+            .obs-label {
+                min-width: 110px;
+                font-size: 0.68rem;
+            }
+
+            .safety-indicators {
+                gap: 4px;
+            }
+
+            .safety-ind {
+                font-size: 0.6rem;
+                padding: 2px 7px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .mini-grid {
+                transform: scale(0.85);
+                transform-origin: top center;
+                margin-bottom: -24px;
+            }
         }
 
         .mini-grid-wrap {
@@ -435,7 +577,7 @@
         .obs-panel {
             display: flex;
             flex-direction: column;
-            gap: 14px;
+            gap: 10px;
         }
 
         .obs-row {
@@ -455,7 +597,7 @@
             font-size: 0.72rem;
             color: var(--muted);
             letter-spacing: 0.08em;
-            min-width: 160px;
+            min-width: 130px;
             flex-shrink: 0;
         }
 
@@ -527,7 +669,7 @@
             display: flex;
             align-items: center;
             gap: 12px;
-            margin-top: 6px;
+            margin-top: 4px;
         }
 
         .step-badge-large {
@@ -557,21 +699,21 @@
 
         /* TEST */
         #screen-test .card {
-            width: 900px;
-            padding: 32px;
+            width: 960px;
+            padding: 28px;
         }
 
         .test-layout {
             display: grid;
             grid-template-columns: auto 1fr;
-            gap: 32px;
+            gap: 28px;
             align-items: start;
         }
 
         .test-panel {
             display: flex;
             flex-direction: column;
-            gap: 20px;
+            gap: 16px;
         }
 
         .test-input-group {
@@ -641,21 +783,21 @@
 
         /* RESULT */
         #screen-result .card {
-            width: 900px;
-            padding: 32px;
+            width: 960px;
+            padding: 28px;
         }
 
         .result-layout {
             display: grid;
             grid-template-columns: auto 1fr;
-            gap: 32px;
+            gap: 28px;
             align-items: start;
         }
 
         .result-panel {
             display: flex;
             flex-direction: column;
-            gap: 16px;
+            gap: 14px;
         }
 
         .result-row {
@@ -697,7 +839,7 @@
             display: flex;
             flex-wrap: wrap;
             gap: 4px;
-            margin-top: 8px;
+            margin-top: 6px;
         }
 
         .log-chip {
@@ -728,6 +870,190 @@
             font-family: 'Share Tech Mono', monospace;
             font-size: 0.75rem;
             display: none;
+        }
+
+        /* ── SAFETY STATUS PANEL ── */
+        .safety-panel {
+            background: var(--beige);
+            border: 2px solid var(--beige-dark);
+            border-radius: 12px;
+            padding: 10px 14px;
+            margin-bottom: 2px;
+        }
+
+        .safety-panel-title {
+            font-family: 'Orbitron', monospace;
+            font-size: 0.65rem;
+            font-weight: 700;
+            letter-spacing: 0.14em;
+            color: var(--muted);
+            text-transform: uppercase;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .safety-indicators {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+
+        .safety-ind {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.65rem;
+            padding: 3px 10px;
+            border-radius: 12px;
+            border: 1.5px solid transparent;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            transition: all 0.3s;
+        }
+
+        .safety-ind.ok {
+            background: #d4f5db;
+            border-color: #1e7e34;
+            color: #1e7e34;
+        }
+
+        .safety-ind.warn {
+            background: var(--warn-bg);
+            border-color: var(--warn);
+            color: var(--warn);
+            animation: pulse 1s ease-in-out infinite;
+        }
+
+        .safety-ind.danger {
+            background: var(--danger-bg);
+            border-color: var(--danger);
+            color: var(--danger);
+            animation: pulse 0.7s ease-in-out infinite;
+        }
+
+        /* ── TRACTION CONFIG ── */
+        .traction-select {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.8rem;
+            background: var(--beige);
+            border: 2px solid var(--beige-dark);
+            border-radius: 8px;
+            color: var(--black);
+            padding: 6px 10px;
+            outline: none;
+            cursor: pointer;
+            transition: border-color 0.2s;
+            width: 100%;
+        }
+
+        .traction-select:focus {
+            border-color: var(--yellow-dark);
+        }
+
+        .traction-row {
+            width: 100%;
+        }
+
+        /* ── COMMAND INPUT AREA ── */
+        .cmd-area {
+            border: 2px solid var(--beige-dark);
+            border-radius: 10px;
+            background: var(--beige);
+            padding: 10px 12px;
+        }
+
+        .cmd-area-title {
+            font-family: 'Orbitron', monospace;
+            font-size: 0.65rem;
+            font-weight: 700;
+            letter-spacing: 0.12em;
+            color: var(--muted);
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+
+        .cmd-input-row {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .cmd-input {
+            flex: 1;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.9rem;
+            background: #fff;
+            border: 1.5px solid var(--beige-dark);
+            border-radius: 8px;
+            color: var(--black);
+            padding: 8px 12px;
+            outline: none;
+            transition: border-color 0.2s;
+            letter-spacing: 0.1em;
+        }
+
+        .cmd-input:focus {
+            border-color: var(--yellow-dark);
+        }
+
+        .cmd-input::placeholder {
+            color: #c0b8a8;
+        }
+
+        .cmd-mic-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: var(--black);
+            border: 2px solid var(--yellow);
+            color: var(--yellow);
+            font-size: 0.95rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            transition: all 0.2s;
+        }
+
+        .cmd-mic-btn:hover {
+            transform: scale(1.1);
+        }
+
+        .cmd-mic-btn.listening {
+            background: #c0392b;
+            border-color: #e74c3c;
+            color: #fff;
+            animation: pulse 0.8s ease-in-out infinite;
+        }
+
+        /* ── WALL ALERT ── */
+        .wall-alert {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.72rem;
+            padding: 4px 12px;
+            border-radius: 20px;
+            border: 2px solid var(--danger);
+            color: var(--danger);
+            background: var(--danger-bg);
+            font-weight: 700;
+            letter-spacing: 0.05em;
+            animation: pulse 0.7s ease-in-out infinite;
+        }
+
+        .wall-alert.warn-yellow {
+            border-color: var(--warn);
+            color: var(--warn);
+            background: var(--warn-bg);
+        }
+
+        .wall-alert-wrap {
+            margin-top: 2px;
+            min-height: 22px;
         }
 
         /* ── FLOATING MIC BUTTON ── */
@@ -763,6 +1089,38 @@
             animation: pulse 0.8s ease-in-out infinite;
         }
 
+        /* ── EMERGENCY STOP BUTTON ── */
+        #estop-btn {
+            position: fixed;
+            bottom: 28px;
+            right: 28px;
+            z-index: 999;
+            padding: 12px 22px;
+            border-radius: 12px;
+            background: var(--danger);
+            border: 3px solid #8a1c12;
+            color: #fff;
+            font-family: 'Orbitron', monospace;
+            font-weight: 900;
+            font-size: 0.78rem;
+            letter-spacing: 0.1em;
+            cursor: pointer;
+            box-shadow: 0 4px 20px rgba(192, 57, 43, 0.45);
+            transition: all 0.15s;
+            display: none;
+        }
+
+        #estop-btn:hover {
+            background: #a93226;
+            transform: scale(1.04);
+        }
+
+        #estop-btn.active {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
         #mic-status {
             position: fixed;
             bottom: 90px;
@@ -784,29 +1142,7 @@
             opacity: 1;
         }
 
-        /* ── WALL ALERT ── */
-        .wall-alert {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            font-family: 'Share Tech Mono', monospace;
-            font-size: 0.72rem;
-            padding: 4px 12px;
-            border-radius: 20px;
-            border: 2px solid #c0392b;
-            color: #c0392b;
-            background: #fde8e6;
-            font-weight: 700;
-            letter-spacing: 0.05em;
-            animation: pulse 0.7s ease-in-out infinite;
-        }
-
-        .wall-alert-wrap {
-            margin-top: 4px;
-            min-height: 24px;
-        }
-
-        /* ── AQI COLORS ── */
+        /* AQI COLORS */
         .aq-good {
             color: var(--green);
             font-weight: 700;
@@ -818,11 +1154,11 @@
         }
 
         .aq-poor {
-            color: #c0392b;
+            color: var(--danger);
             font-weight: 700;
         }
 
-        /* ── CHAT SCREEN ── */
+        /* CHAT */
         #screen-chat .card {
             width: 780px;
             padding: 32px;
@@ -974,18 +1310,28 @@
             flex-direction: column;
         }
 
-        .chat-voice-row {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            margin-bottom: 8px;
-            flex-shrink: 0;
+        /* Traction info tooltip */
+        .traction-info {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.64rem;
+            color: var(--muted);
+            margin-top: 4px;
+            line-height: 1.4;
+        }
+
+        .traction-info.warn-text {
+            color: var(--warn);
+        }
+
+        .traction-info.danger-text {
+            color: var(--danger);
         }
     </style>
 </head>
 
 <body>
 
+    <!-- ══════════ SPLASH ══════════ -->
     <div class="screen active" id="screen-splash">
         <div class="card">
             <button class="info-btn" title="Info">i</button>
@@ -1017,6 +1363,7 @@
         </div>
     </div>
 
+    <!-- ══════════ MODE SELECT ══════════ -->
     <div class="screen" id="screen-mode">
         <div class="card">
             <button class="info-btn" onclick="goTo('screen-splash')">←</button>
@@ -1037,11 +1384,13 @@
         </div>
     </div>
 
+    <!-- ══════════ OBSERVE ══════════ -->
     <div class="screen" id="screen-observe">
         <div class="card">
             <div class="card-tag">OBSERVATION</div>
             <div class="screen-title">The Sandozer Traversal</div>
             <div class="observe-layout">
+
                 <div class="mini-grid-wrap">
                     <table class="mini-grid" id="obs-grid"></table>
                     <svg class="mini-svg" id="obs-svg"></svg>
@@ -1059,27 +1408,55 @@
 
                 <div class="obs-panel">
 
-                    <div class="obs-row" style="flex-direction:column; align-items:flex-start; gap:8px;">
-                        <span class="obs-label" style="color:#c0392b; font-weight:700;">⚠ SAFETY: TRACTION CONFIG</span>
-                        <select class="test-input" id="obs-traction"
-                            style="width:100%; padding:8px; font-size:0.85rem;">
-                            <option value="dry packed/compact sand">Dry Packed/Compact Sand</option>
-                            <option value="dry loose sand">Dry Loose Sand</option>
-                            <option value="wet moist sand">Wet Moist Sand</option>
-                        </select>
-                    </div>
-
-                    <div class="obs-row" style="flex-direction:column; align-items:flex-start; gap:8px;">
-                        <span class="obs-label">PATH COMMANDS (f,b,l,r)</span>
-                        <div style="display:flex; width:100%; gap:8px;">
-                            <input class="test-input" id="obs-commands" placeholder="e.g. f f r f l f"
-                                style="flex:1; padding:8px; font-size:0.85rem;" />
-                            <button class="btn-pill" onclick="startObserveSequence()"
-                                style="padding:8px 16px; font-size:0.75rem;">START</button>
+                    <!-- SAFETY PANEL -->
+                    <div class="safety-panel">
+                        <div class="safety-panel-title">🛡 Safety Status</div>
+                        <div class="safety-indicators">
+                            <span class="safety-ind ok" id="si-boundary">📍 Boundary: SAFE</span>
+                            <span class="safety-ind ok" id="si-tilt">↗ Tilt: NORMAL</span>
+                            <span class="safety-ind ok" id="si-aq">💨 Air: GOOD</span>
+                            <span class="safety-ind ok" id="si-traction">🔧 Traction: SET</span>
                         </div>
-                        <div class="hint-small">Type commands or say: <em>"forward, left, right, back"</em></div>
                     </div>
 
+                    <!-- TRACTION CONFIG -->
+                    <div style="display:flex;flex-direction:column;gap:4px;">
+                        <label class="test-label"
+                            style="color:var(--danger);font-family:'Orbitron',monospace;font-size:0.68rem;font-weight:700;letter-spacing:0.12em;">⚠
+                            SAFETY: TRACTION CONFIG</label>
+                        <select class="traction-select" id="obs-traction" onchange="updateTractionInfo('obs')">
+                            <option value="dry packed/compact sand">🟤 Dry Packed / Compact Sand</option>
+                            <option value="dry loose sand">🟡 Dry Loose Sand</option>
+                            <option value="wet moist sand">🔵 Wet / Moist Sand</option>
+                        </select>
+                        <div class="traction-info" id="obs-traction-info">Stable surface. Normal speed and turning
+                            radius apply.</div>
+                    </div>
+
+                    <!-- PATH COMMANDS + VOICE -->
+                    <div class="cmd-area">
+                        <div class="cmd-area-title">📡 Path Commands — type or speak</div>
+                        <div class="cmd-input-row">
+                            <input class="cmd-input" id="obs-commands" placeholder="e.g. f f r f l f" />
+                            <button class="cmd-mic-btn" id="obs-cmd-mic" onclick="toggleCmdMic()"
+                                title="Speak directions">🎤</button>
+                            <button class="btn-pill" onclick="startObserveSequence()"
+                                style="padding:7px 14px;font-size:0.72rem;border-radius:8px;">▶ START</button>
+                        </div>
+                        <div class="hint-small" style="margin-top:6px;">Commands: <strong>f</strong>=forward &nbsp;
+                            <strong>b</strong>=back &nbsp; <strong>l</strong>=left &nbsp;
+                            <strong>r</strong>=right<br>Voice: say <em>"forward left right back"</em> — auto-submits
+                        </div>
+                        <div id="obs-cmd-mic-status"
+                            style="font-family:'Share Tech Mono',monospace;font-size:0.63rem;color:var(--danger);margin-top:4px;display:none;">
+                            🎤 Listening for directions…</div>
+                    </div>
+
+                    <!-- SENSOR ROWS -->
+                    <div class="obs-row">
+                        <span class="obs-label">Position:</span>
+                        <span class="obs-val">(<span id="obs-y">0</span>,<span id="obs-x">0</span>)</span>
+                    </div>
                     <div class="obs-row">
                         <span class="obs-label">Altitude:</span>
                         <span class="obs-val" id="obs-alt">0.00 m</span>
@@ -1089,7 +1466,7 @@
                         <span class="obs-val highlight" id="obs-tilt">0.000°</span>
                     </div>
                     <div class="obs-row">
-                        <span class="obs-label">Nearest wall:</span>
+                        <span class="obs-label">Nearest boundary:</span>
                         <span class="obs-val" id="obs-wall">—</span>
                     </div>
                     <div class="obs-row">
@@ -1099,7 +1476,7 @@
 
                     <div class="wall-alert-wrap" id="obs-wall-alert-wrap"></div>
 
-                    <div class="obs-row" style="border:none;flex-direction:column;gap:8px;">
+                    <div class="obs-row" style="border:none;flex-direction:column;gap:6px;">
                         <span class="obs-label">Terrain:</span>
                         <div class="terrain-row">
                             <span class="terrain-opt flat" id="t-flat">FLAT</span>
@@ -1116,7 +1493,7 @@
                         <span style="font-family:'Share Tech Mono',monospace;font-size:0.7rem;color:var(--muted);"
                             id="obs-countdown">0.0s</span>
                         <button class="btn-pill outline" id="obs-pause-btn" onclick="toggleObsPause()"
-                            style="padding:8px 18px;font-size:0.7rem;">⏸</button>
+                            style="padding:6px 16px;font-size:0.7rem;">⏸</button>
                     </div>
 
                     <div style="display:flex;align-items:center;gap:8px;margin-top:2px;">
@@ -1128,7 +1505,7 @@
 
                     <div class="path-log-mini" id="obs-log"></div>
 
-                    <div style="margin-top:8px;">
+                    <div style="margin-top:6px;display:flex;gap:8px;flex-wrap:wrap;">
                         <button class="btn-pill outline" style="padding:8px 20px;font-size:0.72rem;"
                             onclick="goTo('screen-mode')">← BACK</button>
                     </div>
@@ -1137,11 +1514,13 @@
         </div>
     </div>
 
+    <!-- ══════════ TEST ══════════ -->
     <div class="screen" id="screen-test">
         <div class="card">
             <div class="card-tag">TEST</div>
             <div class="screen-title">The Sandozer Traversal</div>
             <div class="test-layout">
+
                 <div class="mini-grid-wrap">
                     <table class="mini-grid" id="test-grid"></table>
                     <svg class="mini-svg" id="test-svg"></svg>
@@ -1159,13 +1538,27 @@
 
                 <div class="test-panel">
 
-                    <div class="test-input-group" style="margin-bottom: 8px;">
-                        <label class="test-label" style="color:#c0392b;">⚠ SAFETY: TRACTION CONFIG</label>
-                        <select class="test-input" id="test-traction" style="padding:8px; font-size:0.85rem;">
-                            <option value="dry packed/compact sand">Dry Packed/Compact Sand</option>
-                            <option value="dry loose sand">Dry Loose Sand</option>
-                            <option value="wet moist sand">Wet Moist Sand</option>
+                    <!-- SAFETY PANEL -->
+                    <div class="safety-panel">
+                        <div class="safety-panel-title">🛡 Safety Status</div>
+                        <div class="safety-indicators">
+                            <span class="safety-ind ok" id="tsi-boundary">📍 Boundary: SAFE</span>
+                            <span class="safety-ind ok" id="tsi-tilt">↗ Tilt: NORMAL</span>
+                            <span class="safety-ind ok" id="tsi-aq">💨 Air: GOOD</span>
+                            <span class="safety-ind ok" id="tsi-traction">🔧 Traction: SET</span>
+                        </div>
+                    </div>
+
+                    <!-- TRACTION CONFIG -->
+                    <div class="test-input-group">
+                        <label class="test-label" style="color:var(--danger);">⚠ SAFETY: TRACTION CONFIG</label>
+                        <select class="traction-select" id="test-traction" onchange="updateTractionInfo('test')">
+                            <option value="dry packed/compact sand">🟤 Dry Packed / Compact Sand</option>
+                            <option value="dry loose sand">🟡 Dry Loose Sand</option>
+                            <option value="wet moist sand">🔵 Wet / Moist Sand</option>
                         </select>
+                        <div class="traction-info" id="test-traction-info">Stable surface. Normal speed and turning
+                            radius apply.</div>
                     </div>
 
                     <div
@@ -1173,15 +1566,16 @@
                         Enter a target cell. The robot finds the shortest path from <strong
                             style="color:var(--black)">(0,0)</strong> and reports terrain at the destination.
                     </div>
+
                     <div class="test-input-group">
                         <label class="test-label">Navigate to: (row, col)</label>
                         <input class="test-input" id="test-target" placeholder="e.g. 3,4 — or speak two numbers" />
-                        <div class="hint-small">Values 0–4. Robot starts at (0,0) and takes shortest path.<br>🎤 You can
-                            speak two digit numbers (e.g. <em>"two three"</em>) — the mic auto-activates after the
-                            greeting.</div>
+                        <div class="hint-small">Values 0–4. Robot starts at (0,0) and takes shortest path.<br>🎤 Say two
+                            digit numbers (e.g. <em>"two three"</em>) — mic auto-activates after greeting.</div>
                         <div class="err" id="test-err">Invalid coordinates. Use row,col (0–4).</div>
                     </div>
-                    <div style="display:flex; align-items:center; gap:16px;">
+
+                    <div style="display:flex;align-items:center;gap:16px;">
                         <button class="go-btn" onclick="runTest()">GO!</button>
                         <span class="voice-pill" id="test-voice-pill">
                             <span class="voice-dot"></span>
@@ -1197,11 +1591,13 @@
         </div>
     </div>
 
+    <!-- ══════════ RESULT ══════════ -->
     <div class="screen" id="screen-result">
         <div class="card">
             <div class="card-tag">TEST</div>
             <div class="screen-title">The Sandozer Traversal</div>
             <div class="result-layout">
+
                 <div class="mini-grid-wrap">
                     <table class="mini-grid" id="res-grid"></table>
                     <svg class="mini-svg" id="res-svg"></svg>
@@ -1218,26 +1614,16 @@
                 </div>
 
                 <div class="result-panel">
-                    <div class="result-row">
-                        <span class="result-label">Position:</span>
-                        <span class="result-val" id="res-pos">—</span>
-                    </div>
-                    <div class="result-row">
-                        <span class="result-label">Facing:</span>
-                        <span class="result-val" id="res-dir">—</span>
-                    </div>
-                    <div class="result-row">
-                        <span class="result-label">Target reached:</span>
-                        <span class="result-val" id="res-reached">—</span>
-                    </div>
-                    <div class="result-row">
-                        <span class="result-label">Vertical tilt:</span>
-                        <span class="result-val tilt" id="res-tilt">—</span>
-                    </div>
-                    <div class="result-row">
-                        <span class="result-label">Air Quality:</span>
-                        <span class="result-val" id="res-aq">—</span>
-                    </div>
+                    <div class="result-row"><span class="result-label">Position:</span><span class="result-val"
+                            id="res-pos">—</span></div>
+                    <div class="result-row"><span class="result-label">Facing:</span><span class="result-val"
+                            id="res-dir">—</span></div>
+                    <div class="result-row"><span class="result-label">Target reached:</span><span class="result-val"
+                            id="res-reached">—</span></div>
+                    <div class="result-row"><span class="result-label">Vertical tilt:</span><span
+                            class="result-val tilt" id="res-tilt">—</span></div>
+                    <div class="result-row"><span class="result-label">Air Quality:</span><span class="result-val"
+                            id="res-aq">—</span></div>
                     <div class="result-row" style="border:none;flex-direction:column;gap:8px;">
                         <span class="result-label">Terrain:</span>
                         <div class="result-terrain">
@@ -1247,12 +1633,8 @@
                         </div>
                     </div>
                     <div class="path-log-mini" id="res-log" style="max-height:80px;overflow-y:auto;"></div>
-                    <div style="margin-top:4px;">
-                        <span class="voice-pill" id="res-voice-pill">
-                            <span class="voice-dot"></span>
-                            <span id="res-voice-label">VOICE IDLE</span>
-                        </span>
-                    </div>
+                    <div style="margin-top:4px;"><span class="voice-pill" id="res-voice-pill"><span
+                                class="voice-dot"></span><span id="res-voice-label">VOICE IDLE</span></span></div>
                     <div style="display:flex;gap:10px;margin-top:8px;flex-wrap:wrap;">
                         <button class="btn-pill" style="padding:10px 24px;font-size:0.78rem;"
                             onclick="goTo('screen-test')">TRY AGAIN</button>
@@ -1264,6 +1646,7 @@
         </div>
     </div>
 
+    <!-- ══════════ CHAT ══════════ -->
     <div class="screen" id="screen-chat">
         <div class="card">
             <div class="chat-header">
@@ -1272,10 +1655,8 @@
                     <div class="screen-title" style="margin-bottom:0;">Ask Me Anything</div>
                 </div>
                 <div style="display:flex;align-items:center;gap:10px;">
-                    <span class="voice-pill" id="chat-voice-pill">
-                        <span class="voice-dot"></span>
-                        <span id="chat-voice-label">VOICE IDLE</span>
-                    </span>
+                    <span class="voice-pill" id="chat-voice-pill"><span class="voice-dot"></span><span
+                            id="chat-voice-label">VOICE IDLE</span></span>
                     <button class="btn-pill outline" style="padding:8px 20px;font-size:0.72rem;"
                         onclick="goTo('screen-mode')">← BACK</button>
                 </div>
@@ -1296,8 +1677,10 @@
         </div>
     </div>
 
+    <!-- ══════════ FLOATING CONTROLS ══════════ -->
     <button id="mic-fab" onclick="toggleGlobalMic()" title="Voice control">🎤</button>
     <div id="mic-status">LISTENING…</div>
+    <button id="estop-btn" onclick="emergencyStop()" title="Emergency Stop">🛑 E-STOP</button>
 
     <script>
         // ════════════════════════════════════════════════════
@@ -1306,23 +1689,57 @@
         let ELEVEN_VOICE = 'Aa6nEBJJMKJwJkCx8VU2'; // Bella
 
         // ════════════════════════════════════════════════════
-        // ELEVENLABS VOICE NARRATION (BACKEND PROXY)
+        // TRACTION SETTINGS
+        // ════════════════════════════════════════════════════
+        const TRACTION_INFO = {
+            'dry packed/compact sand': {
+                info: 'Stable surface. Normal speed and turning radius apply.',
+                cls: '',
+                speedMult: 1.0,
+                safeLabel: '🔧 Traction: SET'
+            },
+            'dry loose sand': {
+                info: '⚠ Loose surface. Reduce speed 30%. Increased wheel slip risk — wide turns recommended.',
+                cls: 'warn-text',
+                speedMult: 0.7,
+                safeLabel: '🔧 Traction: CAUTION'
+            },
+            'wet moist sand': {
+                info: '⛔ Wet surface. Reduce speed 50%. High skid risk — avoid sharp turns and slopes.',
+                cls: 'danger-text',
+                speedMult: 0.5,
+                safeLabel: '🔧 Traction: HAZARD'
+            }
+        };
+
+        function updateTractionInfo(prefix) {
+            const sel = document.getElementById(prefix + '-traction');
+            const info = document.getElementById(prefix + '-traction-info');
+            if (!sel || !info) return;
+            const t = TRACTION_INFO[sel.value];
+            info.textContent = t.info;
+            info.className = 'traction-info' + (t.cls ? ' ' + t.cls : '');
+            // Update safety indicator
+            const siEl = document.getElementById(prefix === 'obs' ? 'si-traction' : 'tsi-traction');
+            if (siEl) {
+                siEl.textContent = t.safeLabel;
+                siEl.className = 'safety-ind ' + (sel.value === 'dry packed/compact sand' ? 'ok' : sel.value === 'dry loose sand' ? 'warn' : 'danger');
+            }
+        }
+
+        // ════════════════════════════════════════════════════
+        // ELEVENLABS TTS
         // ════════════════════════════════════════════════════
         let audioQueue = [];
         let isSpeaking = false;
         let currentAudio = null;
 
-        function terrainLabel(terrain) {
-            return terrain === 'flat' ? 'flat' :
-                terrain === 'smooth' ? 'somewhat smooth' : 'bumpy';
-        }
+        function terrainLabel(t) { return t === 'flat' ? 'flat' : t === 'smooth' ? 'somewhat smooth' : 'bumpy'; }
 
         function buildNarration(step, sensor, idx, total) {
             const terrain = terrainLabel(sensor.terrain);
-            if (idx === 0)
-                return 'Sandozer Mission Control online. Beginning sandbox traversal. Starting at position zero zero. All sensors active.';
-            if (idx === total - 1)
-                return `Traversal complete. Final position: row ${step.row}, column ${step.col}. Vertical tilt ${sensor.tilt.toFixed(3)} degrees. Terrain is ${terrain}. Air quality index ${sensor.airQuality}. Mission scan finished.`;
+            if (idx === 0) return 'Sandozer Mission Control online. Beginning sandbox traversal. Starting at position zero zero. All sensors active.';
+            if (idx === total - 1) return `Traversal complete. Final position: row ${step.row}, column ${step.col}. Vertical tilt ${sensor.tilt.toFixed(3)} degrees. Terrain is ${terrain}. Air quality index ${sensor.airQuality}. Mission scan finished.`;
             return `Step ${idx} of ${total - 1}. Moving to row ${step.row}, column ${step.col}. Tilt ${sensor.tilt.toFixed(3)} degrees. Terrain: ${terrain}. Air quality: ${sensor.airQuality}.`;
         }
 
@@ -1341,18 +1758,12 @@
                 const res = await fetch('/api/tts', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        text: text,
-                        voiceId: ELEVEN_VOICE
-                    })
+                    body: JSON.stringify({ text, voiceId: ELEVEN_VOICE })
                 });
-
-                if (!res.ok) throw new Error('Backend TTS error ' + res.status);
-
+                if (!res.ok) throw new Error('TTS error ' + res.status);
                 const blob = await res.blob();
                 const url = URL.createObjectURL(blob);
                 currentAudio = new Audio(url);
-
                 currentAudio.onended = () => {
                     URL.revokeObjectURL(url);
                     setVoicePill(pillId, labelId, false);
@@ -1360,17 +1771,14 @@
                     drainQueue();
                     if (!audioQueue.length && onComplete) setTimeout(onComplete, 150);
                 };
-
                 currentAudio.onerror = () => {
                     setVoicePill(pillId, labelId, false);
                     currentAudio = null;
                     drainQueue();
                 };
-
                 await currentAudio.play();
-
             } catch (e) {
-                console.warn('[TTS Backend]', e.message);
+                console.warn('[TTS]', e.message);
                 setVoicePill(pillId, labelId, false);
                 currentAudio = null;
                 drainQueue();
@@ -1389,13 +1797,7 @@
         function stopAllAudio() {
             audioQueue = [];
             isSpeaking = false;
-
-            if (currentAudio) {
-                currentAudio.pause();
-                currentAudio.src = '';
-                currentAudio = null;
-            }
-
+            if (currentAudio) { currentAudio.pause(); currentAudio.src = ''; currentAudio = null; }
             ['obs-voice-pill', 'test-voice-pill', 'res-voice-pill', 'chat-voice-pill'].forEach(id => {
                 const el = document.getElementById(id);
                 if (el) el.classList.remove('active');
@@ -1407,35 +1809,101 @@
         }
 
         // ════════════════════════════════════════════════════
-        // WALL PROXIMITY SAFETY ALERTS
+        // EMERGENCY STOP
         // ════════════════════════════════════════════════════
-        const CELL_SIZE_M = 0.20; // each grid cell ≈ 20 cm
-        let lastWallAlertDist = -1;
+        function emergencyStop() {
+            clearInterval(obsTimer);
+            obsPaused = true;
+            stopAllAudio();
+            const pauseBtn = document.getElementById('obs-pause-btn');
+            if (pauseBtn) pauseBtn.textContent = '▶';
+            const pillId = currentScreen === 'screen-test' ? 'test-voice-pill' : 'obs-voice-pill';
+            const labelId = currentScreen === 'screen-test' ? 'test-voice-label' : 'obs-voice-label';
+            speak('Emergency stop activated. Robot halted. All movement suspended.', pillId, labelId);
+        }
 
-        function checkWallProximity(row, col, pillId, labelId) {
+        function showEStop(show) {
+            const btn = document.getElementById('estop-btn');
+            btn.className = show ? 'active' : '';
+        }
+
+        // ════════════════════════════════════════════════════
+        // WALL PROXIMITY SAFETY — visual always, voice only on zone entry
+        // Step 0 suppressed (robot always starts on the border).
+        // ════════════════════════════════════════════════════
+        const CELL_SIZE_M = 0.20;
+        let lastWallZone = -1; // -1=none, 0=at wall, 1=1cell, 2=2cells
+
+        function checkWallProximity(row, col, stepIdx) {
             const wallDist = Math.min(row, col, 4 - row, 4 - col);
             const wrap = document.getElementById('obs-wall-alert-wrap');
+            const screenPfx = (currentScreen === 'screen-observe') ? 'si' : 'tsi';
+            const siEl = document.getElementById(screenPfx + '-boundary');
 
-            if (wallDist <= 2) {
-                const meters = (wallDist * CELL_SIZE_M).toFixed(2);
-                if (wrap) {
-                    wrap.innerHTML = `<span class="wall-alert">⚠ WALL DETECTED — ${meters} m away</span>`;
-                }
-
-                // Only speak if distance DECREASED (getting closer to a wall)
-                if (lastWallAlertDist !== -1 && wallDist < lastWallAlertDist) {
-                    // **UPDATED SAFETY PHRASE HERE**
-                    const alertText = wallDist === 0
-                        ? `Warning! Robot is at the wall boundary. Hazard mitigation engaged.`
-                        : `Safety alert. Approaching boundary. ${meters} meters away.`;
-                    speak(alertText, pillId, labelId);
-                }
-            } else {
+            // Suppress on step 0 — starting position is always on the border
+            if (stepIdx === 0) {
+                lastWallZone = wallDist; // seed so first real move doesn't re-fire
                 if (wrap) wrap.innerHTML = '';
+                if (siEl) { siEl.textContent = '📍 Boundary: SAFE'; siEl.className = 'safety-ind ok'; }
+                return;
             }
 
-            // Always update last distance so we know if we are moving towards or away from walls
-            lastWallAlertDist = wallDist;
+            const pillId = (currentScreen === 'screen-observe') ? 'obs-voice-pill' : 'test-voice-pill';
+            const labelId = (currentScreen === 'screen-observe') ? 'obs-voice-label' : 'test-voice-label';
+            const zoneChanged = wallDist !== lastWallZone;
+            lastWallZone = wallDist;
+
+            if (wallDist === 0) {
+                if (wrap) wrap.innerHTML = `<span class="wall-alert">⛔ AT BOUNDARY</span>`;
+                if (siEl) { siEl.textContent = '📍 Boundary: AT WALL'; siEl.className = 'safety-ind danger'; }
+                if (zoneChanged) speak('Warning. Robot is at the boundary.', pillId, labelId);
+            } else if (wallDist === 1) {
+                if (wrap) wrap.innerHTML = `<span class="wall-alert">⚠ APPROACHING BOUNDARY</span>`;
+                if (siEl) { siEl.textContent = '📍 Boundary: WARNING'; siEl.className = 'safety-ind danger'; }
+                if (zoneChanged) speak('Approaching boundary.', pillId, labelId);
+            } else if (wallDist === 2) {
+                if (wrap) wrap.innerHTML = `<span class="wall-alert warn-yellow">⚠ NEAR BOUNDARY</span>`;
+                if (siEl) { siEl.textContent = '📍 Boundary: CAUTION'; siEl.className = 'safety-ind warn'; }
+                // No voice for 2-cell distance — visual only
+            } else {
+                if (wrap) wrap.innerHTML = '';
+                if (siEl) { siEl.textContent = '📍 Boundary: SAFE'; siEl.className = 'safety-ind ok'; }
+            }
+        }
+
+        // AQI safety check — updates indicator and can warn
+        function checkAQSafety(aq, prefix, pillId, labelId, stepIdx) {
+            const siEl = document.getElementById(prefix + '-aq');
+            if (!siEl) return;
+            if (aq > 150) {
+                siEl.textContent = '💨 Air: DANGEROUS';
+                siEl.className = 'safety-ind danger';
+                if (stepIdx !== undefined && stepIdx % 3 === 0) {
+                    speak(`Air quality alert. AQI is ${aq}. Conditions are hazardous. Recommend halting operations.`, pillId, labelId);
+                }
+            } else if (aq > 100) {
+                siEl.textContent = '💨 Air: MODERATE';
+                siEl.className = 'safety-ind warn';
+            } else {
+                siEl.textContent = '💨 Air: GOOD';
+                siEl.className = 'safety-ind ok';
+            }
+        }
+
+        // Tilt safety check
+        function checkTiltSafety(tilt, terrain, prefix) {
+            const siEl = document.getElementById(prefix + '-tilt');
+            if (!siEl) return;
+            if (terrain === 'bump') {
+                siEl.textContent = '↗ Tilt: HIGH RISK';
+                siEl.className = 'safety-ind danger';
+            } else if (terrain === 'smooth') {
+                siEl.textContent = '↗ Tilt: ELEVATED';
+                siEl.className = 'safety-ind warn';
+            } else {
+                siEl.textContent = '↗ Tilt: NORMAL';
+                siEl.className = 'safety-ind ok';
+            }
         }
 
         // ════════════════════════════════════════════════════
@@ -1444,21 +1912,20 @@
         function goTo(screenId) {
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
             document.getElementById(screenId).classList.add('active');
+            currentScreen = screenId;
+
+            showEStop(screenId === 'screen-observe' || screenId === 'screen-test');
 
             if (screenId !== 'screen-observe') stopAllAudio();
             if (screenId === 'screen-observe') initObserve();
 
             if (screenId === 'screen-test') {
                 initTestGrid();
+                updateTractionInfo('test');
                 speak(
                     'Hello! What position would you like to navigate to? Say two numbers for row and column, each between 0 and 4.',
                     'test-voice-pill', 'test-voice-label',
-                    () => {
-                        if (currentScreen === 'screen-test') {
-                            continuousListen = true;
-                            startGlobalMic();
-                        }
-                    }
+                    () => { if (currentScreen === 'screen-test') { continuousListen = true; startGlobalMic(); } }
                 );
             }
             if (screenId === 'screen-chat') initChat();
@@ -1476,14 +1943,12 @@
             document.getElementById('btn-test').classList.toggle('selected', mode === 'test');
             document.getElementById('btn-chat').classList.toggle('selected', mode === 'chat');
             const cont = document.getElementById('mode-continue');
-            cont.style.opacity = '1';
-            cont.style.pointerEvents = 'auto';
+            cont.style.opacity = '1'; cont.style.pointerEvents = 'auto';
         }
 
         function continueMode() {
             if (!selectedMode) return;
-            const dest = selectedMode === 'observe' ? 'screen-observe' :
-                selectedMode === 'test' ? 'screen-test' : 'screen-chat';
+            const dest = selectedMode === 'observe' ? 'screen-observe' : selectedMode === 'test' ? 'screen-test' : 'screen-chat';
             goTo(dest);
         }
 
@@ -1502,8 +1967,7 @@
                     const td = document.createElement('td');
                     td.className = 'mini-cell';
                     td.innerHTML = `<span class="mc-label">${r},${c}</span>`;
-                    tr.appendChild(td);
-                    cells[r][c] = td;
+                    tr.appendChild(td); cells[r][c] = td;
                 }
                 tableEl.appendChild(tr);
             }
@@ -1515,9 +1979,7 @@
             return { x: sp + col * (CELL + 3) + CELL / 2, y: sp + row * (CELL + 3) + CELL / 2 };
         }
 
-        function gridTotalSize() {
-            return (3 + 6) + 5 * (CELL + 3);
-        }
+        function gridTotalSize() { return (3 + 6) + 5 * (CELL + 3); }
 
         // ════════════════════════════════════════════════════
         // DIRECTION SYSTEM
@@ -1546,7 +2008,7 @@
         }
 
         // ════════════════════════════════════════════════════
-        // SENSOR DATA (randomized per session)
+        // SENSOR DATA
         // ════════════════════════════════════════════════════
         const TILT_MAP = (() => {
             const m = [];
@@ -1563,13 +2025,7 @@
 
         const AIR_QUALITY_MAP = (() => {
             const m = [];
-            for (let r = 0; r < 5; r++) {
-                m[r] = [];
-                for (let c = 0; c < 5; c++) {
-                    // Range 40–200, multiples of 5
-                    m[r][c] = Math.round((40 + Math.random() * 160) / 5) * 5;
-                }
-            }
+            for (let r = 0; r < 5; r++) { m[r] = []; for (let c = 0; c < 5; c++) m[r][c] = Math.round((40 + Math.random() * 160) / 5) * 5; }
             return m;
         })();
 
@@ -1593,21 +2049,18 @@
             svgEl.setAttribute('width', sz); svgEl.setAttribute('height', sz);
             svgEl.innerHTML = '';
             if (upTo < 1) return;
-
             const pts = [];
             for (let i = 0; i <= upTo; i++) {
                 const { x, y } = cellCenter(steps[i].row, steps[i].col);
                 if (!pts.length || pts[pts.length - 1].x !== x || pts[pts.length - 1].y !== y) pts.push({ x, y });
             }
             if (pts.length < 2) return;
-
             const ptStr = pts.map(p => `${p.x},${p.y}`).join(' ');
             svgEl.appendChild(makePoly(ptStr, '#b0a890', 11));
             svgEl.appendChild(makePoly(ptStr, '#1a1a1a', 7));
             const dash = makePoly(ptStr, '#f5c800', 2);
             dash.setAttribute('stroke-dasharray', '6 8');
             svgEl.appendChild(dash);
-
             const seen = new Set();
             for (let i = 0; i <= upTo; i++) {
                 const { row, col } = steps[i], key = `${row},${col}`;
@@ -1654,7 +2107,7 @@
         function initObserve() {
             clearInterval(obsTimer);
             stopAllAudio();
-            lastWallAlertDist = -1;
+            lastWallZone = -1;
             obsStep = 0;
             obsPaused = false;
 
@@ -1665,34 +2118,34 @@
             svg.innerHTML = '';
             document.getElementById('obs-robot').style.display = 'none';
             document.getElementById('obs-log').innerHTML = '';
+            document.getElementById('obs-wall-alert-wrap').innerHTML = '';
 
-            // Greet user and prompt for path setup
-            speak('Observation mode ready. Please select a traction setting and provide path commands.', 'obs-voice-pill', 'obs-voice-label', () => {
-                if (currentScreen === 'screen-observe') {
-                    continuousListen = true;
-                    startGlobalMic();
-                }
+            updateTractionInfo('obs');
+
+            speak('Observation mode ready. Please select a traction setting, enter path commands, and press Start.', 'obs-voice-pill', 'obs-voice-label', () => {
+                if (currentScreen === 'screen-observe') { continuousListen = true; startGlobalMic(); }
             });
         }
 
-        // Called when user hits START on the Observe screen
         function startObserveSequence() {
-            let cmds = document.getElementById('obs-commands').value.trim();
-            if (!cmds) cmds = 'f f f r f f'; // fallback default
+            let cmds = document.getElementById('obs-commands').value.trim().replace('🎤 ', '');
+            if (!cmds) cmds = 'f f f r f f';
 
             obsSteps = parseCommands(cmds) || [{ row: 0, col: 0, dir: 'E', cmd: 'START' }];
             obsStep = 0;
             obsPaused = false;
-            lastWallAlertDist = -1;
+            lastWallZone = -1;
 
             buildMiniGrid(document.getElementById('obs-grid'));
             buildObsLog();
 
             const traction = document.getElementById('obs-traction').value;
+            const tractionT = TRACTION_INFO[traction];
+            let safetyMsg = `Commencing patrol. Safety traction mechanism optimized for ${traction}.`;
+            if (traction === 'wet moist sand') safetyMsg += ' High slip risk active. Reduced speed applied.';
+            else if (traction === 'dry loose sand') safetyMsg += ' Caution: loose terrain. Reduced speed applied.';
 
-            // Explicit safety confirmation of mechanical settings before starting
-            speak(`Commencing patrol. Safety traction mechanism optimized for ${traction}.`, 'obs-voice-pill', 'obs-voice-label');
-
+            speak(safetyMsg, 'obs-voice-pill', 'obs-voice-label');
             renderObsStep(0);
             startObsTimer();
         }
@@ -1722,21 +2175,19 @@
 
             const tiltEl = document.getElementById('obs-tilt');
             tiltEl.textContent = sensor.tilt.toFixed(3) + '°';
-            tiltEl.style.color = sensor.terrain === 'flat' ? 'var(--green)' :
-                sensor.terrain === 'smooth' ? '#b87900' : '#c0392b';
+            tiltEl.style.color = sensor.terrain === 'flat' ? 'var(--green)' : sensor.terrain === 'smooth' ? '#b87900' : '#c0392b';
 
-            document.getElementById('obs-wall').textContent =
-                sensor.wallDist + ' cell' + (sensor.wallDist !== 1 ? 's' : '');
-            document.getElementById('obs-step-badge').textContent =
-                `STEP ${idx}/${obsSteps.length - 1}`;
+            document.getElementById('obs-wall').textContent = sensor.wallDist + ' cell' + (sensor.wallDist !== 1 ? 's' : '');
+            document.getElementById('obs-step-badge').textContent = `STEP ${idx}/${obsSteps.length - 1}`;
 
-            // Air quality display
             const aqEl = document.getElementById('obs-aq');
             const aq = sensor.airQuality;
             aqEl.textContent = aq + ' AQI — ' + (aq <= 100 ? 'Good' : aq <= 150 ? 'Moderate' : 'Poor');
             aqEl.className = 'obs-val ' + (aq <= 100 ? 'aq-good' : aq <= 150 ? 'aq-moderate' : 'aq-poor');
 
             setTerrainHighlight('t-', sensor.terrain);
+            checkTiltSafety(sensor.tilt, sensor.terrain, 'si');
+            checkAQSafety(aq, 'si', 'obs-voice-pill', 'obs-voice-label', idx);
 
             document.querySelectorAll('#obs-log .log-chip').forEach((el, i) => {
                 el.className = 'log-chip' + (i < idx ? ' done' : i === idx ? ' current' : '');
@@ -1744,8 +2195,8 @@
             const cur = document.querySelector('#obs-log .current');
             if (cur) cur.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 
-            // Wall proximity check fires FIRST, then step narration
-            checkWallProximity(s.row, s.col, 'obs-voice-pill', 'obs-voice-label');
+            // Boundary check: visual only (no voice) — see checkWallProximity
+            checkWallProximity(s.row, s.col, idx);
             const text = buildNarration(s, sensor, idx, obsSteps.length);
             speak(text, 'obs-voice-pill', 'obs-voice-label');
         }
@@ -1777,14 +2228,13 @@
         }
 
         // ════════════════════════════════════════════════════
-        // BFS PATH FINDER
+        // BFS
         // ════════════════════════════════════════════════════
         function bfsPath(tr, tc) {
             if (tr === 0 && tc === 0) return [{ row: 0, col: 0 }];
             const visited = Array.from({ length: 5 }, () => Array(5).fill(false));
             const parent = Array.from({ length: 5 }, () => Array(5).fill(null));
-            const q = [{ row: 0, col: 0 }];
-            visited[0][0] = true;
+            const q = [{ row: 0, col: 0 }]; visited[0][0] = true;
             const dirs = [[0, 1], [1, 0], [0, -1], [-1, 0]];
             while (q.length) {
                 const { row, col } = q.shift();
@@ -1795,9 +2245,7 @@
                 }
                 for (const [dr, dc] of dirs) {
                     const nr = row + dr, nc = col + dc;
-                    if (nr >= 0 && nr < 5 && nc >= 0 && nc < 5 && !visited[nr][nc]) {
-                        visited[nr][nc] = true; parent[nr][nc] = { row, col }; q.push({ row: nr, col: nc });
-                    }
+                    if (nr >= 0 && nr < 5 && nc >= 0 && nc < 5 && !visited[nr][nc]) { visited[nr][nc] = true; parent[nr][nc] = { row, col }; q.push({ row: nr, col: nc }); }
                 }
             }
             return [{ row: 0, col: 0 }];
@@ -1831,33 +2279,29 @@
                 return;
             }
             const targetRow = +m[1], targetCol = +m[2];
-
             const traction = document.getElementById('test-traction').value;
-
-            // Explicit voice confirmation of mechanical safety mechanisms before moving
+            const tractionT = TRACTION_INFO[traction];
             speak(`Commencing test traversal to row ${targetRow}, column ${targetCol}. Traction optimized for ${traction}.`, 'test-voice-pill', 'test-voice-label');
-
             animateTest(bfsToSteps(bfsPath(targetRow, targetCol)), targetRow, targetCol);
         }
 
         function animateTest(steps, targetRow, targetCol) {
-            const grid = document.getElementById('test-grid');
-            const svg = document.getElementById('test-svg');
-            const robot = document.getElementById('test-robot');
-            buildMiniGrid(grid);
+            buildMiniGrid(document.getElementById('test-grid'));
             const sz = gridTotalSize();
+            const svg = document.getElementById('test-svg');
             svg.setAttribute('width', sz); svg.setAttribute('height', sz);
             svg.innerHTML = '';
+            const robot = document.getElementById('test-robot');
             let i = 0;
-
-            // Initialize to STARTING distance so we don't instantly throw an alert
-            lastWallAlertDist = Math.min(steps[0].row, steps[0].col, 4 - steps[0].row, 4 - steps[0].col);
+            lastWallZone = -1;
 
             function next() {
                 drawPath(svg, steps, i);
                 moveRobot(robot, steps[i].row, steps[i].col);
-                // Wall proximity check during test traversal
-                checkWallProximity(steps[i].row, steps[i].col, 'test-voice-pill', 'test-voice-label');
+                const sensor = getSensorData(steps[i].row, steps[i].col);
+                checkWallProximity(steps[i].row, steps[i].col, i);
+                checkTiltSafety(sensor.tilt, sensor.terrain, 'tsi');
+                checkAQSafety(sensor.airQuality, 'tsi', 'test-voice-pill', 'test-voice-label', i);
                 if (i < steps.length - 1) { i++; setTimeout(next, 700); }
                 else { setTimeout(() => showResult(steps, targetRow, targetCol), 900); }
             }
@@ -1865,7 +2309,7 @@
         }
 
         // ════════════════════════════════════════════════════
-        // RESULT SCREEN
+        // RESULT
         // ════════════════════════════════════════════════════
         function showResult(steps, targetRow, targetCol) {
             const last = steps[steps.length - 1];
@@ -1874,8 +2318,8 @@
             goTo('screen-result');
 
             buildMiniGrid(document.getElementById('res-grid'));
-            const resSvg = document.getElementById('res-svg');
             const sz = gridTotalSize();
+            const resSvg = document.getElementById('res-svg');
             resSvg.setAttribute('width', sz); resSvg.setAttribute('height', sz);
             drawPath(resSvg, steps, steps.length - 1);
             moveRobot(document.getElementById('res-robot'), last.row, last.col);
@@ -1886,15 +2330,12 @@
             const reached = last.row === targetRow && last.col === targetCol;
             const reachEl = document.getElementById('res-reached');
             reachEl.textContent = reached ? '✓ YES — destination reached!' : `✗ NO — ended at (${last.row},${last.col})`;
-            reachEl.style.color = reached ? 'var(--green)' : '#c0392b';
-            reachEl.parentElement.style.display = 'flex';
+            reachEl.style.color = reached ? 'var(--green)' : 'var(--danger)';
 
             const tiltEl = document.getElementById('res-tilt');
             tiltEl.textContent = sensor.tilt.toFixed(3) + '°';
-            tiltEl.style.color = sensor.terrain === 'flat' ? 'var(--green)' :
-                sensor.terrain === 'smooth' ? '#b87900' : '#c0392b';
+            tiltEl.style.color = sensor.terrain === 'flat' ? 'var(--green)' : sensor.terrain === 'smooth' ? '#b87900' : 'var(--danger)';
 
-            // --- NEW AQI LOGIC ---
             const resAqEl = document.getElementById('res-aq');
             const aq = sensor.airQuality;
             const aqStatus = aq <= 100 ? 'Safe' : aq <= 150 ? 'Medium' : 'Dangerous';
@@ -1913,8 +2354,7 @@
             });
 
             const terrain = terrainLabel(sensor.terrain);
-            const terrainDetail = sensor.terrain === 'flat' ? 'No leveling required.' :
-                sensor.terrain === 'smooth' ? 'Moderate leveling recommended.' : 'High priority for leveling.';
+            const terrainDetail = sensor.terrain === 'flat' ? 'No leveling required.' : sensor.terrain === 'smooth' ? 'Moderate leveling recommended.' : 'High priority for leveling.';
             const narration = reached
                 ? `Mission complete. Destination reached at row ${last.row}, column ${last.col}. Vertical tilt is ${sensor.tilt.toFixed(3)} degrees. Terrain is ${terrain}. ${terrainDetail} Air quality index is ${sensor.airQuality}.`
                 : `Mission ended at row ${last.row}, column ${last.col}. Target was not reached. Terrain is ${terrain}. Air quality index is ${sensor.airQuality}.`;
@@ -1928,34 +2368,29 @@
 
 Here are key facts about the Sandozer robot:
 - Hardware: Arduino Elegoo Oullot Tank Kit with a bulldozer-style flat blade attachment
-- Purpose: Autonomous sandbox terrain leveling — it detects bumpy areas and levels them
-- Navigation: Operates on a 5×5 grid, uses BFS (Breadth-First Search) for shortest-path navigation
-- Sensors: MPU-6050 IMU for tilt/orientation, HC-SR04 ultrasonic sensor for wall detection, air quality sensor (MQ-series), altitude sensor
-- Terrain classification: Flat (tilt < 0.05°), Somewhat Smooth (0.05–0.15°), Bumpy (>0.15°)
-- Safety: Wall proximity alerts trigger at ≤2 grid cells from any boundary (~40 cm)
-- Mechanical Safety: The UI allows the operator to configure traction mode (dry packed, dry loose, wet moist) to prevent wheel slip.
-- Air Quality: Measured in AQI. 50–100 = Good, 101–150 = Moderate, 151+ = Poor
-- Voice: Uses ElevenLabs TTS (Bella voice) for all narration; Web Speech API for voice commands
-- Modes: Observe (manual dictation patrol), Test (auto pathfinding), Chat
-- Grid cell size: approximately 20 cm × 20 cm
+- Purpose: Autonomous sandbox terrain leveling
+- Navigation: 5×5 grid, BFS shortest-path navigation
+- Sensors: MPU-6050 IMU (tilt), HC-SR04 ultrasonic (wall detection), air quality sensor, altitude sensor
+- Terrain: Flat (<0.05°), Somewhat Smooth (0.05–0.15°), Bumpy (>0.15°)
+- Safety: Boundary alerts ≤2 grid cells from any wall. Voice says "Approaching boundary."
+- Traction Config: Dry Packed (normal), Dry Loose (−30% speed, slip risk), Wet Moist (−50% speed, skid risk)
+- Emergency Stop: Available on observe and test screens
+- Air Quality: AQI 50–100 = Good, 101–150 = Moderate, 151+ = Poor/Dangerous
+- Voice: ElevenLabs TTS (Bella) + Web Speech API
+- Modes: Observe (manual path patrol), Test (auto BFS pathfinding), Chat
 
-Answer questions about the robot concisely and helpfully. Keep responses to 2–4 sentences unless a detailed explanation is needed.`;
+Answer questions concisely in 2–4 sentences unless detail is needed.`;
 
         let chatHistory = [];
-
-        function initChat() {
-            chatHistory = [];
-        }
+        function initChat() { chatHistory = []; }
 
         async function sendChat() {
             const input = document.getElementById('chat-input');
             const msg = input.value.trim();
             if (!msg) return;
             input.value = '';
-
             appendChatBubble(msg, 'user');
             chatHistory.push({ role: 'user', parts: [{ text: msg }] });
-
             const typingEl = appendChatBubble('Thinking…', 'typing');
 
             try {
@@ -1964,34 +2399,18 @@ Answer questions about the robot concisely and helpfully. Keep responses to 2–
                     contents: chatHistory,
                     generationConfig: { maxOutputTokens: 300, temperature: 0.7 }
                 };
-
-                const res = await fetch('/api/gemini', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(requestBody)
-                });
-
+                const res = await fetch('/api/gemini', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(requestBody) });
                 const data = await res.json();
-
-                if (!res.ok || data.error) {
-                    const errorMessage = data.error?.message || JSON.stringify(data.error) || 'Unknown API Error';
-                    throw new Error(errorMessage);
-                }
-
+                if (!res.ok || data.error) throw new Error(data.error?.message || 'API Error');
                 const reply = data.candidates?.[0]?.content?.parts?.[0]?.text || 'No response received.';
-
                 chatHistory.push({ role: 'model', parts: [{ text: reply }] });
                 typingEl.className = 'chat-bubble bot';
                 typingEl.textContent = reply;
-
-                const msgs = document.getElementById('chat-messages');
-                msgs.scrollTop = msgs.scrollHeight;
+                document.getElementById('chat-messages').scrollTop = 99999;
                 speak(reply, 'chat-voice-pill', 'chat-voice-label');
-
             } catch (e) {
                 typingEl.className = 'chat-bubble bot';
                 typingEl.textContent = '⚠ ' + e.message;
-                console.warn('[Gemini]', e);
             }
         }
 
@@ -2001,56 +2420,94 @@ Answer questions about the robot concisely and helpfully. Keep responses to 2–
             wrap.className = 'chat-bubble-wrap';
             if (type === 'bot' || type === 'typing') {
                 const name = document.createElement('div');
-                name.className = 'bot-name';
-                name.textContent = 'SANDOZER AI';
-                wrap.appendChild(name);
+                name.className = 'bot-name'; name.textContent = 'SANDOZER AI'; wrap.appendChild(name);
             }
             const bubble = document.createElement('div');
-            bubble.className = `chat-bubble ${type}`;
-            bubble.textContent = text;
-            wrap.appendChild(bubble);
-            msgs.appendChild(wrap);
+            bubble.className = `chat-bubble ${type}`; bubble.textContent = text;
+            wrap.appendChild(bubble); msgs.appendChild(wrap);
             msgs.scrollTop = msgs.scrollHeight;
             return bubble;
         }
 
         // ════════════════════════════════════════════════════
-        // WEB SPEECH API — VOICE CONTROL
+        // COMMAND MIC (Observe directions only)
+        // ════════════════════════════════════════════════════
+        let cmdMicActive = false;
+        let cmdMicRecognition = null;
+
+        function toggleCmdMic() {
+            if (cmdMicActive) stopCmdMic();
+            else startCmdMic();
+        }
+
+        function startCmdMic() {
+            const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if (!SR) { alert('Web Speech not supported. Use Chrome.'); return; }
+            cmdMicRecognition = new SR();
+            cmdMicRecognition.lang = 'en-US';
+            cmdMicRecognition.interimResults = false;
+            cmdMicRecognition.onstart = () => {
+                cmdMicActive = true;
+                document.getElementById('obs-cmd-mic').classList.add('listening');
+                document.getElementById('obs-cmd-mic-status').style.display = 'block';
+            };
+            cmdMicRecognition.onresult = (e) => {
+                const raw = e.results[0][0].transcript.toLowerCase().trim();
+                const normalized = normalizeDirections(raw);
+                if (normalized.length > 0) {
+                    document.getElementById('obs-commands').value = normalized;
+                    setTimeout(startObserveSequence, 400);
+                }
+            };
+            cmdMicRecognition.onend = () => {
+                cmdMicActive = false;
+                document.getElementById('obs-cmd-mic').classList.remove('listening');
+                document.getElementById('obs-cmd-mic-status').style.display = 'none';
+            };
+            cmdMicRecognition.onerror = () => {
+                cmdMicActive = false;
+                document.getElementById('obs-cmd-mic').classList.remove('listening');
+                document.getElementById('obs-cmd-mic-status').style.display = 'none';
+            };
+            cmdMicRecognition.start();
+        }
+
+        function stopCmdMic() {
+            if (cmdMicRecognition) { try { cmdMicRecognition.stop(); } catch (e) { } }
+            cmdMicActive = false;
+            document.getElementById('obs-cmd-mic').classList.remove('listening');
+            document.getElementById('obs-cmd-mic-status').style.display = 'none';
+        }
+
+        // ════════════════════════════════════════════════════
+        // WEB SPEECH — GLOBAL MIC
         // ════════════════════════════════════════════════════
         let globalRecognition = null;
         let chatRecognition = null;
         let globalMicActive = false;
         let chatMicActive = false;
         let currentScreen = 'screen-splash';
-        let continuousListen = false; // auto-restart mic after each result
+        let continuousListen = false;
 
-        // Normalizes spelled-out numbers to digits
         function normalizeNumbers(t) {
-            return t
-                .replace(/\bzero\b/g, '0').replace(/\bone\b/g, '1')
-                .replace(/\b(two|too)\b/g, '2').replace(/\bthree\b/g, '3')
-                .replace(/\b(four)\b/g, '4').replace(/\boh\b/g, '0');
+            return t.replace(/\bzero\b/g, '0').replace(/\bone\b/g, '1').replace(/\b(two|too)\b/g, '2').replace(/\bthree\b/g, '3').replace(/\b(four)\b/g, '4').replace(/\boh\b/g, '0');
         }
 
-        // Translates spoken directions into single characters (f, b, l, r)
         function normalizeDirections(t) {
             return t.toLowerCase()
                 .replace(/\b(forward|straight)\b/g, 'f ')
                 .replace(/\bback(ward)?\b/g, 'b ')
                 .replace(/\bleft\b/g, 'l ')
                 .replace(/\bright\b/g, 'r ')
-                .replace(/[^fblr\s]/g, '') // strip out everything except f, b, l, r and spaces
+                .replace(/[^fblr\s]/g, '')
                 .replace(/\s+/g, ' ').trim();
         }
 
         function parseTestCoords(transcript) {
             const t = normalizeNumbers(transcript.toLowerCase());
-            let m = t.match(/row\s*(\d).*?col(?:umn)?\s*(\d)/);
-            if (m) return m;
-            m = t.match(/(?:navigate|go)\s+to\s+(\d)\D*(\d)/);
-            if (m) return m;
-            m = t.match(/(\d)\s*[,.]\s*(\d)/);
-            if (m) return m;
+            let m = t.match(/row\s*(\d).*?col(?:umn)?\s*(\d)/); if (m) return m;
+            m = t.match(/(?:navigate|go)\s+to\s+(\d)\D*(\d)/); if (m) return m;
+            m = t.match(/(\d)\s*[,.]\s*(\d)/); if (m) return m;
             const digits = [...t.matchAll(/\b(\d)\b/g)];
             if (digits.length >= 2) return [null, digits[0][1], digits[1][1]];
             return null;
@@ -2058,26 +2515,18 @@ Answer questions about the robot concisely and helpfully. Keep responses to 2–
 
         function updateMicContext(screenId) {
             currentScreen = screenId;
-            // Only keep the mic open automatically on these entry screens
-            if (screenId !== 'screen-test' && screenId !== 'screen-observe') {
-                continuousListen = false;
-                stopGlobalMic();
-            }
+            if (screenId !== 'screen-test' && screenId !== 'screen-observe') { continuousListen = false; stopGlobalMic(); }
         }
 
         function buildSpeechRecognition() {
             const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
             if (!SR) return null;
-            const rec = new SR();
-            rec.lang = 'en-US';
-            rec.interimResults = false;
-            rec.maxAlternatives = 3;
+            const rec = new SR(); rec.lang = 'en-US'; rec.interimResults = false; rec.maxAlternatives = 3;
             return rec;
         }
 
         function toggleGlobalMic() {
-            if (globalMicActive) { continuousListen = false; stopGlobalMic(); }
-            else startGlobalMic();
+            if (globalMicActive) { continuousListen = false; stopGlobalMic(); } else startGlobalMic();
         }
 
         function startGlobalMic() {
@@ -2092,24 +2541,14 @@ Answer questions about the robot concisely and helpfully. Keep responses to 2–
             };
             globalRecognition.onresult = (e) => {
                 const transcripts = Array.from(e.results[0]).map(alt => alt.transcript.toLowerCase().trim());
-
-                if (currentScreen === 'screen-test') {
-                    document.getElementById('test-target').value = '🎤 ' + transcripts[0];
-                } else if (currentScreen === 'screen-observe') {
-                    document.getElementById('obs-commands').value = '🎤 ' + transcripts[0];
-                }
-
-                for (const t of transcripts) {
-                    if (handleVoiceCommand(t)) break;
-                }
+                if (currentScreen === 'screen-test') document.getElementById('test-target').value = '🎤 ' + transcripts[0];
+                else if (currentScreen === 'screen-observe') document.getElementById('obs-commands').value = '🎤 ' + transcripts[0];
+                for (const t of transcripts) { if (handleVoiceCommand(t)) break; }
             };
             globalRecognition.onend = () => {
                 globalMicActive = false;
-                // Auto-restart if we are waiting for dictation
                 if (continuousListen && (currentScreen === 'screen-test' || currentScreen === 'screen-observe') && !isSpeaking) {
-                    setTimeout(() => {
-                        if (continuousListen) startGlobalMic();
-                    }, 350);
+                    setTimeout(() => { if (continuousListen) startGlobalMic(); }, 350);
                 } else {
                     document.getElementById('mic-fab').classList.remove('listening');
                     document.getElementById('mic-status').classList.remove('show');
@@ -2138,14 +2577,17 @@ Answer questions about the robot concisely and helpfully. Keep responses to 2–
         function handleVoiceCommand(transcript) {
             const screen = currentScreen;
 
-            // Universal Back Command
+            // Emergency stop voice command
+            if (/\b(emergency stop|stop now|halt|e.?stop)\b/.test(transcript) && (screen === 'screen-observe' || screen === 'screen-test')) {
+                emergencyStop(); return true;
+            }
+
             if (/\b(back|go back|menu|home)\b/.test(transcript) && screen !== 'screen-splash' && screen !== 'screen-mode') {
-                goTo('screen-mode');
-                return true;
+                goTo('screen-mode'); return true;
             }
 
             if (screen === 'screen-splash') {
-                if (/\b(start|begin|launch|go|continue|proceed)\b/.test(transcript)) { goTo('screen-mode'); return true; }
+                if (/\b(start|begin|launch|go|continue)\b/.test(transcript)) { goTo('screen-mode'); return true; }
 
             } else if (screen === 'screen-mode') {
                 if (/\bobserv/.test(transcript)) { selectMode('observe'); continueMode(); return true; }
@@ -2155,13 +2597,11 @@ Answer questions about the robot concisely and helpfully. Keep responses to 2–
 
             } else if (screen === 'screen-test') {
                 if (/\b(cancel)\b/.test(transcript)) { continuousListen = false; goTo('screen-mode'); return true; }
-
                 const m = parseTestCoords(transcript);
                 if (m) {
                     const r = +m[1], c = +m[2];
                     if (r <= 4 && c <= 4) {
-                        continuousListen = false;
-                        stopGlobalMic();
+                        continuousListen = false; stopGlobalMic();
                         document.getElementById('test-target').value = `${r},${c}`;
                         setTimeout(() => runTest(), 400);
                         return true;
@@ -2170,65 +2610,47 @@ Answer questions about the robot concisely and helpfully. Keep responses to 2–
                 return false;
 
             } else if (screen === 'screen-observe') {
-                if (/\b(pause|stop|freeze|halt)\b/.test(transcript)) { toggleObsPause(); return true; }
+                if (/\b(pause|stop|freeze)\b/.test(transcript)) { toggleObsPause(); return true; }
                 if (/\b(resume|play|continue|unpause)\b/.test(transcript)) { if (obsPaused) toggleObsPause(); return true; }
                 if (/\b(next|skip)\b/.test(transcript)) {
                     if (obsStep < obsSteps.length - 1) { obsStep++; obsElapsed = 0; renderObsStep(obsStep); }
                     return true;
                 }
                 if (/\b(start|begin|go|patrol)\b/.test(transcript)) { startObserveSequence(); return true; }
-
-                // Translate spoken directions into f/b/l/r
                 const parsedDirs = normalizeDirections(transcript);
                 if (parsedDirs.length > 0) {
                     document.getElementById('obs-commands').value = parsedDirs;
-                    continuousListen = false;
-                    stopGlobalMic();
-                    setTimeout(startObserveSequence, 500); // Auto-start the sequence!
+                    continuousListen = false; stopGlobalMic();
+                    setTimeout(startObserveSequence, 500);
                     return true;
                 }
 
             } else if (screen === 'screen-result') {
-                if (/\b(again|retry|repeat|try again|redo)\b/.test(transcript)) { goTo('screen-test'); return true; }
+                if (/\b(again|retry|repeat|redo)\b/.test(transcript)) { goTo('screen-test'); return true; }
 
             } else if (screen === 'screen-chat') {
                 if (!/\b(back|menu|home)\b/.test(transcript)) {
                     document.getElementById('chat-input').value = transcript;
-                    sendChat();
-                    return true;
+                    sendChat(); return true;
                 }
             }
-
             return false;
         }
 
-        // Chat mic button — voice input specifically for the Gemini Chatbot
-        function toggleChatMic() {
-            if (chatMicActive) stopChatMic();
-            else startChatMic();
-        }
+        // Chat mic
+        function toggleChatMic() { if (chatMicActive) stopChatMic(); else startChatMic(); }
 
         function startChatMic() {
             const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
             if (!SR) return;
             chatRecognition = buildSpeechRecognition();
-            chatRecognition.onstart = () => {
-                chatMicActive = true;
-                document.getElementById('chat-mic-btn').classList.add('listening');
-            };
+            chatRecognition.onstart = () => { chatMicActive = true; document.getElementById('chat-mic-btn').classList.add('listening'); };
             chatRecognition.onresult = (e) => {
-                const transcript = e.results[0][0].transcript.trim();
-                document.getElementById('chat-input').value = transcript;
+                document.getElementById('chat-input').value = e.results[0][0].transcript.trim();
                 sendChat();
             };
-            chatRecognition.onend = () => {
-                chatMicActive = false;
-                document.getElementById('chat-mic-btn').classList.remove('listening');
-            };
-            chatRecognition.onerror = () => {
-                chatMicActive = false;
-                document.getElementById('chat-mic-btn').classList.remove('listening');
-            };
+            chatRecognition.onend = () => { chatMicActive = false; document.getElementById('chat-mic-btn').classList.remove('listening'); };
+            chatRecognition.onerror = () => { chatMicActive = false; document.getElementById('chat-mic-btn').classList.remove('listening'); };
             chatRecognition.start();
         }
 
@@ -2242,14 +2664,15 @@ Answer questions about the robot concisely and helpfully. Keep responses to 2–
         // INIT
         // ════════════════════════════════════════════════════
         window.addEventListener('load', () => {
-            ['obs-grid', 'test-grid', 'res-grid'].forEach(id =>
-                buildMiniGrid(document.getElementById(id))
-            );
+            ['obs-grid', 'test-grid', 'res-grid'].forEach(id => buildMiniGrid(document.getElementById(id)));
             const sz = gridTotalSize();
             ['obs-svg', 'test-svg', 'res-svg'].forEach(id => {
                 const el = document.getElementById(id);
                 el.setAttribute('width', sz); el.setAttribute('height', sz);
             });
+            // Init traction info on load
+            updateTractionInfo('obs');
+            updateTractionInfo('test');
         });
     </script>
 </body>
