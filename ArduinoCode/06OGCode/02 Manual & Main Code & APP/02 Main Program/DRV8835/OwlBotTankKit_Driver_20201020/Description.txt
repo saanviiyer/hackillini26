@@ -1,0 +1,35 @@
+
+Edited by Changhua 2019/12/04 
+
+*Special Note: ... \OwlBotTankKit_Driver_20201020\addLibrary Device Library (Be sure to use the library files provided in this directory when compiling and developing this project to avoid functional differences.)
+
+Case: OwlBot Tank Kit：20200616
+
+Note from the developer: Adapted for Arduino Nano environment.
+
+---------------------------------------------------------------------------------------------------------------------------------
+1# Target control object: Hardware
+Input sensors: Tracking module (IR), obstacle avoidance module (Ultrasonic), yaw feedback (MPU6050) share a set of IIC.
+Output control: motor, RGB_LED*5, 8*16LED, buzzer
+---------------------------------------------------------------------------------------------------------------------------------
+
+
+---------------------------------------------------------------------------------------------------------------------------------
+2# Project core files: Software (bare-metal front and back-end programs: no OS)
+The project code can be read in the following order.
+---------------------------------------------------------------------------------------------------------------------------------
+(1) Application layer: /* Entry program file: setup() device initial , loop() background polling */
+OwlBotTankKit_Driver_20201020.ino  
+
+(2) Logic layer: /* Logic program file: specific functional requirements control logic implementation */
+ApplicationFunctionSet_xxx0.cpp  
+ApplicationFunctionSet_xxx0.h
+
+(3) Driver layer: /* Driver file: Target device driver implementation */
+DeviceDriverSet_xxx0.cpp
+
+---------------------------------------------------------------------------------------------------------------------------------
+*Note: The project has modified the T0 timer configuration in order to adapt the PWM control frequency of the motor driver output, and the two standard functions of delay() and millis() are based on the T0 timer, so please use them carefully.
+(Custom _delay() and _millis() can be used)
+
+

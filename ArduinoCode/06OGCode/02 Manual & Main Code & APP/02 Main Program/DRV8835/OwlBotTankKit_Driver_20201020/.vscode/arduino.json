@@ -1,0 +1,6 @@
+{
+    "port": "COM13",
+    "board": "arduino:avr:nano",
+    "configuration": "cpu=atmega328",
+    "sketch": "OwlBotTankKit_Driver_20200706.ino"
+}

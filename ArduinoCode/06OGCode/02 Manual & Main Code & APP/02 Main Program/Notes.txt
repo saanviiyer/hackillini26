@@ -1,0 +1,6 @@
+Added note: as the space occupied by the code of this project is nearly 
+saturated, in order to prevent the compilation memory from exceeding, 
+the developer suggests to use Arduino ide version 1.8.10.
+
+If you are using the latest version of Arduino IDE, 
+please selectBoard£º¡°Arduino Uno¡±¡£
