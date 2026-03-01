@@ -96,9 +96,9 @@ export async function onRequestPost(context) {
 
         const url = `https://${env.SNOWFLAKE_ACCOUNT}.snowflakecomputing.com/api/v2/statements`;
 
-        const sqlQuery = `INSERT INTO MISSION_HISTORY (MISSION_TYPE, TERRAIN, TILT_DEGREES, AQI_INDEX, TRACTION_SETTING) 
-                         VALUES ('${missionData.mission_type}', '${missionData.terrain_classification}', 
-                         ${missionData.tilt_degrees}, ${missionData.air_quality_aqi}, '${missionData.traction_setting}')`;
+        const sqlQuery = `INSERT INTO MISSION_HISTORY (MISSION_ID, MISSION_TYPE, TERRAIN, TILT_DEGREES, AQI_INDEX, TRACTION_SETTING) 
+                 VALUES (UUID_STRING(), '${missionData.mission_type}', '${missionData.terrain_classification}', 
+                 ${missionData.tilt_degrees}, ${missionData.air_quality_aqi}, '${missionData.traction_setting}')`;
 
         const response = await fetch(url, {
             method: 'POST',
